@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -28,10 +29,16 @@ func init() {
 		{
 			Name:    "init",
 			Summary: "Initialize issue tracker in current directory",
-			Usage: `usage: work init
+			Usage: `usage: work init [flags]
 
 Initialize a new work tracker in the current directory.
-Creates a .work/ directory to store issues and configuration.`,
+Creates a .work/ directory to store issues and configuration.
+Also creates a Claude Code SessionStart hook so that Claude
+auto-discovers the work CLI.
+
+Flags:
+  --local    Write hook to .claude/settings.local.json (gitignored)
+             instead of .claude/settings.json (committable)`,
 			Run: cmdInit,
 		},
 		{
@@ -424,6 +431,8 @@ func printHelp(w *os.File) {
 }
 
 func cmdInit() {
+	_, flags := parseFlags(os.Args[2:])
+
 	wd, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
@@ -435,6 +444,50 @@ func cmdInit() {
 		os.Exit(1)
 	}
 	fmt.Println("Initialized work tracker in .work/")
+
+	// Set up Claude Code SessionStart hook.
+	settingsFile := "settings.json"
+	if _, ok := flags["local"]; ok {
+		settingsFile = "settings.local.json"
+	}
+	claudeDir := filepath.Join(wd, ".claude")
+	if err := os.MkdirAll(claudeDir, 0o755); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not create .claude/: %v\n", err)
+		return
+	}
+	settingsPath := filepath.Join(claudeDir, settingsFile)
+
+	// Merge into existing settings if the file already exists.
+	existing := make(map[string]any)
+	if data, err := os.ReadFile(settingsPath); err == nil {
+		json.Unmarshal(data, &existing)
+	}
+	existing["hooks"] = map[string]any{
+		"SessionStart": []any{
+			map[string]any{
+				"matcher": "",
+				"hooks": []any{
+					map[string]any{
+						"type":    "command",
+						"command": "work instructions 2>/dev/null || true",
+					},
+				},
+			},
+		},
+	}
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetIndent("", "  ")
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(existing); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not marshal settings: %v\n", err)
+		return
+	}
+	if err := os.WriteFile(settingsPath, buf.Bytes(), 0o644); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not write %s: %v\n", settingsFile, err)
+		return
+	}
+	fmt.Printf("Created Claude Code hook in .claude/%s\n", settingsFile)
 }
 
 func loadTracker() *tracker.Tracker {
@@ -458,6 +511,7 @@ var booleanFlags = map[string]bool{
 	"all-done":   true,
 	"no-compact": true,
 	"static":     true,
+	"local":      true,
 }
 
 // parseFlags extracts --key=value, --key value, and -h pairs from args.
