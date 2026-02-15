@@ -1,0 +1,28 @@
+{
+  "states": [
+    "open",
+    "active",
+    "done",
+    "cancelled"
+  ],
+  "transitions": {
+    "active": [
+      "done",
+      "cancelled",
+      "open"
+    ],
+    "cancelled": [
+      "open"
+    ],
+    "done": [
+      "open"
+    ],
+    "open": [
+      "active",
+      "done",
+      "cancelled"
+    ]
+  },
+  "default_state": "open",
+  "id_length": 6
+}

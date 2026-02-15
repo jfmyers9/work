@@ -1,0 +1,12 @@
+{
+  "id": "ff2801",
+  "title": "Phase 3: Epics and parent-child relationships",
+  "status": "done",
+  "priority": 2,
+  "labels": [
+    "tracker-personas"
+  ],
+  "created": "2026-02-15T20:36:48.482154Z",
+  "updated": "2026-02-15T20:53:56.799769Z",
+  "description": "## Acceptance Criteria\n\n- [ ] Add `ParentID` field to Issue model\n- [ ] Add `--parent` flag to `work create`\n- [ ] Add `work link \u003cchild-id\u003e --parent \u003cepic-id\u003e` command\n- [ ] Add `work unlink \u003cchild-id\u003e` command\n- [ ] Validate: parent must exist, no circular refs, single-level\n      only (no grandchildren)\n- [ ] `work show \u003cid\u003e` displays children + completion stats when\n      issue has children\n- [ ] Add `--parent \u003cid\u003e` filter to `work list`\n- [ ] Add `--roots` filter to `work list` (no parent)\n- [ ] Tests for linking, validation, display, filtering\n\n## Context\nPart of: Issue tracker personas \u0026 workflows\nDepends on: Phase 2"
+}
