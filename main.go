@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jim/issues/internal/model"
-	"github.com/jim/issues/internal/tracker"
+	"github.com/jfmyers9/work/internal/model"
+	"github.com/jfmyers9/work/internal/tracker"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: issues <command> [args]")
+		printHelp()
 		os.Exit(1)
 	}
 
@@ -57,6 +57,27 @@ func main() {
 	}
 }
 
+func printHelp() {
+	fmt.Fprintln(os.Stderr, `usage: work <command> [args]
+
+Commands:
+  init        Initialize issue tracker in current directory
+  create      Create a new issue
+  show        Show issue details
+  list        List issues
+  edit        Edit an issue
+  status      Change issue status
+  close       Close an issue (set status to done)
+  cancel      Cancel an issue
+  reopen      Reopen an issue
+  start       Start working on an issue (set status to active)
+  comment     Add a comment to an issue
+  log         Show issue event log
+  history     Show all events across issues
+  export      Export issues as JSON
+  completion  Generate shell completions (bash|zsh)`)
+}
+
 func cmdInit() {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -68,7 +89,7 @@ func cmdInit() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Initialized issue tracker in .issues/")
+	fmt.Println("Initialized work tracker in .issues/")
 }
 
 func loadTracker() *tracker.Tracker {
@@ -110,7 +131,7 @@ func cmdCreate() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: issues create <title> [--description ...] [--priority N] [--labels a,b] [--assignee name]")
+		fmt.Fprintln(os.Stderr, "usage: work create <title> [--description ...] [--priority N] [--labels a,b] [--assignee name]")
 		os.Exit(1)
 	}
 	title := positional[0]
@@ -144,7 +165,7 @@ func cmdShow() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: issues show <id-or-prefix> [--format=json]")
+		fmt.Fprintln(os.Stderr, "usage: work show <id-or-prefix> [--format=json]")
 		os.Exit(1)
 	}
 	prefix := positional[0]
@@ -245,7 +266,7 @@ func cmdEdit() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: issues edit <id-or-prefix> [--title ...] [--description ...] [--priority N] [--labels a,b] [--assignee name]")
+		fmt.Fprintln(os.Stderr, "usage: work edit <id-or-prefix> [--title ...] [--description ...] [--priority N] [--labels a,b] [--assignee name]")
 		os.Exit(1)
 	}
 	prefix := positional[0]
@@ -316,7 +337,7 @@ func cmdEdit() {
 
 func cmdStatus() {
 	if len(os.Args) < 4 {
-		fmt.Fprintln(os.Stderr, "usage: issues status <id-or-prefix> <state>")
+		fmt.Fprintln(os.Stderr, "usage: work status <id-or-prefix> <state>")
 		os.Exit(1)
 	}
 	prefix := os.Args[2]
@@ -375,7 +396,7 @@ func cmdLog() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: issues log <id-or-prefix> [--since DATE] [--until DATE]")
+		fmt.Fprintln(os.Stderr, "usage: work log <id-or-prefix> [--since DATE] [--until DATE]")
 		os.Exit(1)
 	}
 	t := loadTracker()
@@ -473,7 +494,7 @@ func cmdHistory() {
 
 func cmdComment() {
 	if len(os.Args) < 4 {
-		fmt.Fprintln(os.Stderr, "usage: issues comment <id-or-prefix> <text>")
+		fmt.Fprintln(os.Stderr, "usage: work comment <id-or-prefix> <text>")
 		os.Exit(1)
 	}
 	prefix := os.Args[2]
@@ -509,7 +530,7 @@ func cmdExport() {
 
 func cmdCompletion() {
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "usage: issues completion <bash|zsh>")
+		fmt.Fprintln(os.Stderr, "usage: work completion <bash|zsh>")
 		os.Exit(1)
 	}
 	switch os.Args[2] {
@@ -542,7 +563,7 @@ func issueIDs() []string {
 }
 
 func printBashCompletion() {
-	fmt.Print(`_issues() {
+	fmt.Print(`_work() {
     local cur prev commands
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -571,17 +592,17 @@ func printBashCompletion() {
             ;;
     esac
 }
-complete -F _issues issues
+complete -F _work work
 `)
 }
 
 func printZshCompletion() {
-	fmt.Print(`#compdef issues
+	fmt.Print(`#compdef work
 
-_issues() {
+_work() {
     local -a commands
     commands=(
-        'init:Initialize issue tracker'
+        'init:Initialize work tracker'
         'create:Create a new issue'
         'show:Show issue details'
         'list:List issues'
@@ -615,13 +636,13 @@ _issues() {
     esac
 }
 
-_issues "$@"
+_work "$@"
 `)
 }
 
 func cmdShortcut(targetStatus string) {
 	if len(os.Args) < 3 {
-		fmt.Fprintf(os.Stderr, "usage: issues %s <id-or-prefix>\n", os.Args[1])
+		fmt.Fprintf(os.Stderr, "usage: work %s <id-or-prefix>\n", os.Args[1])
 		os.Exit(1)
 	}
 	prefix := os.Args[2]

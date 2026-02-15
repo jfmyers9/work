@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jim/issues/internal/model"
+	"github.com/jfmyers9/work/internal/model"
 )
 
 // FilterOptions specifies criteria for filtering issues. All non-zero fields

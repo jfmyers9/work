@@ -1,3 +1,3 @@
-module github.com/jim/issues
+module github.com/jfmyers9/work
 
 go 1.25.0

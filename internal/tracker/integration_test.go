@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/jim/issues/internal/model"
+	"github.com/jfmyers9/work/internal/model"
 )
 
 func TestFullWorkflow(t *testing.T) {

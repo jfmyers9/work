@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jim/issues/internal/model"
+	"github.com/jfmyers9/work/internal/model"
 )
 
 func TestConfigRoundTrip(t *testing.T) {
