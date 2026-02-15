@@ -87,7 +87,8 @@ work list --priority=1 --sort=updated
 ```
 
 Filters combine with AND logic. Sort options: `priority` (ascending),
-`updated` (newest first), `created` (newest first, default).
+`updated` (newest first), `created` (newest first, default), `title`
+(alphabetically).
 
 ### History
 

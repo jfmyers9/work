@@ -88,7 +88,7 @@ Commands:
   link        Link a child issue to a parent
   unlink      Remove parent from a child issue
   log         Show issue event log
-  history     Show all events across issues
+  history     Show all events across issues (--label, --since, --until)
   export      Export issues as JSON
   completion  Generate shell completions (bash|zsh)`)
 }
@@ -270,13 +270,23 @@ func cmdShow() {
 			}
 		}
 	}
+
+	if len(issue.Comments) > 0 {
+		fmt.Printf("\nComments:\n")
+		for _, comment := range issue.Comments {
+			fmt.Printf("  [%s] (%s): %s\n",
+				comment.Created.Format("2006-01-02 15:04:05"),
+				comment.By,
+				comment.Text)
+		}
+	}
 }
 
 func cmdList() {
 	_, flags := parseFlags(os.Args[2:])
 
 	t := loadTracker()
-	issues, err := t.ListIssues()
+	allIssues, err := t.ListIssues()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
@@ -308,7 +318,7 @@ func cmdList() {
 	if _, ok := flags["roots"]; ok {
 		opts.RootsOnly = true
 	}
-	issues = tracker.FilterIssues(issues, opts)
+	issues := tracker.FilterIssues(allIssues, opts)
 	tracker.SortIssues(issues, flags["sort"])
 
 	if flags["format"] == "json" {
@@ -321,18 +331,41 @@ func cmdList() {
 		return
 	}
 
+	if flags["format"] == "short" {
+		for _, issue := range issues {
+			fmt.Printf("%s %s\n", issue.ID, issue.Title)
+		}
+		return
+	}
+
 	if len(issues) == 0 {
 		fmt.Println("No issues found")
 		return
 	}
 
-	fmt.Printf("%-8s %-10s %-10s %-8s %s\n", "ID", "STATUS", "TYPE", "PRIORITY", "TITLE")
+	childCounts := make(map[string]struct{ done, total int })
+	for _, issue := range allIssues {
+		if issue.ParentID != "" {
+			c := childCounts[issue.ParentID]
+			c.total++
+			if issue.Status == "done" || issue.Status == "cancelled" {
+				c.done++
+			}
+			childCounts[issue.ParentID] = c
+		}
+	}
+
+	fmt.Printf("%-8s %-10s %-10s %-8s %-10s %s\n", "ID", "STATUS", "TYPE", "PRIORITY", "CHILDREN", "TITLE")
 	for _, issue := range issues {
 		title := issue.Title
 		if len(title) > 50 {
 			title = title[:47] + "..."
 		}
-		fmt.Printf("%-8s %-10s %-10s %-8d %s\n", issue.ID, issue.Status, issue.Type, issue.Priority, title)
+		children := ""
+		if c, ok := childCounts[issue.ID]; ok {
+			children = fmt.Sprintf("%d/%d", c.done, c.total)
+		}
+		fmt.Printf("%-8s %-10s %-10s %-8d %-10s %s\n", issue.ID, issue.Status, issue.Type, issue.Priority, children, title)
 	}
 }
 
@@ -539,6 +572,30 @@ func cmdHistory() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
+	}
+
+	if label, ok := flags["label"]; ok {
+		issues, err := t.ListIssues()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		validIDs := make(map[string]bool)
+		for _, issue := range issues {
+			for _, l := range issue.Labels {
+				if l == label {
+					validIDs[issue.ID] = true
+					break
+				}
+			}
+		}
+		var filtered []tracker.EventWithIssue
+		for _, ev := range all {
+			if validIDs[ev.IssueID] {
+				filtered = append(filtered, ev)
+			}
+		}
+		all = filtered
 	}
 
 	var since, until time.Time

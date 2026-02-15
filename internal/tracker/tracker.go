@@ -85,7 +85,7 @@ func hasLabel(labels []string, target string) bool {
 
 // SortIssues sorts issues in place by the given field.
 // Supported: "priority" (ascending), "updated" (newest first),
-// "created" (newest first, default).
+// "created" (newest first, default), "title" (alphabetically).
 func SortIssues(issues []model.Issue, sortBy string) {
 	switch sortBy {
 	case "priority":
@@ -95,6 +95,10 @@ func SortIssues(issues []model.Issue, sortBy string) {
 	case "updated":
 		sort.Slice(issues, func(i, j int) bool {
 			return issues[i].Updated.After(issues[j].Updated)
+		})
+	case "title":
+		sort.Slice(issues, func(i, j int) bool {
+			return strings.ToLower(issues[i].Title) < strings.ToLower(issues[j].Title)
 		})
 	default: // "created" or empty
 		sort.Slice(issues, func(i, j int) bool {
