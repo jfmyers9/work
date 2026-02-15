@@ -63,3 +63,12 @@
 {"id":"d28a65","title":"Phase 2: Add dynamic state","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:07.672214Z","closed":"2026-02-15T22:00:22.101055Z"}
 {"id":"91ce0b","title":"Phase 3: Create hook config","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:09.080376Z","closed":"2026-02-15T22:00:40.640202Z"}
 {"id":"06a484","title":"Phase 4: Iterate on content","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:15.966363Z","closed":"2026-02-15T22:00:46.260796Z"}
+{"id":"37dd71","title":"Explore: Migrate CLI to Cobra framework","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:06:00.086422Z","closed":"2026-02-15T22:09:52.134889Z"}
+{"id":"c61164","title":"Phase 1: Add Cobra, create root command + helpers","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:20.648761Z","closed":"2026-02-15T22:17:46.211701Z"}
+{"id":"9bb0c6","title":"Phase 2: Migrate simple commands (no flags)","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:25.094855Z","closed":"2026-02-15T22:20:34.106475Z"}
+{"id":"8ba7db","title":"Phase 3: Migrate flag-heavy commands","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:29.26254Z","closed":"2026-02-15T22:25:44.555885Z"}
+{"id":"2af95f","title":"Phase 4: Migrate instructions command","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:33.405678Z","closed":"2026-02-15T22:29:07.042275Z"}
+{"id":"e53f57","title":"Phase 5: Replace shell completions with Cobra built-ins","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:38.541348Z","closed":"2026-02-15T22:29:07.055595Z"}
+{"id":"288c9a","title":"Phase 6: Error handling cleanup","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:42.910011Z","closed":"2026-02-15T22:33:05.682003Z"}
+{"id":"8679a3","title":"Phase 7: Delete old code, final verification","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:47.866483Z","closed":"2026-02-15T22:33:50.318864Z"}
+{"id":"567674","title":"Plan: Migrate CLI to Cobra","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:15.275938Z","closed":"2026-02-15T22:33:53.539135Z"}

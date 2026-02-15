@@ -1,0 +1,13 @@
+{
+  "id": "37dd71",
+  "title": "Explore: Migrate CLI to Cobra framework",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-15T22:06:00.086422Z",
+  "updated": "2026-02-15T22:09:52.134889Z",
+  "description": "# Explore: Migrate CLI to Cobra Framework"
+}

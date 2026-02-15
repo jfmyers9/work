@@ -1,0 +1,14 @@
+{
+  "id": "e53f57",
+  "title": "Phase 5: Replace shell completions with Cobra built-ins",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "cobra-migration"
+  ],
+  "parent_id": "567674",
+  "created": "2026-02-15T22:09:38.541348Z",
+  "updated": "2026-02-15T22:29:07.055595Z",
+  "description": "## Acceptance Criteria"
+}

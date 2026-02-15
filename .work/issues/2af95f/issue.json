@@ -1,0 +1,14 @@
+{
+  "id": "2af95f",
+  "title": "Phase 4: Migrate instructions command",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "cobra-migration"
+  ],
+  "parent_id": "567674",
+  "created": "2026-02-15T22:09:33.405678Z",
+  "updated": "2026-02-15T22:29:07.042275Z",
+  "description": "## Acceptance Criteria"
+}
