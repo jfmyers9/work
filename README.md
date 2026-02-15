@@ -54,6 +54,9 @@ work export                # All issues as JSON array to stdout
 Issue IDs are 6-character hex strings. All commands accept unique
 prefixes — `a3f` resolves to `a3f8b2` if unambiguous.
 
+If an issue has been purged by `gc`, `work show` will tell you
+and point to `work completed` for history.
+
 ### Editing
 
 ```
@@ -135,6 +138,34 @@ work list --format=short   # ID and title only
 work export                # Always JSON
 ```
 
+### Maintenance
+
+```
+work compact <id>          # Strip description/comments/history
+work compact --all-done    # Compact all done/cancelled issues
+work completed             # Show completion history from log
+work completed --since=2026-01-01
+work completed --label=bug --type=feature --format=json
+work gc                    # Purge issues completed 30+ days ago
+work gc --days 7           # Custom age threshold
+```
+
+Closing or cancelling an issue auto-compacts it. Use
+`--no-compact` to preserve full history:
+
+```
+work close <id> --no-compact
+work cancel <id> --no-compact
+```
+
+### Help
+
+```
+work --help                # List all commands
+work help <command>        # Detailed help for a command
+work <command> --help      # Same as above
+```
+
 ### Shell Completions
 
 ```
@@ -162,6 +193,7 @@ Identity is resolved in order:
 ```
 .work/
   config.json                # States, transitions, defaults
+  log.jsonl                  # Completion log (compacted/purged issues)
   issues/
     <6-char-hex>/
       issue.json             # Current issue state (mutable)
