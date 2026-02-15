@@ -34,7 +34,6 @@ type Event struct {
 }
 
 type Config struct {
-	States       []string            `json:"states"`
 	Transitions  map[string][]string `json:"transitions"`
 	DefaultState string              `json:"default_state"`
 	Types        []string            `json:"types"`
@@ -44,7 +43,6 @@ type Config struct {
 
 func DefaultConfig() Config {
 	return Config{
-		States: []string{"open", "active", "review", "done", "cancelled"},
 		Transitions: map[string][]string{
 			"open":      {"active", "done", "cancelled"},
 			"active":    {"done", "cancelled", "open", "review"},

@@ -72,3 +72,7 @@
 {"id":"288c9a","title":"Phase 6: Error handling cleanup","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:42.910011Z","closed":"2026-02-15T22:33:05.682003Z"}
 {"id":"8679a3","title":"Phase 7: Delete old code, final verification","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:47.866483Z","closed":"2026-02-15T22:33:50.318864Z"}
 {"id":"567674","title":"Plan: Migrate CLI to Cobra","type":"chore","status":"done","labels":["cobra-migration"],"created":"2026-02-15T22:09:15.275938Z","closed":"2026-02-15T22:33:53.539135Z"}
+{"id":"a7f17e","title":"Explore: config.json necessity","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:36:34.076963Z","closed":"2026-02-15T22:40:32.417245Z"}
+{"id":"0f5874","title":"Phase 1: Protect existing config during re-init","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:26.710364Z","closed":"2026-02-15T22:45:54.514103Z"}
+{"id":"ffa865","title":"Phase 2: Remove dead states field","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:28.321401Z","closed":"2026-02-15T22:46:50.670008Z"}
+{"id":"c985ab","title":"Plan: config.json improvements","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:21.562695Z","closed":"2026-02-15T22:47:10.19947Z"}

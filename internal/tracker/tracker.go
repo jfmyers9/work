@@ -123,15 +123,25 @@ func (t *Tracker) GenerateID() (string, error) {
 }
 
 // Init creates the .work directory structure and writes the default config.
+// If config.json already exists, it is loaded and preserved.
 func Init(root string) (*Tracker, error) {
 	issuesDir := filepath.Join(root, ".work", "issues")
 	if err := os.MkdirAll(issuesDir, 0o755); err != nil {
 		return nil, fmt.Errorf("creating issues dir: %w", err)
 	}
 
-	cfg := model.DefaultConfig()
 	cfgPath := filepath.Join(root, ".work", "config.json")
 
+	// Preserve existing config if present
+	if data, err := os.ReadFile(cfgPath); err == nil {
+		var cfg model.Config
+		if err := json.Unmarshal(data, &cfg); err != nil {
+			return nil, fmt.Errorf("parsing existing config: %w", err)
+		}
+		return &Tracker{Root: root, Config: cfg}, nil
+	}
+
+	cfg := model.DefaultConfig()
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshaling config: %w", err)

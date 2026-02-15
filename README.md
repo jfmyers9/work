@@ -210,7 +210,6 @@ Edit `.work/config.json` to customize states and transitions:
 
 ```json
 {
-  "states": ["open", "active", "review", "done", "cancelled"],
   "transitions": {
     "open": ["active", "done", "cancelled"],
     "active": ["done", "cancelled", "open", "review"],

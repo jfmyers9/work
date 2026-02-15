@@ -28,9 +28,6 @@ func TestConfigRoundTrip(t *testing.T) {
 	if got.IDLength != cfg.IDLength {
 		t.Errorf("id_length: got %d, want %d", got.IDLength, cfg.IDLength)
 	}
-	if len(got.States) != len(cfg.States) {
-		t.Errorf("states count: got %d, want %d", len(got.States), len(cfg.States))
-	}
 	for state, targets := range cfg.Transitions {
 		gotTargets, ok := got.Transitions[state]
 		if !ok {
@@ -168,6 +165,49 @@ func TestInit(t *testing.T) {
 	// Tracker config matches
 	if tr.Config.DefaultState != cfg.DefaultState {
 		t.Error("tracker config doesn't match written config")
+	}
+}
+
+func TestInit_PreservesExistingConfig(t *testing.T) {
+	root := t.TempDir()
+
+	// First init — creates default config
+	tr1, err := Init(root)
+	if err != nil {
+		t.Fatalf("first init: %v", err)
+	}
+
+	// Modify the config on disk (change IDLength to distinguish it)
+	cfgPath := filepath.Join(root, ".work", "config.json")
+	tr1.Config.IDLength = 10
+	data, err := json.MarshalIndent(tr1.Config, "", "  ")
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if err := os.WriteFile(cfgPath, data, 0o644); err != nil {
+		t.Fatalf("write modified config: %v", err)
+	}
+
+	// Second init — should load existing config, not overwrite
+	tr2, err := Init(root)
+	if err != nil {
+		t.Fatalf("second init: %v", err)
+	}
+	if tr2.Config.IDLength != 10 {
+		t.Errorf("id_length: got %d, want 10 (config was overwritten)", tr2.Config.IDLength)
+	}
+
+	// Verify the file on disk is unchanged
+	diskData, err := os.ReadFile(cfgPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	var diskCfg model.Config
+	if err := json.Unmarshal(diskData, &diskCfg); err != nil {
+		t.Fatalf("parse config: %v", err)
+	}
+	if diskCfg.IDLength != 10 {
+		t.Errorf("disk id_length: got %d, want 10", diskCfg.IDLength)
 	}
 }
 
@@ -696,7 +736,6 @@ func TestSetStatus_HistoryEvent(t *testing.T) {
 
 func TestValidateTransition_CustomConfig(t *testing.T) {
 	cfg := model.Config{
-		States: []string{"todo", "doing", "review", "done"},
 		Transitions: map[string][]string{
 			"todo":   {"doing"},
 			"doing":  {"review", "todo"},
