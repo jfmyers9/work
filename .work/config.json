@@ -2,6 +2,7 @@
   "states": [
     "open",
     "active",
+    "review",
     "done",
     "cancelled"
   ],
@@ -9,7 +10,8 @@
     "active": [
       "done",
       "cancelled",
-      "open"
+      "open",
+      "review"
     ],
     "cancelled": [
       "open"
@@ -21,8 +23,18 @@
       "active",
       "done",
       "cancelled"
+    ],
+    "review": [
+      "done",
+      "active"
     ]
   },
   "default_state": "open",
+  "types": [
+    "feature",
+    "bug",
+    "chore"
+  ],
+  "default_type": "feature",
   "id_length": 6
 }

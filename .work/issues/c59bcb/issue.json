@@ -1,0 +1,13 @@
+{
+  "id": "c59bcb",
+  "title": "Phase 4: History filtering by label",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "beads-gap-fixes"
+  ],
+  "created": "2026-02-15T21:00:51.723182Z",
+  "updated": "2026-02-15T21:04:33.394426Z",
+  "description": "## Acceptance Criteria\n\n- [ ] Add --label filter to work history command\n- [ ] Filters events to only issues matching the label\n- [ ] Useful for post-implementation review of grouped work\n\n## Context\nPart of: Beads-to-work gap analysis\nDepends on: Phase 1"
+}

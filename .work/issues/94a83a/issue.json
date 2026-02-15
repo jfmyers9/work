@@ -1,0 +1,13 @@
+{
+  "id": "94a83a",
+  "title": "Phase 1: Title-based sorting for phase ordering",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "beads-gap-fixes"
+  ],
+  "created": "2026-02-15T21:00:44.794366Z",
+  "updated": "2026-02-15T21:02:38.328024Z",
+  "description": "## Acceptance Criteria\n\n- [ ] Add \"title\" as a sort option in SortIssues() in tracker.go\n- [ ] work list --sort=title sorts alphabetically by title\n- [ ] Update help text in main.go\n\n## Context\nPart of: Beads-to-work gap analysis\nDepends on: None (first phase)"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "c4237a",
+  "title": "Phase 2: Show comments inline",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "beads-gap-fixes"
+  ],
+  "created": "2026-02-15T21:00:49.092141Z",
+  "updated": "2026-02-15T21:03:30.219748Z",
+  "description": "## Acceptance Criteria\n\n- [ ] Display comments in work show text output (currently only in JSON)\n- [ ] Show timestamp and author for each comment\n- [ ] One-stop view of plan + notes\n\n## Context\nPart of: Beads-to-work gap analysis\nDepends on: Phase 1"
+}
