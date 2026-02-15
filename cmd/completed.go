@@ -14,6 +14,7 @@ var (
 	completedLabel  string
 	completedType   string
 	completedFormat string
+	completedLast   int
 )
 
 var completedCmd = &cobra.Command{
@@ -70,6 +71,10 @@ var completedCmd = &cobra.Command{
 			entries = filtered
 		}
 
+		if completedLast > 0 && len(entries) > completedLast {
+			entries = entries[len(entries)-completedLast:]
+		}
+
 		if completedFormat == "json" {
 			data, err := json.MarshalIndent(entries, "", "  ")
 			if err != nil {
@@ -100,5 +105,6 @@ func init() {
 	completedCmd.Flags().StringVar(&completedLabel, "label", "", "Filter by label")
 	completedCmd.Flags().StringVar(&completedType, "type", "", "Filter by type")
 	completedCmd.Flags().StringVar(&completedFormat, "format", "", "Output format (json)")
+	completedCmd.Flags().IntVar(&completedLast, "last", 0, "Show only the last N entries")
 	rootCmd.AddCommand(completedCmd)
 }

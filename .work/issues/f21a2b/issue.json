@@ -1,0 +1,12 @@
+{
+  "id": "f21a2b",
+  "title": "Plan: --last N filter for issue listing",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "last-n-filter"
+  ],
+  "created": "2026-02-15T22:59:20.862392Z",
+  "updated": "2026-02-15T23:01:36.802821Z"
+}

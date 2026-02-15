@@ -714,6 +714,18 @@ func (t *Tracker) CompactAllDone() ([]string, error) {
 	return compacted, nil
 }
 
+// PurgeIssue logs an issue to the completion log and removes its directory.
+func (t *Tracker) PurgeIssue(issue model.Issue) error {
+	if err := t.AppendLog(issue); err != nil {
+		return fmt.Errorf("logging %s: %w", issue.ID, err)
+	}
+	dir := filepath.Join(t.Root, ".work", "issues", issue.ID)
+	if err := os.RemoveAll(dir); err != nil {
+		return fmt.Errorf("removing %s: %w", issue.ID, err)
+	}
+	return nil
+}
+
 // GarbageCollect removes issue directories for issues completed
 // more than maxAgeDays ago. Logs each issue before deletion.
 func (t *Tracker) GarbageCollect(maxAgeDays int) ([]string, error) {
@@ -725,12 +737,8 @@ func (t *Tracker) GarbageCollect(maxAgeDays int) ([]string, error) {
 	var purged []string
 	for _, issue := range issues {
 		if (issue.Status == "done" || issue.Status == "cancelled") && issue.Updated.Before(cutoff) {
-			if err := t.AppendLog(issue); err != nil {
-				return purged, fmt.Errorf("logging %s: %w", issue.ID, err)
-			}
-			dir := filepath.Join(t.Root, ".work", "issues", issue.ID)
-			if err := os.RemoveAll(dir); err != nil {
-				return purged, fmt.Errorf("removing %s: %w", issue.ID, err)
+			if err := t.PurgeIssue(issue); err != nil {
+				return purged, err
 			}
 			purged = append(purged, issue.ID)
 		}

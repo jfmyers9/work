@@ -1,0 +1,13 @@
+{
+  "id": "ae4258",
+  "title": "Explore: --last N filter for issue listing",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-15T22:56:34.40934Z",
+  "updated": "2026-02-15T22:59:39.235357Z",
+  "description": "## Explore: --last N filter for issue listing"
+}

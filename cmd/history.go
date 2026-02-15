@@ -13,6 +13,7 @@ var (
 	historyLabel string
 	historySince string
 	historyUntil string
+	historyLast  int
 )
 
 var historyCmd = &cobra.Command{
@@ -81,7 +82,10 @@ limited to 20).`,
 			return nil
 		}
 
-		limit := 20
+		limit := historyLast
+		if limit <= 0 {
+			limit = 20
+		}
 		if len(all) < limit {
 			limit = len(all)
 		}
@@ -100,5 +104,6 @@ func init() {
 	historyCmd.Flags().StringVar(&historyLabel, "label", "", "Filter to issues with this label")
 	historyCmd.Flags().StringVar(&historySince, "since", "", "Show events after date (YYYY-MM-DD or RFC3339)")
 	historyCmd.Flags().StringVar(&historyUntil, "until", "", "Show events before date")
+	historyCmd.Flags().IntVar(&historyLast, "last", 0, "Show only the last N events (default 20)")
 	rootCmd.AddCommand(historyCmd)
 }

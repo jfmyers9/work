@@ -18,6 +18,7 @@ var (
 	listRoots    bool
 	listSort     string
 	listFormat   string
+	listLast     int
 )
 
 var listCmd = &cobra.Command{
@@ -59,6 +60,10 @@ var listCmd = &cobra.Command{
 		}
 		issues := tracker.FilterIssues(allIssues, opts)
 		tracker.SortIssues(issues, listSort)
+
+		if listLast > 0 && len(issues) > listLast {
+			issues = issues[:listLast]
+		}
 
 		if listFormat == "json" {
 			data, err := json.MarshalIndent(issues, "", "  ")
@@ -119,5 +124,6 @@ func init() {
 	listCmd.Flags().BoolVar(&listRoots, "roots", false, "Show only root issues (no parent)")
 	listCmd.Flags().StringVar(&listSort, "sort", "", "Sort by field (title|priority|status|created|updated)")
 	listCmd.Flags().StringVar(&listFormat, "format", "", "Output format (json|short)")
+	listCmd.Flags().IntVar(&listLast, "last", 0, "Show only the last N issues")
 	rootCmd.AddCommand(listCmd)
 }

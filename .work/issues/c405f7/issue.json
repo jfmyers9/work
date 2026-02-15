@@ -1,0 +1,14 @@
+{
+  "id": "c405f7",
+  "title": "Phase 1: Add --last flag to work list",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "last-n-filter"
+  ],
+  "parent_id": "f21a2b",
+  "created": "2026-02-15T22:59:25.724981Z",
+  "updated": "2026-02-15T23:01:36.751836Z",
+  "description": "## Acceptance Criteria"
+}

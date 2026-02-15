@@ -1,0 +1,13 @@
+{
+  "id": "8148f8",
+  "title": "Fix: add --last flag to work gc",
+  "status": "done",
+  "type": "bug",
+  "priority": 2,
+  "labels": [
+    "fix"
+  ],
+  "created": "2026-02-15T23:02:44.755641Z",
+  "updated": "2026-02-15T23:05:08.541751Z",
+  "description": "## Feedback Analysis"
+}

@@ -76,3 +76,22 @@
 {"id":"0f5874","title":"Phase 1: Protect existing config during re-init","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:26.710364Z","closed":"2026-02-15T22:45:54.514103Z"}
 {"id":"ffa865","title":"Phase 2: Remove dead states field","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:28.321401Z","closed":"2026-02-15T22:46:50.670008Z"}
 {"id":"c985ab","title":"Plan: config.json improvements","type":"chore","status":"done","labels":["config-improvements"],"created":"2026-02-15T22:40:21.562695Z","closed":"2026-02-15T22:47:10.19947Z"}
+{"id":"ae4258","title":"Explore: --last N filter for issue listing","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:56:34.40934Z","closed":"2026-02-15T22:59:39.235357Z"}
+{"id":"c405f7","title":"Phase 1: Add --last flag to work list","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:25.724981Z","closed":"2026-02-15T23:01:36.751836Z"}
+{"id":"b79f5c","title":"Phase 2: Tests","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:30.222268Z","closed":"2026-02-15T23:01:36.769529Z"}
+{"id":"ba454e","title":"Phase 3: Extend to other commands","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:31.839193Z","closed":"2026-02-15T23:01:36.786001Z"}
+{"id":"f21a2b","title":"Plan: --last N filter for issue listing","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:20.862392Z","closed":"2026-02-15T23:01:36.802821Z"}
+{"id":"8148f8","title":"Fix: add --last flag to work gc","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T23:02:44.755641Z","closed":"2026-02-15T23:05:08.541751Z"}
+{"id":"91ce0b","title":"Phase 3: Create hook config","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:09.080376Z","closed":"2026-02-15T22:00:40.640202Z"}
+{"id":"d28a65","title":"Phase 2: Add dynamic state","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:07.672214Z","closed":"2026-02-15T22:00:22.101055Z"}
+{"id":"75f451","title":"Phase 1: Add instructions subcommand","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:06.744522Z","closed":"2026-02-15T22:00:22.086361Z"}
+{"id":"aa716c","title":"Explore: Claude Code hook command for binary usage instructions","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:55:29.664883Z","closed":"2026-02-15T21:58:20.065243Z"}
+{"id":"d28e8e","title":"Phase 3: Update storage layout section","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:20.439981Z","closed":"2026-02-15T21:40:33.432203Z"}
+{"id":"71048c","title":"Phase 2: Document missing features","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:19.273969Z","closed":"2026-02-15T21:40:33.401967Z"}
+{"id":"15b807","title":"Phase 1: Add missing command documentation","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:17.652936Z","closed":"2026-02-15T21:40:33.368359Z"}
+{"id":"ba0eda","title":"Fix: README missing compact, gc, completed, and help docs","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:38:13.691809Z","closed":"2026-02-15T21:39:24.326488Z"}
+{"id":"019056","title":"Phase 5: ListIssues index","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:42.426642Z","closed":"2026-02-15T21:33:41.690485Z"}
+{"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
+{"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
+{"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
+{"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
