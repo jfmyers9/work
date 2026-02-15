@@ -9,5 +9,5 @@
   ],
   "created": "2026-02-15T21:24:42.426642Z",
   "updated": "2026-02-15T21:33:41.690485Z",
-  "description": "## Acceptance Criteria\n- [ ] Maintain `.work/index.json` with lightweight metadata\n- [ ] `ListIssues()` reads index instead of scanning dirs\n- [ ] Add `work reindex` command to rebuild index\n- [ ] Only needed if \u003e500 issues — can defer\n\n## Context\nPart of: .work/issues bloat prevention\nDepends on: Phase 1 (compact-on-close)"
+  "description": "## Acceptance Criteria"
 }

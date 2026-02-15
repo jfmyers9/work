@@ -48,3 +48,13 @@
 {"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
 {"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
 {"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
+{"id":"ba0eda","title":"Fix: README missing compact, gc, completed, and help docs","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:38:13.691809Z","closed":"2026-02-15T21:39:24.326488Z"}
+{"id":"019056","title":"Phase 5: ListIssues index","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:42.426642Z","closed":"2026-02-15T21:33:41.690485Z"}
+{"id":"15b807","title":"Phase 1: Add missing command documentation","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:17.652936Z","closed":"2026-02-15T21:40:33.368359Z"}
+{"id":"71048c","title":"Phase 2: Document missing features","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:19.273969Z","closed":"2026-02-15T21:40:33.401967Z"}
+{"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
+{"id":"ba0eda","title":"Fix: README missing compact, gc, completed, and help docs","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:38:13.691809Z","closed":"2026-02-15T21:39:24.326488Z"}
+{"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
+{"id":"d28e8e","title":"Phase 3: Update storage layout section","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:20.439981Z","closed":"2026-02-15T21:40:33.432203Z"}
+{"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
+{"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
