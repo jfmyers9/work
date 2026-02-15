@@ -125,8 +125,8 @@ func TestFullWorkflow(t *testing.T) {
 	if events[1].From != "open" || events[1].To != "active" {
 		t.Errorf("start event: from=%q to=%q", events[1].From, events[1].To)
 	}
-	if events[2].Text != "Investigating the root cause" {
-		t.Errorf("comment event text: got %q", events[2].Text)
+	if events[2].Op != "comment" {
+		t.Errorf("comment event op: got %q, want comment", events[2].Op)
 	}
 	if events[3].From != "active" || events[3].To != "done" {
 		t.Errorf("close event: from=%q to=%q", events[3].From, events[3].To)
@@ -231,11 +231,11 @@ func TestAddComment(t *testing.T) {
 	if len(events) != 3 {
 		t.Fatalf("events: got %d, want 3", len(events))
 	}
-	if events[1].Op != "comment" || events[1].Text != "First comment" {
-		t.Errorf("event 1: op=%q text=%q", events[1].Op, events[1].Text)
+	if events[1].Op != "comment" {
+		t.Errorf("event 1: got op=%q, want comment", events[1].Op)
 	}
-	if events[2].Op != "comment" || events[2].Text != "Second comment" {
-		t.Errorf("event 2: op=%q text=%q", events[2].Op, events[2].Text)
+	if events[2].Op != "comment" {
+		t.Errorf("event 2: got op=%q, want comment", events[2].Op)
 	}
 
 	// Updated timestamp should have advanced

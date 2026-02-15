@@ -440,7 +440,6 @@ func (t *Tracker) AddComment(id, text, user string) (model.Issue, error) {
 	event := model.Event{
 		Timestamp: now,
 		Op:        "comment",
-		Text:      text,
 		By:        user,
 	}
 	if err := t.AppendEvent(id, event); err != nil {
@@ -556,4 +555,175 @@ func (t *Tracker) ListIssues() ([]model.Issue, error) {
 		issues = append(issues, issue)
 	}
 	return issues, nil
+}
+
+// LogEntry represents a completed issue in the completion log.
+type LogEntry struct {
+	ID      string    `json:"id"`
+	Title   string    `json:"title"`
+	Type    string    `json:"type"`
+	Status  string    `json:"status"`
+	Labels  []string  `json:"labels,omitempty"`
+	Created time.Time `json:"created"`
+	Closed  time.Time `json:"closed"`
+}
+
+// AppendLog writes a one-line JSON entry to .work/log.jsonl.
+func (t *Tracker) AppendLog(issue model.Issue) error {
+	entry := LogEntry{
+		ID:      issue.ID,
+		Title:   issue.Title,
+		Type:    issue.Type,
+		Status:  issue.Status,
+		Labels:  issue.Labels,
+		Created: issue.Created,
+		Closed:  issue.Updated,
+	}
+	path := filepath.Join(t.Root, ".work", "log.jsonl")
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return fmt.Errorf("opening log: %w", err)
+	}
+	defer f.Close()
+	data, err := json.Marshal(entry)
+	if err != nil {
+		return fmt.Errorf("marshaling log entry: %w", err)
+	}
+	_, err = fmt.Fprintf(f, "%s\n", data)
+	return err
+}
+
+// LoadLog reads all entries from .work/log.jsonl.
+func (t *Tracker) LoadLog() ([]LogEntry, error) {
+	path := filepath.Join(t.Root, ".work", "log.jsonl")
+	f, err := os.Open(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("opening log: %w", err)
+	}
+	defer f.Close()
+	var entries []LogEntry
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		var entry LogEntry
+		if err := json.Unmarshal(scanner.Bytes(), &entry); err != nil {
+			return nil, fmt.Errorf("parsing log entry: %w", err)
+		}
+		entries = append(entries, entry)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("reading log: %w", err)
+	}
+	return entries, nil
+}
+
+// CompactIssue strips a completed issue to minimal metadata.
+// Logs to .work/log.jsonl, truncates description, clears comments,
+// and compacts history to create + close events only.
+func (t *Tracker) CompactIssue(id string) error {
+	issue, err := t.LoadIssue(id)
+	if err != nil {
+		return err
+	}
+	if issue.Status != "done" && issue.Status != "cancelled" {
+		return fmt.Errorf("can only compact done/cancelled issues (current: %s)", issue.Status)
+	}
+
+	if err := t.AppendLog(issue); err != nil {
+		return fmt.Errorf("appending to log: %w", err)
+	}
+
+	if desc := issue.Description; desc != "" {
+		if idx := strings.IndexByte(desc, '\n'); idx >= 0 {
+			issue.Description = desc[:idx]
+		}
+		if len(issue.Description) > 120 {
+			issue.Description = issue.Description[:120]
+		}
+	}
+
+	issue.Comments = nil
+	if err := t.SaveIssue(issue); err != nil {
+		return err
+	}
+
+	return t.compactHistory(id)
+}
+
+func (t *Tracker) compactHistory(id string) error {
+	events, err := t.LoadEvents(id)
+	if err != nil {
+		return err
+	}
+	if len(events) == 0 {
+		return nil
+	}
+
+	var compacted []model.Event
+	compacted = append(compacted, events[0])
+	for i := len(events) - 1; i > 0; i-- {
+		if events[i].Op == "status" && (events[i].To == "done" || events[i].To == "cancelled") {
+			compacted = append(compacted, events[i])
+			break
+		}
+	}
+
+	path := filepath.Join(t.Root, ".work", "issues", id, "history.jsonl")
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("rewriting history: %w", err)
+	}
+	defer f.Close()
+	for _, ev := range compacted {
+		data, err := json.Marshal(ev)
+		if err != nil {
+			return fmt.Errorf("marshaling event: %w", err)
+		}
+		fmt.Fprintf(f, "%s\n", data)
+	}
+	return nil
+}
+
+// CompactAllDone compacts all done/cancelled issues.
+func (t *Tracker) CompactAllDone() ([]string, error) {
+	issues, err := t.ListIssues()
+	if err != nil {
+		return nil, err
+	}
+	var compacted []string
+	for _, issue := range issues {
+		if issue.Status == "done" || issue.Status == "cancelled" {
+			if err := t.CompactIssue(issue.ID); err != nil {
+				return compacted, fmt.Errorf("compacting %s: %w", issue.ID, err)
+			}
+			compacted = append(compacted, issue.ID)
+		}
+	}
+	return compacted, nil
+}
+
+// GarbageCollect removes issue directories for issues completed
+// more than maxAgeDays ago. Logs each issue before deletion.
+func (t *Tracker) GarbageCollect(maxAgeDays int) ([]string, error) {
+	issues, err := t.ListIssues()
+	if err != nil {
+		return nil, err
+	}
+	cutoff := time.Now().UTC().AddDate(0, 0, -maxAgeDays)
+	var purged []string
+	for _, issue := range issues {
+		if (issue.Status == "done" || issue.Status == "cancelled") && issue.Updated.Before(cutoff) {
+			if err := t.AppendLog(issue); err != nil {
+				return purged, fmt.Errorf("logging %s: %w", issue.ID, err)
+			}
+			dir := filepath.Join(t.Root, ".work", "issues", issue.ID)
+			if err := os.RemoveAll(dir); err != nil {
+				return purged, fmt.Errorf("removing %s: %w", issue.ID, err)
+			}
+			purged = append(purged, issue.ID)
+		}
+	}
+	return purged, nil
 }

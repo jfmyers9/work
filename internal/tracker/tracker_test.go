@@ -1671,6 +1671,359 @@ func TestIssueRoundTrip_ParentIDOmittedWhenEmpty(t *testing.T) {
 	}
 }
 
+func TestCompactIssue(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Explore: big analysis", "# Full Analysis\n\nLots of detailed content here.\nLine 3.\nLine 4.", "", 0, []string{"explore"}, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := tr.AddComment(issue.ID, "a comment", "testuser"); err != nil {
+		t.Fatalf("comment: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	if err := tr.CompactIssue(issue.ID); err != nil {
+		t.Fatalf("compact: %v", err)
+	}
+
+	loaded, err := tr.LoadIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+
+	// Description truncated to first line
+	if loaded.Description != "# Full Analysis" {
+		t.Errorf("description: got %q, want %q", loaded.Description, "# Full Analysis")
+	}
+
+	// Comments cleared
+	if len(loaded.Comments) != 0 {
+		t.Errorf("comments: got %d, want 0", len(loaded.Comments))
+	}
+
+	// History compacted to create + close
+	events, err := tr.LoadEvents(issue.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	if len(events) != 2 {
+		t.Fatalf("events: got %d, want 2", len(events))
+	}
+	if events[0].Op != "create" {
+		t.Errorf("first event: got %q, want create", events[0].Op)
+	}
+	if events[1].Op != "status" || events[1].To != "done" {
+		t.Errorf("last event: op=%q to=%q, want status/done", events[1].Op, events[1].To)
+	}
+
+	// Log entry written
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load log: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("log entries: got %d, want 1", len(entries))
+	}
+	if entries[0].ID != issue.ID {
+		t.Errorf("log id: got %q, want %q", entries[0].ID, issue.ID)
+	}
+	if entries[0].Title != "Explore: big analysis" {
+		t.Errorf("log title: got %q", entries[0].Title)
+	}
+}
+
+func TestCompactIssue_OnlyDone(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Active issue", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	err = tr.CompactIssue(issue.ID)
+	if err == nil {
+		t.Fatal("expected error compacting active issue")
+	}
+	if !strings.Contains(err.Error(), "can only compact done/cancelled") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestCompactIssue_LongDescription(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	longLine := strings.Repeat("x", 200)
+	issue, err := tr.CreateIssue("Long desc", longLine, "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	if err := tr.CompactIssue(issue.ID); err != nil {
+		t.Fatalf("compact: %v", err)
+	}
+
+	loaded, err := tr.LoadIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(loaded.Description) != 120 {
+		t.Errorf("description length: got %d, want 120", len(loaded.Description))
+	}
+}
+
+func TestAppendAndLoadLog(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	now := time.Now().UTC()
+	issue := model.Issue{
+		ID:      "abc123",
+		Title:   "Test issue",
+		Type:    "bug",
+		Status:  "done",
+		Labels:  []string{"backend"},
+		Created: now,
+		Updated: now,
+	}
+
+	if err := tr.AppendLog(issue); err != nil {
+		t.Fatalf("append: %v", err)
+	}
+
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("count: got %d, want 1", len(entries))
+	}
+	if entries[0].ID != "abc123" {
+		t.Errorf("id: got %q", entries[0].ID)
+	}
+	if entries[0].Type != "bug" {
+		t.Errorf("type: got %q", entries[0].Type)
+	}
+	if entries[0].Labels[0] != "backend" {
+		t.Errorf("label: got %q", entries[0].Labels[0])
+	}
+}
+
+func TestLoadLog_Empty(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Errorf("expected empty, got %d", len(entries))
+	}
+}
+
+func TestGarbageCollect(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	// Create an issue and close it with a backdated Updated time
+	issue, err := tr.CreateIssue("Old issue", "old content", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	// Backdate the issue to 60 days ago
+	loaded, err := tr.LoadIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	loaded.Updated = time.Now().UTC().AddDate(0, 0, -60)
+	if err := tr.SaveIssue(loaded); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	// Create a recent done issue (should NOT be purged)
+	recent, err := tr.CreateIssue("Recent issue", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create recent: %v", err)
+	}
+	if _, err := tr.SetStatus(recent.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start recent: %v", err)
+	}
+	if _, err := tr.SetStatus(recent.ID, "done", "testuser"); err != nil {
+		t.Fatalf("close recent: %v", err)
+	}
+
+	purged, err := tr.GarbageCollect(30)
+	if err != nil {
+		t.Fatalf("gc: %v", err)
+	}
+
+	if len(purged) != 1 {
+		t.Fatalf("purged count: got %d, want 1", len(purged))
+	}
+	if purged[0] != issue.ID {
+		t.Errorf("purged id: got %q, want %q", purged[0], issue.ID)
+	}
+
+	// Old issue directory should be gone
+	_, err = tr.LoadIssue(issue.ID)
+	if err == nil {
+		t.Error("expected error loading purged issue")
+	}
+
+	// Recent issue should still exist
+	_, err = tr.LoadIssue(recent.ID)
+	if err != nil {
+		t.Errorf("recent issue should still exist: %v", err)
+	}
+
+	// Log should have an entry for the purged issue
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load log: %v", err)
+	}
+	if len(entries) < 1 {
+		t.Fatal("expected at least 1 log entry")
+	}
+	found := false
+	for _, e := range entries {
+		if e.ID == issue.ID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("purged issue not found in log")
+	}
+}
+
+func TestCompactAllDone(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	// Create 2 done issues and 1 active
+	for _, title := range []string{"Done 1", "Done 2"} {
+		issue, err := tr.CreateIssue(title, "content", "", 0, nil, "", "", "testuser")
+		if err != nil {
+			t.Fatalf("create: %v", err)
+		}
+		if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+			t.Fatalf("start: %v", err)
+		}
+		if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
+			t.Fatalf("close: %v", err)
+		}
+	}
+	active, err := tr.CreateIssue("Still active", "important content", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create active: %v", err)
+	}
+	if _, err := tr.SetStatus(active.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start active: %v", err)
+	}
+
+	compacted, err := tr.CompactAllDone()
+	if err != nil {
+		t.Fatalf("compact all: %v", err)
+	}
+	if len(compacted) != 2 {
+		t.Errorf("compacted count: got %d, want 2", len(compacted))
+	}
+
+	// Active issue should still have its description
+	loaded, err := tr.LoadIssue(active.ID)
+	if err != nil {
+		t.Fatalf("load active: %v", err)
+	}
+	if loaded.Description != "important content" {
+		t.Errorf("active description should be preserved: got %q", loaded.Description)
+	}
+}
+
+func TestAddComment_NoTextInEvent(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Comment test", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	if _, err := tr.AddComment(issue.ID, "hello world", "testuser"); err != nil {
+		t.Fatalf("comment: %v", err)
+	}
+
+	// Comment text should be in issue.json
+	loaded, err := tr.LoadIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if loaded.Comments[0].Text != "hello world" {
+		t.Errorf("comment text: got %q", loaded.Comments[0].Text)
+	}
+
+	// But NOT in history.jsonl event
+	events, err := tr.LoadEvents(issue.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	commentEvent := events[1]
+	if commentEvent.Text != "" {
+		t.Errorf("event should not have Text, got %q", commentEvent.Text)
+	}
+	if commentEvent.By != "testuser" {
+		t.Errorf("event By: got %q", commentEvent.By)
+	}
+}
+
 // readEvents reads all events from a history.jsonl file.
 func readEvents(t *testing.T, path string) []model.Event {
 	t.Helper()

@@ -262,6 +262,58 @@ Export all issues as a JSON array to stdout.`,
 			Run: cmdExport,
 		},
 		{
+			Name:    "compact",
+			Summary: "Compact completed issues to save space",
+			Usage: `usage: work compact <id-or-prefix> [flags]
+
+Compact a completed issue by stripping its description,
+comments, and history to minimal metadata.
+
+Flags:
+  --all-done    Compact all done/cancelled issues
+
+Examples:
+  work compact abc123
+  work compact --all-done`,
+			Run: cmdCompact,
+		},
+		{
+			Name:    "completed",
+			Summary: "Show completion history from log",
+			Usage: `usage: work completed [flags]
+
+Show completed issues from the completion log.
+
+Flags:
+  --since <date>    Show entries after date
+  --label <label>   Filter by label
+  --type <type>     Filter by type
+  --format json     Output as JSON
+
+Examples:
+  work completed
+  work completed --since 2026-01-01
+  work completed --label explore`,
+			Run: cmdCompleted,
+		},
+		{
+			Name:    "gc",
+			Summary: "Delete old completed issue directories",
+			Usage: `usage: work gc [flags]
+
+Delete issue directories for issues completed more than N
+days ago (default: 30). Metadata is preserved in
+.work/log.jsonl.
+
+Flags:
+  --days <N>    Age threshold in days (default: 30)
+
+Examples:
+  work gc
+  work gc --days 7`,
+			Run: cmdGC,
+		},
+		{
 			Name:    "completion",
 			Summary: "Generate shell completions (bash|zsh)",
 			Usage: `usage: work completion <bash|zsh>
@@ -381,8 +433,10 @@ func loadTracker() *tracker.Tracker {
 
 // booleanFlags lists flags that take no value.
 var booleanFlags = map[string]bool{
-	"roots": true,
-	"help":  true,
+	"roots":      true,
+	"help":       true,
+	"all-done":   true,
+	"no-compact": true,
 }
 
 // parseFlags extracts --key=value, --key value, and -h pairs from args.
@@ -479,6 +533,16 @@ func cmdShow() {
 
 	id, err := t.ResolvePrefix(prefix)
 	if err != nil {
+		// Check completion log for purged issues
+		entries, logErr := t.LoadLog()
+		if logErr == nil {
+			for _, e := range entries {
+				if strings.HasPrefix(e.ID, prefix) {
+					fmt.Fprintf(os.Stderr, "issue %s was purged (completed %s)\nUse 'work completed' to view completion history\n", e.ID, e.Closed.Format("2006-01-02"))
+					os.Exit(1)
+				}
+			}
+		}
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
@@ -722,11 +786,14 @@ func cmdEdit() {
 }
 
 func cmdStatus() {
-	if len(os.Args) < 4 {
+	args := os.Args[2:]
+	positional, flags := parseFlags(args)
+
+	if len(positional) < 2 {
 		commandUsage("status")
 	}
-	prefix := os.Args[2]
-	newStatus := os.Args[3]
+	prefix := positional[0]
+	newStatus := positional[1]
 	t := loadTracker()
 
 	id, err := t.ResolvePrefix(prefix)
@@ -748,6 +815,14 @@ func cmdStatus() {
 		os.Exit(1)
 	}
 	fmt.Printf("%s: %s → %s\n", id, oldStatus, newStatus)
+
+	if newStatus == "done" || newStatus == "cancelled" {
+		if _, noCompact := flags["no-compact"]; !noCompact {
+			if err := t.CompactIssue(id); err != nil {
+				fmt.Fprintf(os.Stderr, "warning: compact failed: %v\n", err)
+			}
+		}
+	}
 }
 
 func parseTimeFlag(s string) (time.Time, error) {
@@ -767,11 +842,14 @@ func formatEventDetail(ev model.Event) string {
 	case "edit":
 		return fmt.Sprintf("edit: %s", strings.Join(ev.Fields, ", "))
 	case "comment":
-		text := ev.Text
-		if len(text) > 60 {
-			text = text[:57] + "..."
+		if ev.Text != "" {
+			text := ev.Text
+			if len(text) > 60 {
+				text = text[:57] + "..."
+			}
+			return fmt.Sprintf("comment: %s", text)
 		}
-		return fmt.Sprintf("comment: %s", text)
+		return "comment"
 	case "link":
 		return fmt.Sprintf("link: parent=%s", ev.To)
 	case "unlink":
@@ -995,6 +1073,146 @@ func cmdExport() {
 	fmt.Println(string(data))
 }
 
+func cmdCompact() {
+	args := os.Args[2:]
+	positional, flags := parseFlags(args)
+
+	t := loadTracker()
+
+	if _, allDone := flags["all-done"]; allDone {
+		compacted, err := t.CompactAllDone()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		if len(compacted) == 0 {
+			fmt.Println("No done/cancelled issues to compact")
+			return
+		}
+		fmt.Printf("Compacted %d issues\n", len(compacted))
+		return
+	}
+
+	if len(positional) == 0 {
+		commandUsage("compact")
+	}
+	prefix := positional[0]
+
+	id, err := t.ResolvePrefix(prefix)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := t.CompactIssue(id); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Compacted %s\n", id)
+}
+
+func cmdCompleted() {
+	_, flags := parseFlags(os.Args[2:])
+	t := loadTracker()
+
+	entries, err := t.LoadLog()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if s, ok := flags["since"]; ok {
+		since, err := parseTimeFlag(s)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		var filtered []tracker.LogEntry
+		for _, e := range entries {
+			if !e.Closed.Before(since) {
+				filtered = append(filtered, e)
+			}
+		}
+		entries = filtered
+	}
+	if label, ok := flags["label"]; ok {
+		var filtered []tracker.LogEntry
+		for _, e := range entries {
+			for _, l := range e.Labels {
+				if l == label {
+					filtered = append(filtered, e)
+					break
+				}
+			}
+		}
+		entries = filtered
+	}
+	if typ, ok := flags["type"]; ok {
+		var filtered []tracker.LogEntry
+		for _, e := range entries {
+			if e.Type == typ {
+				filtered = append(filtered, e)
+			}
+		}
+		entries = filtered
+	}
+
+	if flags["format"] == "json" {
+		data, err := json.MarshalIndent(entries, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
+		return
+	}
+
+	if len(entries) == 0 {
+		fmt.Println("No completions")
+		return
+	}
+
+	for _, e := range entries {
+		labels := ""
+		if len(e.Labels) > 0 {
+			labels = " [" + strings.Join(e.Labels, ",") + "]"
+		}
+		fmt.Printf("%s  %s  %s  %s%s\n", e.Closed.Format("2006-01-02"), e.ID, e.Status, e.Title, labels)
+	}
+}
+
+func cmdGC() {
+	_, flags := parseFlags(os.Args[2:])
+
+	days := 30
+	if d, ok := flags["days"]; ok {
+		n, err := strconv.Atoi(d)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "invalid days: %s\n", d)
+			os.Exit(1)
+		}
+		days = n
+	}
+
+	t := loadTracker()
+	purged, err := t.GarbageCollect(days)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if len(purged) == 0 {
+		fmt.Println("No issues to purge")
+		return
+	}
+
+	fmt.Printf("Purged %d issues\n", len(purged))
+	for _, id := range purged {
+		fmt.Printf("  %s\n", id)
+	}
+	fmt.Println("Use 'work completed' to view completion history")
+}
+
 func cmdCompletion() {
 	if len(os.Args) < 3 {
 		commandUsage("completion")
@@ -1043,7 +1261,7 @@ func commandNamesWithID() string {
 		"close": true, "cancel": true, "reopen": true,
 		"start": true, "review": true, "approve": true,
 		"reject": true, "comment": true, "link": true,
-		"unlink": true, "log": true,
+		"unlink": true, "log": true, "compact": true,
 	}
 	var names []string
 	for _, cmd := range commands {
@@ -1125,10 +1343,13 @@ _work "$@"
 }
 
 func cmdShortcut(targetStatus string) {
-	if len(os.Args) < 3 {
+	args := os.Args[2:]
+	positional, flags := parseFlags(args)
+
+	if len(positional) == 0 {
 		commandUsage(os.Args[1])
 	}
-	prefix := os.Args[2]
+	prefix := positional[0]
 	t := loadTracker()
 
 	id, err := t.ResolvePrefix(prefix)
@@ -1150,6 +1371,14 @@ func cmdShortcut(targetStatus string) {
 		os.Exit(1)
 	}
 	fmt.Printf("%s: %s → %s\n", id, oldStatus, targetStatus)
+
+	if targetStatus == "done" || targetStatus == "cancelled" {
+		if _, noCompact := flags["no-compact"]; !noCompact {
+			if err := t.CompactIssue(id); err != nil {
+				fmt.Fprintf(os.Stderr, "warning: compact failed: %v\n", err)
+			}
+		}
+	}
 }
 
 func cmdReject() {
