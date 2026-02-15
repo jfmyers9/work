@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "work instructions 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

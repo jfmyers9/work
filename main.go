@@ -314,6 +314,26 @@ Examples:
 			Run: cmdGC,
 		},
 		{
+			Name:    "instructions",
+			Summary: "Print AI-oriented usage instructions (for Claude Code hooks)",
+			Usage: `usage: work instructions [flags]
+
+Print usage instructions designed for AI consumption. Output includes
+a command reference, behavioral guidance, and optionally a summary
+of active issues.
+
+Intended for use as a Claude Code SessionStart hook so that Claude
+knows how to use the work CLI at the start of each session.
+
+Flags:
+  --static    Omit the dynamic active-issues section
+
+Examples:
+  work instructions
+  work instructions --static`,
+			Run: cmdInstructions,
+		},
+		{
 			Name:    "completion",
 			Summary: "Generate shell completions (bash|zsh)",
 			Usage: `usage: work completion <bash|zsh>
@@ -437,6 +457,7 @@ var booleanFlags = map[string]bool{
 	"help":       true,
 	"all-done":   true,
 	"no-compact": true,
+	"static":     true,
 }
 
 // parseFlags extracts --key=value, --key value, and -h pairs from args.
@@ -1211,6 +1232,101 @@ func cmdGC() {
 		fmt.Printf("  %s\n", id)
 	}
 	fmt.Println("Use 'work completed' to view completion history")
+}
+
+func cmdInstructions() {
+	_, flags := parseFlags(os.Args[2:])
+	static := false
+	if _, ok := flags["static"]; ok {
+		static = true
+	}
+
+	fmt.Println(`# work — issue tracker CLI
+
+work is a lightweight, git-friendly issue tracker that stores
+all data in a local .work/ directory. Use it for task tracking,
+planning, and coordination.
+
+## Command Reference`)
+	fmt.Println()
+	for _, cmd := range commands {
+		if cmd.Name == "instructions" || cmd.Name == "completion" {
+			continue
+		}
+		fmt.Printf("- work %s — %s\n", cmd.Name, cmd.Summary)
+	}
+
+	fmt.Println(`
+## Key Workflows
+
+**Creating and tracking issues:**
+  work create "Title" --type feature --priority 2 --labels label1,label2
+  work create "Title" --description "Details here"
+
+**Lifecycle:** open → active → review → done (or cancelled)
+  work start <id>    # open → active
+  work review <id>   # active → review
+  work approve <id>  # review → done
+  work close <id>    # any → done
+  work cancel <id>   # any → cancelled
+
+**Viewing issues:**
+  work list --status active
+  work list --label <label> --format short
+  work show <id>
+
+**Editing and commenting:**
+  work edit <id> --description "New description"
+  work comment <id> "Note text"
+
+## Guidelines
+
+- Use work issues as the single source of truth for plans,
+  notes, and state — no separate planning documents.
+- Store exploration plans and findings in issue descriptions
+  and comments.
+- Check work list before starting work to see what is in flight.
+- Use labels to group related issues.
+- Use --format=json when you need to parse output programmatically.`)
+
+	if static {
+		return
+	}
+
+	// Dynamic section: show active issues if tracker is initialized.
+	wd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	t, err := tracker.Load(wd)
+	if err != nil {
+		// Not initialized or error — skip dynamic section silently.
+		return
+	}
+	allIssues, err := t.ListIssues()
+	if err != nil {
+		return
+	}
+	active := tracker.FilterIssues(allIssues, tracker.FilterOptions{Status: "active"})
+	if len(active) == 0 {
+		return
+	}
+	tracker.SortIssues(active, "priority")
+
+	fmt.Println()
+	fmt.Println("## Active Issues")
+	fmt.Println()
+	for _, issue := range active {
+		title := issue.Title
+		if len(title) > 60 {
+			title = title[:57] + "..."
+		}
+		labels := ""
+		if len(issue.Labels) > 0 {
+			labels = " [" + strings.Join(issue.Labels, ", ") + "]"
+		}
+		fmt.Printf("- %s: %s (P%d)%s\n", issue.ID, title, issue.Priority, labels)
+	}
 }
 
 func cmdCompletion() {
