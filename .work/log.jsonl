@@ -58,3 +58,8 @@
 {"id":"d28e8e","title":"Phase 3: Update storage layout section","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:20.439981Z","closed":"2026-02-15T21:40:33.432203Z"}
 {"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
 {"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
+{"id":"aa716c","title":"Explore: Claude Code hook command for binary usage instructions","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:55:29.664883Z","closed":"2026-02-15T21:58:20.065243Z"}
+{"id":"75f451","title":"Phase 1: Add instructions subcommand","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:06.744522Z","closed":"2026-02-15T22:00:22.086361Z"}
+{"id":"d28a65","title":"Phase 2: Add dynamic state","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:07.672214Z","closed":"2026-02-15T22:00:22.101055Z"}
+{"id":"91ce0b","title":"Phase 3: Create hook config","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:09.080376Z","closed":"2026-02-15T22:00:40.640202Z"}
+{"id":"06a484","title":"Phase 4: Iterate on content","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:15.966363Z","closed":"2026-02-15T22:00:46.260796Z"}

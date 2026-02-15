@@ -1,0 +1,13 @@
+{
+  "id": "75f451",
+  "title": "Phase 1: Add instructions subcommand",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "hook-instructions"
+  ],
+  "created": "2026-02-15T21:58:06.744522Z",
+  "updated": "2026-02-15T22:00:22.086361Z",
+  "description": "## Acceptance Criteria"
+}
