@@ -1,0 +1,13 @@
+{
+  "id": "174456",
+  "title": "Phase 4: Detailed per-command help text",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "global-help-support"
+  ],
+  "created": "2026-02-15T21:16:32.319168Z",
+  "updated": "2026-02-15T21:22:12.229666Z",
+  "description": "## Acceptance Criteria\n- [ ] Write multi-line help per command: synopsis, flags, valid values, examples\n- [ ] Add help text for commands that lack it: init, list, export, history\n- [ ] Replace inline usage strings with registry Usage field\n\n## Context\nPart of: Global --help Support for All Commands\nDepends on: Phase 3"
+}

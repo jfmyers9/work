@@ -1,0 +1,13 @@
+{
+  "id": "ecc599",
+  "title": "Phase 6: Eliminate duplicated command lists",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "global-help-support"
+  ],
+  "created": "2026-02-15T21:16:34.813153Z",
+  "updated": "2026-02-15T21:22:12.2853Z",
+  "description": "## Acceptance Criteria\n- [ ] Generate `printHelp()` output from registry\n- [ ] Generate bash/zsh completions from registry\n- [ ] Single source of truth: new command = one registry entry\n\n## Context\nPart of: Global --help Support for All Commands\nDepends on: Phase 5"
+}

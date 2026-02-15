@@ -1,0 +1,13 @@
+{
+  "id": "4d3f9c",
+  "title": "Phase 3: Add help subcommand",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "global-help-support"
+  ],
+  "created": "2026-02-15T21:16:31.681553Z",
+  "updated": "2026-02-15T21:22:12.203841Z",
+  "description": "## Acceptance Criteria\n- [ ] Add `\"help\"` case to command dispatch\n- [ ] `work help` → top-level help (stdout, exit 0)\n- [ ] `work help \u003ccmd\u003e` → per-command help (stdout, exit 0)\n- [ ] `work help \u003cunknown\u003e` → error (stderr, exit 1)\n- [ ] Update shell completions to include `help`\n\n## Context\nPart of: Global --help Support for All Commands\nDepends on: Phase 2"
+}

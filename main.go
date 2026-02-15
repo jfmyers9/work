@@ -14,83 +14,341 @@ import (
 	"github.com/jfmyers9/work/internal/tracker"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		printHelp()
-		os.Exit(1)
-	}
+type command struct {
+	Name    string
+	Summary string
+	Usage   string
+	Run     func()
+}
 
-	switch os.Args[1] {
-	case "init":
-		cmdInit()
-	case "create":
-		cmdCreate()
-	case "show":
-		cmdShow()
-	case "list":
-		cmdList()
-	case "edit":
-		cmdEdit()
-	case "status":
-		cmdStatus()
-	case "close":
-		cmdShortcut("done")
-	case "cancel":
-		cmdShortcut("cancelled")
-	case "reopen":
-		cmdShortcut("open")
-	case "start":
-		cmdShortcut("active")
-	case "review":
-		cmdShortcut("review")
-	case "approve":
-		cmdShortcut("done")
-	case "reject":
-		cmdReject()
-	case "comment":
-		cmdComment()
-	case "link":
-		cmdLink()
-	case "unlink":
-		cmdUnlink()
-	case "export":
-		cmdExport()
-	case "completion":
-		cmdCompletion()
-	case "log":
-		cmdLog()
-	case "history":
-		cmdHistory()
-	default:
-		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
-		os.Exit(1)
+var commands []command
+
+func init() {
+	commands = []command{
+		{
+			Name:    "init",
+			Summary: "Initialize issue tracker in current directory",
+			Usage: `usage: work init
+
+Initialize a new work tracker in the current directory.
+Creates a .work/ directory to store issues and configuration.`,
+			Run: cmdInit,
+		},
+		{
+			Name:    "create",
+			Summary: "Create a new issue",
+			Usage: `usage: work create <title> [flags]
+
+Create a new issue with the given title.
+
+Flags:
+  --description <text>    Issue description
+  --priority <N>          Priority level (integer)
+  --labels <a,b>          Comma-separated labels
+  --assignee <name>       Assignee name
+  --type <type>           Issue type (feature|bug|chore)
+  --parent <id>           Parent issue ID
+
+Examples:
+  work create "Fix login bug" --type bug --priority 1
+  work create "Add search" --labels ui,search --assignee alice`,
+			Run: cmdCreate,
+		},
+		{
+			Name:    "show",
+			Summary: "Show issue details",
+			Usage: `usage: work show <id-or-prefix> [flags]
+
+Display full details for a single issue, including comments
+and child issues.
+
+Flags:
+  --format json    Output as JSON
+
+Examples:
+  work show abc123
+  work show abc --format=json`,
+			Run: cmdShow,
+		},
+		{
+			Name:    "list",
+			Summary: "List issues",
+			Usage: `usage: work list [flags]
+
+List issues with optional filtering and sorting.
+
+Flags:
+  --status <status>      Filter by status (open|active|review|done|cancelled)
+  --label <label>        Filter by label
+  --assignee <name>      Filter by assignee
+  --type <type>          Filter by type
+  --priority <N>         Filter by priority
+  --parent <id>          Filter by parent issue
+  --roots                Show only root issues (no parent)
+  --sort <field>         Sort by field (title|priority|status|created|updated)
+  --format json          Output as JSON
+  --format short         Output compact id+title list
+
+Examples:
+  work list --status active
+  work list --label backend --sort priority`,
+			Run: cmdList,
+		},
+		{
+			Name:    "edit",
+			Summary: "Edit an issue",
+			Usage: `usage: work edit <id-or-prefix> [flags]
+
+Update fields on an existing issue.
+
+Flags:
+  --title <text>          New title
+  --description <text>    New description
+  --priority <N>          New priority
+  --labels <a,b>          Replace labels
+  --assignee <name>       New assignee
+  --type <type>           New type (feature|bug|chore)
+
+Examples:
+  work edit abc123 --title "Updated title"
+  work edit abc --priority 2 --labels urgent,backend`,
+			Run: cmdEdit,
+		},
+		{
+			Name:    "status",
+			Summary: "Change issue status",
+			Usage: `usage: work status <id-or-prefix> <state>
+
+Set an issue's status to any valid state.
+Valid states: open, active, review, done, cancelled.
+
+Examples:
+  work status abc123 active
+  work status abc done`,
+			Run: cmdStatus,
+		},
+		{
+			Name:    "close",
+			Summary: "Close an issue (set status to done)",
+			Usage: `usage: work close <id-or-prefix>
+
+Shortcut for: work status <id> done`,
+			Run: func() { cmdShortcut("done") },
+		},
+		{
+			Name:    "cancel",
+			Summary: "Cancel an issue",
+			Usage: `usage: work cancel <id-or-prefix>
+
+Shortcut for: work status <id> cancelled`,
+			Run: func() { cmdShortcut("cancelled") },
+		},
+		{
+			Name:    "reopen",
+			Summary: "Reopen an issue",
+			Usage: `usage: work reopen <id-or-prefix>
+
+Shortcut for: work status <id> open`,
+			Run: func() { cmdShortcut("open") },
+		},
+		{
+			Name:    "start",
+			Summary: "Start working on an issue (set status to active)",
+			Usage: `usage: work start <id-or-prefix>
+
+Shortcut for: work status <id> active`,
+			Run: func() { cmdShortcut("active") },
+		},
+		{
+			Name:    "review",
+			Summary: "Submit an issue for review (set status to review)",
+			Usage: `usage: work review <id-or-prefix>
+
+Shortcut for: work status <id> review`,
+			Run: func() { cmdShortcut("review") },
+		},
+		{
+			Name:    "approve",
+			Summary: "Approve a reviewed issue (set status to done)",
+			Usage: `usage: work approve <id-or-prefix>
+
+Shortcut for: work status <id> done`,
+			Run: func() { cmdShortcut("done") },
+		},
+		{
+			Name:    "reject",
+			Summary: "Reject a reviewed issue (back to active + reason comment)",
+			Usage: `usage: work reject <id-or-prefix> <reason>
+
+Set status back to active and add a rejection comment.
+
+Examples:
+  work reject abc123 "Tests are failing"`,
+			Run: cmdReject,
+		},
+		{
+			Name:    "comment",
+			Summary: "Add a comment to an issue",
+			Usage: `usage: work comment <id-or-prefix> <text>
+
+Add a text comment to an issue.
+
+Examples:
+  work comment abc123 "Fixed in latest commit"`,
+			Run: cmdComment,
+		},
+		{
+			Name:    "link",
+			Summary: "Link a child issue to a parent",
+			Usage: `usage: work link <child-id> --parent <epic-id>
+
+Set a parent-child relationship between two issues.
+
+Examples:
+  work link abc123 --parent def456`,
+			Run: cmdLink,
+		},
+		{
+			Name:    "unlink",
+			Summary: "Remove parent from a child issue",
+			Usage: `usage: work unlink <child-id>
+
+Remove the parent link from a child issue.
+
+Examples:
+  work unlink abc123`,
+			Run: cmdUnlink,
+		},
+		{
+			Name:    "log",
+			Summary: "Show issue event log",
+			Usage: `usage: work log <id-or-prefix> [flags]
+
+Display the event history for a single issue.
+
+Flags:
+  --since <date>    Show events after date (YYYY-MM-DD or RFC3339)
+  --until <date>    Show events before date
+
+Examples:
+  work log abc123
+  work log abc --since 2025-01-01`,
+			Run: cmdLog,
+		},
+		{
+			Name:    "history",
+			Summary: "Show all events across issues",
+			Usage: `usage: work history [flags]
+
+Display recent events across all issues (most recent first,
+limited to 20).
+
+Flags:
+  --label <label>   Filter to issues with this label
+  --since <date>    Show events after date (YYYY-MM-DD or RFC3339)
+  --until <date>    Show events before date
+
+Examples:
+  work history --since 2025-01-01
+  work history --label backend`,
+			Run: cmdHistory,
+		},
+		{
+			Name:    "export",
+			Summary: "Export issues as JSON",
+			Usage: `usage: work export
+
+Export all issues as a JSON array to stdout.`,
+			Run: cmdExport,
+		},
+		{
+			Name:    "completion",
+			Summary: "Generate shell completions (bash|zsh)",
+			Usage: `usage: work completion <bash|zsh>
+
+Generate shell completion script for bash or zsh.
+
+Examples:
+  work completion bash > ~/.bash_completion.d/work
+  work completion zsh > ~/.zfunc/_work`,
+			Run: cmdCompletion,
+		},
 	}
 }
 
-func printHelp() {
-	fmt.Fprintln(os.Stderr, `usage: work <command> [args]
+func findCommand(name string) *command {
+	for i := range commands {
+		if commands[i].Name == name {
+			return &commands[i]
+		}
+	}
+	return nil
+}
 
-Commands:
-  init        Initialize issue tracker in current directory
-  create      Create a new issue
-  show        Show issue details
-  list        List issues
-  edit        Edit an issue
-  status      Change issue status
-  close       Close an issue (set status to done)
-  cancel      Cancel an issue
-  reopen      Reopen an issue
-  start       Start working on an issue (set status to active)
-  review      Submit an issue for review (set status to review)
-  approve     Approve a reviewed issue (set status to done)
-  reject      Reject a reviewed issue (back to active + reason comment)
-  comment     Add a comment to an issue
-  link        Link a child issue to a parent
-  unlink      Remove parent from a child issue
-  log         Show issue event log
-  history     Show all events across issues (--label, --since, --until)
-  export      Export issues as JSON
-  completion  Generate shell completions (bash|zsh)`)
+// printCommandUsage prints a command's usage text to the given writer and exits.
+func printCommandUsage(cmd *command, w *os.File, code int) {
+	fmt.Fprintln(w, cmd.Usage)
+	os.Exit(code)
+}
+
+func main() {
+	// Handle top-level -h/--help before requiring a subcommand.
+	if len(os.Args) >= 2 {
+		arg := os.Args[1]
+		if arg == "--help" || arg == "-h" {
+			printHelp(os.Stdout)
+			os.Exit(0)
+		}
+	}
+
+	if len(os.Args) < 2 {
+		printHelp(os.Stderr)
+		os.Exit(1)
+	}
+
+	// Handle "help" subcommand.
+	if os.Args[1] == "help" {
+		cmdHelp()
+		return
+	}
+
+	cmd := findCommand(os.Args[1])
+	if cmd == nil {
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
+		os.Exit(1)
+	}
+
+	// Check for --help/-h on any subcommand before running it.
+	for _, arg := range os.Args[2:] {
+		if arg == "--help" || arg == "-h" {
+			printCommandUsage(cmd, os.Stdout, 0)
+		}
+	}
+
+	cmd.Run()
+}
+
+func cmdHelp() {
+	if len(os.Args) < 3 {
+		printHelp(os.Stdout)
+		os.Exit(0)
+	}
+	name := os.Args[2]
+	cmd := findCommand(name)
+	if cmd == nil {
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n", name)
+		os.Exit(1)
+	}
+	printCommandUsage(cmd, os.Stdout, 0)
+}
+
+func printHelp(w *os.File) {
+	fmt.Fprintln(w, "usage: work <command> [args]")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Commands:")
+	for _, cmd := range commands {
+		fmt.Fprintf(w, "  %-12s%s\n", cmd.Name, cmd.Summary)
+	}
 }
 
 func cmdInit() {
@@ -124,15 +382,18 @@ func loadTracker() *tracker.Tracker {
 // booleanFlags lists flags that take no value.
 var booleanFlags = map[string]bool{
 	"roots": true,
+	"help":  true,
 }
 
-// parseFlags extracts --key=value and --key value pairs from args.
+// parseFlags extracts --key=value, --key value, and -h pairs from args.
 // Flags listed in booleanFlags are treated as present/absent with no value.
 func parseFlags(args []string) ([]string, map[string]string) {
 	var positional []string
 	flags := make(map[string]string)
 	for i := 0; i < len(args); i++ {
-		if strings.HasPrefix(args[i], "--") {
+		if args[i] == "-h" {
+			flags["help"] = ""
+		} else if strings.HasPrefix(args[i], "--") {
 			raw := strings.TrimPrefix(args[i], "--")
 			if k, v, ok := strings.Cut(raw, "="); ok {
 				flags[k] = v
@@ -149,13 +410,23 @@ func parseFlags(args []string) ([]string, map[string]string) {
 	return positional, flags
 }
 
+// commandUsage prints the registry usage for the named command to stderr and exits 1.
+// Used by command functions when required args are missing.
+func commandUsage(name string) {
+	cmd := findCommand(name)
+	if cmd != nil {
+		printCommandUsage(cmd, os.Stderr, 1)
+	}
+	fmt.Fprintf(os.Stderr, "usage: work %s\n", name)
+	os.Exit(1)
+}
+
 func cmdCreate() {
 	args := os.Args[2:]
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work create <title> [--description ...] [--priority N] [--labels a,b] [--assignee name] [--type feature|bug|chore] [--parent id]")
-		os.Exit(1)
+		commandUsage("create")
 	}
 	title := positional[0]
 	description := flags["description"]
@@ -201,8 +472,7 @@ func cmdShow() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work show <id-or-prefix> [--format=json]")
-		os.Exit(1)
+		commandUsage("show")
 	}
 	prefix := positional[0]
 	t := loadTracker()
@@ -374,8 +644,7 @@ func cmdEdit() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work edit <id-or-prefix> [--title ...] [--description ...] [--priority N] [--labels a,b] [--assignee name] [--type feature|bug|chore]")
-		os.Exit(1)
+		commandUsage("edit")
 	}
 	prefix := positional[0]
 	t := loadTracker()
@@ -454,8 +723,7 @@ func cmdEdit() {
 
 func cmdStatus() {
 	if len(os.Args) < 4 {
-		fmt.Fprintln(os.Stderr, "usage: work status <id-or-prefix> <state>")
-		os.Exit(1)
+		commandUsage("status")
 	}
 	prefix := os.Args[2]
 	newStatus := os.Args[3]
@@ -518,8 +786,7 @@ func cmdLog() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work log <id-or-prefix> [--since DATE] [--until DATE]")
-		os.Exit(1)
+		commandUsage("log")
 	}
 	t := loadTracker()
 
@@ -640,8 +907,7 @@ func cmdHistory() {
 
 func cmdComment() {
 	if len(os.Args) < 4 {
-		fmt.Fprintln(os.Stderr, "usage: work comment <id-or-prefix> <text>")
-		os.Exit(1)
+		commandUsage("comment")
 	}
 	prefix := os.Args[2]
 	text := os.Args[3]
@@ -665,13 +931,11 @@ func cmdLink() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work link <child-id> --parent <epic-id>")
-		os.Exit(1)
+		commandUsage("link")
 	}
 	parentPrefix, ok := flags["parent"]
 	if !ok {
-		fmt.Fprintln(os.Stderr, "usage: work link <child-id> --parent <epic-id>")
-		os.Exit(1)
+		commandUsage("link")
 	}
 
 	t := loadTracker()
@@ -697,8 +961,7 @@ func cmdLink() {
 
 func cmdUnlink() {
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "usage: work unlink <child-id>")
-		os.Exit(1)
+		commandUsage("unlink")
 	}
 	prefix := os.Args[2]
 	t := loadTracker()
@@ -734,8 +997,7 @@ func cmdExport() {
 
 func cmdCompletion() {
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "usage: work completion <bash|zsh>")
-		os.Exit(1)
+		commandUsage("completion")
 	}
 	switch os.Args[2] {
 	case "bash":
@@ -766,13 +1028,39 @@ func issueIDs() []string {
 	return ids
 }
 
+func commandNames() string {
+	var names []string
+	for _, cmd := range commands {
+		names = append(names, cmd.Name)
+	}
+	names = append(names, "help")
+	return strings.Join(names, " ")
+}
+
+func commandNamesWithID() string {
+	needsID := map[string]bool{
+		"show": true, "edit": true, "status": true,
+		"close": true, "cancel": true, "reopen": true,
+		"start": true, "review": true, "approve": true,
+		"reject": true, "comment": true, "link": true,
+		"unlink": true, "log": true,
+	}
+	var names []string
+	for _, cmd := range commands {
+		if needsID[cmd.Name] {
+			names = append(names, cmd.Name)
+		}
+	}
+	return strings.Join(names, "|")
+}
+
 func printBashCompletion() {
-	fmt.Print(`_work() {
+	fmt.Printf(`_work() {
     local cur prev commands
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="init create show list edit status close cancel reopen start review approve reject comment link unlink log history export completion"
+    commands="%s"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -780,7 +1068,7 @@ func printBashCompletion() {
     fi
 
     case "$prev" in
-        show|edit|status|close|cancel|reopen|start|review|approve|reject|comment|link|unlink|log)
+        %s)
             local ids
             ids=$(ls .work/issues/ 2>/dev/null)
             COMPREPLY=($(compgen -W "$ids" -- "$cur"))
@@ -797,7 +1085,7 @@ func printBashCompletion() {
     esac
 }
 complete -F _work work
-`)
+`, commandNames(), commandNamesWithID())
 }
 
 func printZshCompletion() {
@@ -806,26 +1094,11 @@ func printZshCompletion() {
 _work() {
     local -a commands
     commands=(
-        'init:Initialize work tracker'
-        'create:Create a new issue'
-        'show:Show issue details'
-        'list:List issues'
-        'edit:Edit an issue'
-        'status:Change issue status'
-        'close:Close an issue'
-        'cancel:Cancel an issue'
-        'reopen:Reopen an issue'
-        'start:Start working on an issue'
-        'review:Submit an issue for review'
-        'approve:Approve a reviewed issue'
-        'reject:Reject a reviewed issue'
-        'comment:Add a comment to an issue'
-        'link:Link a child issue to a parent'
-        'unlink:Remove parent from a child issue'
-        'log:Show issue event log'
-        'history:Show all events'
-        'export:Export issues as JSON'
-        'completion:Generate shell completions'
+`)
+	for _, cmd := range commands {
+		fmt.Printf("        '%s:%s'\n", cmd.Name, cmd.Summary)
+	}
+	fmt.Print(`        'help:Show help for a command'
     )
 
     if (( CURRENT == 2 )); then
@@ -834,7 +1107,9 @@ _work() {
     fi
 
     case "${words[2]}" in
-        show|edit|status|close|cancel|reopen|start|review|approve|reject|comment|link|unlink|log)
+        `)
+	fmt.Print(commandNamesWithID())
+	fmt.Print(`)
             local -a ids
             ids=(${(f)"$(ls .work/issues/ 2>/dev/null)"})
             _describe 'issue' ids
@@ -851,8 +1126,7 @@ _work "$@"
 
 func cmdShortcut(targetStatus string) {
 	if len(os.Args) < 3 {
-		fmt.Fprintf(os.Stderr, "usage: work %s <id-or-prefix>\n", os.Args[1])
-		os.Exit(1)
+		commandUsage(os.Args[1])
 	}
 	prefix := os.Args[2]
 	t := loadTracker()
@@ -880,8 +1154,7 @@ func cmdShortcut(targetStatus string) {
 
 func cmdReject() {
 	if len(os.Args) < 4 {
-		fmt.Fprintln(os.Stderr, "usage: work reject <id-or-prefix> <reason>")
-		os.Exit(1)
+		commandUsage("reject")
 	}
 	prefix := os.Args[2]
 	reason := os.Args[3]
