@@ -1,0 +1,13 @@
+{
+  "id": "f50214",
+  "title": "Phase 4: Directory purge for long-lived projects",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "bloat-prevention"
+  ],
+  "created": "2026-02-15T21:24:41.371551Z",
+  "updated": "2026-02-15T21:33:37.427265Z",
+  "description": "## Acceptance Criteria"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "c34e4e",
+  "title": "Phase 2: Completion log",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "bloat-prevention"
+  ],
+  "created": "2026-02-15T21:24:36.736801Z",
+  "updated": "2026-02-15T21:33:37.402569Z",
+  "description": "## Acceptance Criteria"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "f9e63c",
+  "title": "Phase 3: Eliminate comment duplication",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "bloat-prevention"
+  ],
+  "created": "2026-02-15T21:24:38.160399Z",
+  "updated": "2026-02-15T21:33:37.415303Z",
+  "description": "## Acceptance Criteria"
+}

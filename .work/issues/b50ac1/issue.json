@@ -1,0 +1,13 @@
+{
+  "id": "b50ac1",
+  "title": "Phase 1: Compact-on-close core",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "bloat-prevention"
+  ],
+  "created": "2026-02-15T21:24:35.178661Z",
+  "updated": "2026-02-15T21:33:33.022006Z",
+  "description": "## Acceptance Criteria"
+}
