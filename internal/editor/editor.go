@@ -1,0 +1,64 @@
+package editor
+
+import (
+	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+)
+
+var ErrAborted = errors.New("editor exited with non-zero status")
+
+// OpenEditor is the function used to edit content. Tests can replace this
+// to avoid spawning a real editor.
+var OpenEditor = EditTempFile
+
+func ResolveEditor() string {
+	if e := os.Getenv("EDITOR"); e != "" {
+		return e
+	}
+	if e := os.Getenv("VISUAL"); e != "" {
+		return e
+	}
+	return "vi"
+}
+
+// EditTempFile opens the resolved editor on a temp file seeded with content.
+// Returns the edited content. The temp file is removed after reading.
+func EditTempFile(content, prefix string) (string, error) {
+	f, err := os.CreateTemp("", prefix+"-*.md")
+	if err != nil {
+		return "", fmt.Errorf("creating temp file: %w", err)
+	}
+	tmpPath := f.Name()
+	defer os.Remove(tmpPath)
+
+	if _, err := f.WriteString(content); err != nil {
+		f.Close()
+		return "", fmt.Errorf("writing temp file: %w", err)
+	}
+	if err := f.Close(); err != nil {
+		return "", fmt.Errorf("closing temp file: %w", err)
+	}
+
+	editorBin := ResolveEditor()
+	path, err := exec.LookPath(editorBin)
+	if err != nil {
+		return "", fmt.Errorf("editor %q not found in PATH; set $EDITOR to your preferred editor", editorBin)
+	}
+
+	cmd := exec.Command(path, tmpPath)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return "", ErrAborted
+	}
+
+	data, err := os.ReadFile(tmpPath)
+	if err != nil {
+		return "", fmt.Errorf("reading temp file: %w", err)
+	}
+	return string(data), nil
+}

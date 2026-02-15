@@ -95,3 +95,10 @@
 {"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
 {"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
 {"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
+{"id":"b4807b","title":"Explore: open ticket in $EDITOR from work edit","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T23:16:01.984708Z","closed":"2026-02-15T23:19:02.453746Z"}
+{"id":"effea5","title":"Phase 1: Editor utility","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:38.866013Z","closed":"2026-02-15T23:20:38.129284Z"}
+{"id":"55e9ab","title":"Phase 2: Issue serialization","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:43.224987Z","closed":"2026-02-15T23:21:52.687095Z"}
+{"id":"3a01d3","title":"Phase 3: Wire into edit command","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:47.599101Z","closed":"2026-02-15T23:22:37.792789Z"}
+{"id":"212657","title":"Phase 4: Edge cases and polish","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:51.520767Z","closed":"2026-02-15T23:23:04.129183Z"}
+{"id":"d37130","title":"Phase 5: Tests","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:56.005077Z","closed":"2026-02-15T23:24:19.022176Z"}
+{"id":"c1cbef","title":"Plan: open ticket in $EDITOR from work edit","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:33.916043Z","closed":"2026-02-15T23:24:22.187687Z"}

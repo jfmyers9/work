@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/jfmyers9/work/internal/editor"
 	"github.com/jfmyers9/work/internal/model"
 	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
@@ -22,8 +24,9 @@ var (
 var editCmd = &cobra.Command{
 	Use:   "edit <id>",
 	Short: "Edit an issue",
-	Long:  `Update fields on an existing issue.`,
-	Example: `  work edit abc123 --title "Updated title"
+	Long:  `Update fields on an existing issue. If no flags are given, opens the issue in $EDITOR.`,
+	Example: `  work edit abc123
+  work edit abc123 --title "Updated title"
   work edit abc --priority 2 --labels urgent,backend`,
 	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: completeIssueIDs,
@@ -72,7 +75,7 @@ var editCmd = &cobra.Command{
 		}
 
 		if len(edited) == 0 {
-			return fmt.Errorf("no fields to update")
+			return editInEditor(t, issue)
 		}
 
 		now := time.Now().UTC()
@@ -94,6 +97,91 @@ var editCmd = &cobra.Command{
 		fmt.Printf("Updated %s\n", id)
 		return nil
 	},
+}
+
+func editInEditor(t *tracker.Tracker, issue model.Issue) error {
+	content := editor.MarshalIssue(issue)
+	result, err := editor.OpenEditor(content, "work-edit")
+	if err != nil {
+		if errors.Is(err, editor.ErrAborted) {
+			fmt.Println("edit cancelled")
+			return nil
+		}
+		return err
+	}
+
+	title, description, issueType, assignee, priority, labels, err := editor.UnmarshalIssue(result)
+	if err != nil {
+		return err
+	}
+
+	var edited []string
+	if title != issue.Title {
+		issue.Title = title
+		edited = append(edited, "title")
+	}
+	if description != issue.Description {
+		issue.Description = description
+		edited = append(edited, "description")
+	}
+	if issueType != issue.Type {
+		if err := tracker.ValidateType(t.Config, issueType); err != nil {
+			return err
+		}
+		issue.Type = issueType
+		edited = append(edited, "type")
+	}
+	if assignee != issue.Assignee {
+		issue.Assignee = assignee
+		edited = append(edited, "assignee")
+	}
+	if priority != issue.Priority {
+		issue.Priority = priority
+		edited = append(edited, "priority")
+	}
+	if !labelsEqual(issue.Labels, labels) {
+		issue.Labels = labels
+		edited = append(edited, "labels")
+	}
+
+	if len(edited) == 0 {
+		fmt.Println("edit cancelled")
+		return nil
+	}
+
+	now := time.Now().UTC()
+	issue.Updated = now
+	if err := t.SaveIssue(issue); err != nil {
+		return err
+	}
+
+	user := tracker.ResolveUser()
+	event := model.Event{
+		Timestamp: now,
+		Op:        "edit",
+		Fields:    edited,
+		By:        user,
+	}
+	if err := t.AppendEvent(issue.ID, event); err != nil {
+		return err
+	}
+	fmt.Printf("Updated %s\n", issue.ID)
+	return nil
+}
+
+func labelsEqual(a, b []string) bool {
+	if len(a) == 0 && len(b) == 0 {
+		return true
+	}
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func init() {
