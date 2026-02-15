@@ -1,0 +1,13 @@
+{
+  "id": "dda5f4",
+  "title": "Phase 2: Missing flag/option documentation",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "readme-update"
+  ],
+  "created": "2026-02-15T21:09:03.945291Z",
+  "updated": "2026-02-15T21:10:31.95765Z",
+  "description": "## Acceptance Criteria\n- [ ] Add --type flag to create, edit, list examples\n- [ ] Add --parent flag to create and list examples\n- [ ] Add --roots flag to list examples\n- [ ] Add --label flag to history examples\n\n## Context\nPart of: Fix: update README to reflect recent features\nDepends on: Phase 1"
+}
