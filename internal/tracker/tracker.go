@@ -90,15 +90,15 @@ func (t *Tracker) GenerateID() (string, error) {
 	return hex.EncodeToString(buf)[:t.Config.IDLength], nil
 }
 
-// Init creates the .issues directory structure and writes the default config.
+// Init creates the .work directory structure and writes the default config.
 func Init(root string) (*Tracker, error) {
-	issuesDir := filepath.Join(root, ".issues", "issues")
+	issuesDir := filepath.Join(root, ".work", "issues")
 	if err := os.MkdirAll(issuesDir, 0o755); err != nil {
 		return nil, fmt.Errorf("creating issues dir: %w", err)
 	}
 
 	cfg := model.DefaultConfig()
-	cfgPath := filepath.Join(root, ".issues", "config.json")
+	cfgPath := filepath.Join(root, ".work", "config.json")
 
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
@@ -113,7 +113,7 @@ func Init(root string) (*Tracker, error) {
 
 // Load reads an existing tracker from disk.
 func Load(root string) (*Tracker, error) {
-	cfgPath := filepath.Join(root, ".issues", "config.json")
+	cfgPath := filepath.Join(root, ".work", "config.json")
 	data, err := os.ReadFile(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("reading config: %w", err)
@@ -127,7 +127,7 @@ func Load(root string) (*Tracker, error) {
 
 // SaveIssue writes an issue to its directory.
 func (t *Tracker) SaveIssue(issue model.Issue) error {
-	dir := filepath.Join(t.Root, ".issues", "issues", issue.ID)
+	dir := filepath.Join(t.Root, ".work", "issues", issue.ID)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("creating issue dir: %w", err)
 	}
@@ -140,7 +140,7 @@ func (t *Tracker) SaveIssue(issue model.Issue) error {
 
 // LoadIssue reads an issue from its directory.
 func (t *Tracker) LoadIssue(id string) (model.Issue, error) {
-	path := filepath.Join(t.Root, ".issues", "issues", id, "issue.json")
+	path := filepath.Join(t.Root, ".work", "issues", id, "issue.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return model.Issue{}, fmt.Errorf("reading issue: %w", err)
@@ -154,7 +154,7 @@ func (t *Tracker) LoadIssue(id string) (model.Issue, error) {
 
 // AppendEvent writes an event as a JSON line to the issue's history.jsonl.
 func (t *Tracker) AppendEvent(id string, event model.Event) error {
-	path := filepath.Join(t.Root, ".issues", "issues", id, "history.jsonl")
+	path := filepath.Join(t.Root, ".work", "issues", id, "history.jsonl")
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return fmt.Errorf("opening history: %w", err)
@@ -205,7 +205,7 @@ func (t *Tracker) CreateIssue(title, description, assignee string, priority int,
 // ResolvePrefix finds an issue ID matching the given prefix.
 // Returns an error if zero or multiple issues match.
 func (t *Tracker) ResolvePrefix(prefix string) (string, error) {
-	issuesDir := filepath.Join(t.Root, ".issues", "issues")
+	issuesDir := filepath.Join(t.Root, ".work", "issues")
 	entries, err := os.ReadDir(issuesDir)
 	if err != nil {
 		return "", fmt.Errorf("reading issues dir: %w", err)
@@ -281,7 +281,7 @@ type EventWithIssue struct {
 // LoadEvents reads all events from an issue's history.jsonl.
 // Returns empty slice (not error) if the file doesn't exist.
 func (t *Tracker) LoadEvents(issueID string) ([]model.Event, error) {
-	path := filepath.Join(t.Root, ".issues", "issues", issueID, "history.jsonl")
+	path := filepath.Join(t.Root, ".work", "issues", issueID, "history.jsonl")
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -308,7 +308,7 @@ func (t *Tracker) LoadEvents(issueID string) ([]model.Event, error) {
 
 // LoadAllEvents reads events from every issue, annotated with issue ID.
 func (t *Tracker) LoadAllEvents() ([]EventWithIssue, error) {
-	issuesDir := filepath.Join(t.Root, ".issues", "issues")
+	issuesDir := filepath.Join(t.Root, ".work", "issues")
 	entries, err := os.ReadDir(issuesDir)
 	if err != nil {
 		return nil, fmt.Errorf("reading issues dir: %w", err)
@@ -391,7 +391,7 @@ func (t *Tracker) AddComment(id, text string) (model.Issue, error) {
 
 // ListIssues loads all issues from the tracker.
 func (t *Tracker) ListIssues() ([]model.Issue, error) {
-	issuesDir := filepath.Join(t.Root, ".issues", "issues")
+	issuesDir := filepath.Join(t.Root, ".work", "issues")
 	entries, err := os.ReadDir(issuesDir)
 	if err != nil {
 		return nil, fmt.Errorf("reading issues dir: %w", err)

@@ -1,30 +1,30 @@
-# issues
+# work
 
 A simple, filesystem-based issue tracker CLI written in Go.
 
-Issues are stored as JSON files in a `.issues/` directory, making
+Issues are stored as JSON files in a `.work/` directory, making
 them easy to browse, version with git, and merge without conflicts.
 
 ## Install
 
 ```
-go build -o issues .
+go build -o work .
 ```
 
 Move the binary somewhere on your `$PATH`:
 
 ```
-mv issues /usr/local/bin/
+mv work /usr/local/bin/
 ```
 
 ## Quick Start
 
 ```
-issues init
-issues create "Fix login timeout" --priority 1 --labels bug,auth
-issues start a3f
-issues comment a3f "Root cause identified"
-issues close a3f
+work init
+work create "Fix login timeout" --priority 1 --labels bug,auth
+work start a3f
+work comment a3f "Root cause identified"
+work close a3f
 ```
 
 ## Commands
@@ -32,21 +32,21 @@ issues close a3f
 ### Tracker Setup
 
 ```
-issues init                  # Create .issues/ in current directory
+work init                  # Create .work/ in current directory
 ```
 
 ### Creating and Viewing
 
 ```
-issues create <title> [flags]
+work create <title> [flags]
   --description <text>
   --priority <n>             # Lower number = higher priority
   --labels <a,b,c>
   --assignee <name>
 
-issues show <id>             # Full issue details
-issues list                  # Table of all issues
-issues export                # All issues as JSON array to stdout
+work show <id>             # Full issue details
+work list                  # Table of all issues
+work export                # All issues as JSON array to stdout
 ```
 
 Issue IDs are 6-character hex strings. All commands accept unique
@@ -55,7 +55,7 @@ prefixes — `a3f` resolves to `a3f8b2` if unambiguous.
 ### Editing
 
 ```
-issues edit <id> [flags]
+work edit <id> [flags]
   --title <text>
   --description <text>
   --priority <n>
@@ -68,22 +68,22 @@ issues edit <id> [flags]
 Default states: `open` → `active` → `done` / `cancelled`
 
 ```
-issues status <id> <state>   # Explicit transition
-issues start <id>            # open → active
-issues close <id>            # → done
-issues cancel <id>           # → cancelled
-issues reopen <id>           # → open
+work status <id> <state>   # Explicit transition
+work start <id>            # open → active
+work close <id>            # → done
+work cancel <id>           # → cancelled
+work reopen <id>           # → open
 ```
 
-Transitions are validated against `.issues/config.json`. Invalid
+Transitions are validated against `.work/config.json`. Invalid
 moves are rejected with a clear error.
 
 ### Filtering and Sorting
 
 ```
-issues list --status=open
-issues list --label=bug --assignee=jim
-issues list --priority=1 --sort=updated
+work list --status=open
+work list --label=bug --assignee=jim
+work list --priority=1 --sort=updated
 ```
 
 Filters combine with AND logic. Sort options: `priority` (ascending),
@@ -92,37 +92,37 @@ Filters combine with AND logic. Sort options: `priority` (ascending),
 ### History
 
 ```
-issues log <id>              # Events for one issue
-issues history               # Recent events across all issues (last 20)
-issues history --since=2026-01-01
-issues log <id> --since=2026-02-01 --until=2026-02-15
+work log <id>              # Events for one issue
+work history               # Recent events across all issues (last 20)
+work history --since=2026-01-01
+work log <id> --since=2026-02-01 --until=2026-02-15
 ```
 
 ### Comments
 
 ```
-issues comment <id> "Fixed in commit abc123"
+work comment <id> "Fixed in commit abc123"
 ```
 
 ### JSON Output
 
 ```
-issues show <id> --format=json
-issues list --format=json
-issues export                # Always JSON
+work show <id> --format=json
+work list --format=json
+work export                # Always JSON
 ```
 
 ### Shell Completions
 
 ```
-eval "$(issues completion bash)"
-eval "$(issues completion zsh)"
+eval "$(work completion bash)"
+eval "$(work completion zsh)"
 ```
 
 ## Storage Layout
 
 ```
-.issues/
+.work/
   config.json                # States, transitions, defaults
   issues/
     <6-char-hex>/
@@ -136,7 +136,7 @@ issues touch different files.
 
 ## Configuration
 
-Edit `.issues/config.json` to customize states and transitions:
+Edit `.work/config.json` to customize states and transitions:
 
 ```json
 {

@@ -89,7 +89,7 @@ func cmdInit() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Initialized work tracker in .issues/")
+	fmt.Println("Initialized work tracker in .work/")
 }
 
 func loadTracker() *tracker.Tracker {
@@ -549,7 +549,7 @@ func issueIDs() []string {
 	if err != nil {
 		return nil
 	}
-	entries, err := os.ReadDir(filepath.Join(wd, ".issues", "issues"))
+	entries, err := os.ReadDir(filepath.Join(wd, ".work", "issues"))
 	if err != nil {
 		return nil
 	}
@@ -578,7 +578,7 @@ func printBashCompletion() {
     case "$prev" in
         show|edit|status|close|cancel|reopen|start|comment|log)
             local ids
-            ids=$(ls .issues/issues/ 2>/dev/null)
+            ids=$(ls .work/issues/ 2>/dev/null)
             COMPREPLY=($(compgen -W "$ids" -- "$cur"))
             return 0
             ;;
@@ -627,7 +627,7 @@ _work() {
     case "${words[2]}" in
         show|edit|status|close|cancel|reopen|start|comment|log)
             local -a ids
-            ids=(${(f)"$(ls .issues/issues/ 2>/dev/null)"})
+            ids=(${(f)"$(ls .work/issues/ 2>/dev/null)"})
             _describe 'issue' ids
             ;;
         completion)

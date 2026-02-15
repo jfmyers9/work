@@ -131,26 +131,26 @@ func TestInit(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	// .issues/ dir exists
-	info, err := os.Stat(filepath.Join(root, ".issues"))
+	// .work/ dir exists
+	info, err := os.Stat(filepath.Join(root, ".work"))
 	if err != nil {
-		t.Fatalf("stat .issues: %v", err)
+		t.Fatalf("stat .work: %v", err)
 	}
 	if !info.IsDir() {
-		t.Error(".issues is not a directory")
+		t.Error(".work is not a directory")
 	}
 
-	// .issues/issues/ dir exists
-	info, err = os.Stat(filepath.Join(root, ".issues", "issues"))
+	// .work/issues/ dir exists
+	info, err = os.Stat(filepath.Join(root, ".work", "issues"))
 	if err != nil {
-		t.Fatalf("stat .issues/issues: %v", err)
+		t.Fatalf("stat .work/issues: %v", err)
 	}
 	if !info.IsDir() {
-		t.Error(".issues/issues is not a directory")
+		t.Error(".work/issues is not a directory")
 	}
 
 	// config.json is valid
-	data, err := os.ReadFile(filepath.Join(root, ".issues", "config.json"))
+	data, err := os.ReadFile(filepath.Join(root, ".work", "config.json"))
 	if err != nil {
 		t.Fatalf("read config: %v", err)
 	}
@@ -244,7 +244,7 @@ func TestCreateIssue(t *testing.T) {
 	}
 
 	// Verify history.jsonl has the create event
-	histPath := filepath.Join(root, ".issues", "issues", issue.ID, "history.jsonl")
+	histPath := filepath.Join(root, ".work", "issues", issue.ID, "history.jsonl")
 	events := readEvents(t, histPath)
 	if len(events) != 1 {
 		t.Fatalf("events: got %d, want 1", len(events))
@@ -434,7 +434,7 @@ func TestEditIssue(t *testing.T) {
 	}
 
 	// Verify history has both create and edit events
-	histPath := filepath.Join(root, ".issues", "issues", issue.ID, "history.jsonl")
+	histPath := filepath.Join(root, ".work", "issues", issue.ID, "history.jsonl")
 	events := readEvents(t, histPath)
 	if len(events) != 2 {
 		t.Fatalf("events: got %d, want 2", len(events))
@@ -469,7 +469,7 @@ func TestAppendEvent_MultipleEvents(t *testing.T) {
 		}
 	}
 
-	histPath := filepath.Join(root, ".issues", "issues", "evt123", "history.jsonl")
+	histPath := filepath.Join(root, ".work", "issues", "evt123", "history.jsonl")
 	events := readEvents(t, histPath)
 	if len(events) != 3 {
 		t.Errorf("events: got %d, want 3", len(events))
@@ -671,7 +671,7 @@ func TestSetStatus_HistoryEvent(t *testing.T) {
 		t.Fatalf("set status: %v", err)
 	}
 
-	histPath := filepath.Join(root, ".issues", "issues", issue.ID, "history.jsonl")
+	histPath := filepath.Join(root, ".work", "issues", issue.ID, "history.jsonl")
 	events := readEvents(t, histPath)
 	if len(events) != 2 {
 		t.Fatalf("events: got %d, want 2", len(events))
