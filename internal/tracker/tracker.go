@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -15,14 +16,32 @@ import (
 	"github.com/jfmyers9/work/internal/model"
 )
 
+// ResolveUser determines the current user identity.
+// Checks WORK_USER env, then git config user.name, then falls back to "system".
+func ResolveUser() string {
+	if u := os.Getenv("WORK_USER"); u != "" {
+		return u
+	}
+	out, err := exec.Command("git", "config", "user.name").Output()
+	if err == nil {
+		if name := strings.TrimSpace(string(out)); name != "" {
+			return name
+		}
+	}
+	return "system"
+}
+
 // FilterOptions specifies criteria for filtering issues. All non-zero fields
 // are combined with AND logic.
 type FilterOptions struct {
-	Status   string
-	Label    string
-	Assignee string
-	Priority int
+	Status      string
+	Label       string
+	Assignee    string
+	Priority    int
 	HasPriority bool // distinguishes "filter by priority 0" from "no filter"
+	Type        string
+	ParentID    string
+	RootsOnly   bool
 }
 
 // FilterIssues returns the subset of issues matching all specified filters.
@@ -39,6 +58,15 @@ func FilterIssues(issues []model.Issue, opts FilterOptions) []model.Issue {
 			continue
 		}
 		if opts.HasPriority && issue.Priority != opts.Priority {
+			continue
+		}
+		if opts.Type != "" && issue.Type != opts.Type {
+			continue
+		}
+		if opts.ParentID != "" && issue.ParentID != opts.ParentID {
+			continue
+		}
+		if opts.RootsOnly && issue.ParentID != "" {
 			continue
 		}
 		result = append(result, issue)
@@ -108,6 +136,11 @@ func Init(root string) (*Tracker, error) {
 		return nil, fmt.Errorf("writing config: %w", err)
 	}
 
+	gitattributes := filepath.Join(root, ".work", ".gitattributes")
+	if err := os.WriteFile(gitattributes, []byte("* linguist-generated\n"), 0o644); err != nil {
+		return nil, fmt.Errorf("writing .gitattributes: %w", err)
+	}
+
 	return &Tracker{Root: root, Config: cfg}, nil
 }
 
@@ -170,8 +203,29 @@ func (t *Tracker) AppendEvent(id string, event model.Event) error {
 	return nil
 }
 
+// ValidateType checks if the given type is allowed by config.
+func ValidateType(cfg model.Config, issueType string) error {
+	for _, t := range cfg.Types {
+		if t == issueType {
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid type %q (allowed: %s)", issueType, strings.Join(cfg.Types, ", "))
+}
+
 // CreateIssue generates an ID, saves the issue, and records a creation event.
-func (t *Tracker) CreateIssue(title, description, assignee string, priority int, labels []string) (model.Issue, error) {
+func (t *Tracker) CreateIssue(title, description, assignee string, priority int, labels []string, issueType, parentID, user string) (model.Issue, error) {
+	if issueType == "" {
+		issueType = t.Config.DefaultType
+	}
+	if err := ValidateType(t.Config, issueType); err != nil {
+		return model.Issue{}, err
+	}
+	if parentID != "" {
+		if err := t.validateParent(parentID); err != nil {
+			return model.Issue{}, err
+		}
+	}
 	id, err := t.GenerateID()
 	if err != nil {
 		return model.Issue{}, err
@@ -182,9 +236,11 @@ func (t *Tracker) CreateIssue(title, description, assignee string, priority int,
 		Title:       title,
 		Description: description,
 		Status:      t.Config.DefaultState,
+		Type:        issueType,
 		Priority:    priority,
 		Labels:      labels,
 		Assignee:    assignee,
+		ParentID:    parentID,
 		Created:     now,
 		Updated:     now,
 	}
@@ -194,7 +250,7 @@ func (t *Tracker) CreateIssue(title, description, assignee string, priority int,
 	event := model.Event{
 		Timestamp: now,
 		Op:        "create",
-		By:        "system",
+		By:        user,
 	}
 	if err := t.AppendEvent(id, event); err != nil {
 		return model.Issue{}, err
@@ -244,7 +300,7 @@ func ValidateTransition(cfg model.Config, from, to string) error {
 }
 
 // SetStatus validates the transition and updates the issue's status.
-func (t *Tracker) SetStatus(id, newStatus string) (model.Issue, error) {
+func (t *Tracker) SetStatus(id, newStatus, user string) (model.Issue, error) {
 	issue, err := t.LoadIssue(id)
 	if err != nil {
 		return model.Issue{}, err
@@ -264,7 +320,7 @@ func (t *Tracker) SetStatus(id, newStatus string) (model.Issue, error) {
 		Op:        "status",
 		From:      oldStatus,
 		To:        newStatus,
-		By:        "system",
+		By:        user,
 	}
 	if err := t.AppendEvent(id, event); err != nil {
 		return model.Issue{}, err
@@ -361,7 +417,7 @@ func FilterEventsWithIssueByTime(events []EventWithIssue, since, until time.Time
 }
 
 // AddComment appends a comment to the issue and records a history event.
-func (t *Tracker) AddComment(id, text string) (model.Issue, error) {
+func (t *Tracker) AddComment(id, text, user string) (model.Issue, error) {
 	issue, err := t.LoadIssue(id)
 	if err != nil {
 		return model.Issue{}, err
@@ -370,7 +426,7 @@ func (t *Tracker) AddComment(id, text string) (model.Issue, error) {
 	comment := model.Comment{
 		Text:    text,
 		Created: now,
-		By:      "system",
+		By:      user,
 	}
 	issue.Comments = append(issue.Comments, comment)
 	issue.Updated = now
@@ -381,12 +437,100 @@ func (t *Tracker) AddComment(id, text string) (model.Issue, error) {
 		Timestamp: now,
 		Op:        "comment",
 		Text:      text,
-		By:        "system",
+		By:        user,
 	}
 	if err := t.AppendEvent(id, event); err != nil {
 		return model.Issue{}, err
 	}
 	return issue, nil
+}
+
+// validateParent checks that the given parent ID exists and is not itself a child.
+func (t *Tracker) validateParent(parentID string) error {
+	parent, err := t.LoadIssue(parentID)
+	if err != nil {
+		return fmt.Errorf("parent issue not found: %s", parentID)
+	}
+	if parent.ParentID != "" {
+		return fmt.Errorf("parent %s is itself a child (no grandchildren allowed)", parentID)
+	}
+	return nil
+}
+
+// LinkIssue sets the parent of a child issue. Validates that the parent exists,
+// neither issue creates a grandchild relationship, and no circular ref.
+func (t *Tracker) LinkIssue(childID, parentID, user string) (model.Issue, error) {
+	if childID == parentID {
+		return model.Issue{}, fmt.Errorf("cannot link issue to itself")
+	}
+
+	child, err := t.LoadIssue(childID)
+	if err != nil {
+		return model.Issue{}, err
+	}
+
+	if err := t.validateParent(parentID); err != nil {
+		return model.Issue{}, err
+	}
+
+	// Child must not already be a parent (no grandchildren)
+	issues, err := t.ListIssues()
+	if err != nil {
+		return model.Issue{}, err
+	}
+	for _, issue := range issues {
+		if issue.ParentID == childID {
+			return model.Issue{}, fmt.Errorf("issue %s has children and cannot become a child", childID)
+		}
+	}
+
+	now := time.Now().UTC()
+	child.ParentID = parentID
+	child.Updated = now
+	if err := t.SaveIssue(child); err != nil {
+		return model.Issue{}, err
+	}
+
+	event := model.Event{
+		Timestamp: now,
+		Op:        "link",
+		To:        parentID,
+		By:        user,
+	}
+	if err := t.AppendEvent(childID, event); err != nil {
+		return model.Issue{}, err
+	}
+	return child, nil
+}
+
+// UnlinkIssue removes the parent from a child issue.
+func (t *Tracker) UnlinkIssue(childID, user string) (model.Issue, error) {
+	child, err := t.LoadIssue(childID)
+	if err != nil {
+		return model.Issue{}, err
+	}
+	if child.ParentID == "" {
+		return model.Issue{}, fmt.Errorf("issue %s has no parent", childID)
+	}
+
+	now := time.Now().UTC()
+	oldParent := child.ParentID
+	child.ParentID = ""
+	child.Updated = now
+	if err := t.SaveIssue(child); err != nil {
+		return model.Issue{}, err
+	}
+
+	event := model.Event{
+		Timestamp: now,
+		Op:        "unlink",
+		From:      oldParent,
+		By:        user,
+	}
+	if err := t.AppendEvent(childID, event); err != nil {
+		return model.Issue{}, err
+	}
+	return child, nil
 }
 
 // ListIssues loads all issues from the tracker.

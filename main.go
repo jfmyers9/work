@@ -41,8 +41,18 @@ func main() {
 		cmdShortcut("open")
 	case "start":
 		cmdShortcut("active")
+	case "review":
+		cmdShortcut("review")
+	case "approve":
+		cmdShortcut("done")
+	case "reject":
+		cmdReject()
 	case "comment":
 		cmdComment()
+	case "link":
+		cmdLink()
+	case "unlink":
+		cmdUnlink()
 	case "export":
 		cmdExport()
 	case "completion":
@@ -71,7 +81,12 @@ Commands:
   cancel      Cancel an issue
   reopen      Reopen an issue
   start       Start working on an issue (set status to active)
+  review      Submit an issue for review (set status to review)
+  approve     Approve a reviewed issue (set status to done)
+  reject      Reject a reviewed issue (back to active + reason comment)
   comment     Add a comment to an issue
+  link        Link a child issue to a parent
+  unlink      Remove parent from a child issue
   log         Show issue event log
   history     Show all events across issues
   export      Export issues as JSON
@@ -106,7 +121,13 @@ func loadTracker() *tracker.Tracker {
 	return t
 }
 
+// booleanFlags lists flags that take no value.
+var booleanFlags = map[string]bool{
+	"roots": true,
+}
+
 // parseFlags extracts --key=value and --key value pairs from args.
+// Flags listed in booleanFlags are treated as present/absent with no value.
 func parseFlags(args []string) ([]string, map[string]string) {
 	var positional []string
 	flags := make(map[string]string)
@@ -115,6 +136,8 @@ func parseFlags(args []string) ([]string, map[string]string) {
 			raw := strings.TrimPrefix(args[i], "--")
 			if k, v, ok := strings.Cut(raw, "="); ok {
 				flags[k] = v
+			} else if booleanFlags[raw] {
+				flags[raw] = ""
 			} else if i+1 < len(args) {
 				flags[raw] = args[i+1]
 				i++
@@ -131,12 +154,13 @@ func cmdCreate() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work create <title> [--description ...] [--priority N] [--labels a,b] [--assignee name]")
+		fmt.Fprintln(os.Stderr, "usage: work create <title> [--description ...] [--priority N] [--labels a,b] [--assignee name] [--type feature|bug|chore] [--parent id]")
 		os.Exit(1)
 	}
 	title := positional[0]
 	description := flags["description"]
 	assignee := flags["assignee"]
+	issueType := flags["type"]
 	priority := 0
 	if p, ok := flags["priority"]; ok {
 		n, err := strconv.Atoi(p)
@@ -152,7 +176,19 @@ func cmdCreate() {
 	}
 
 	t := loadTracker()
-	issue, err := t.CreateIssue(title, description, assignee, priority, labels)
+
+	parentID := ""
+	if p, ok := flags["parent"]; ok {
+		resolved, err := t.ResolvePrefix(p)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		parentID = resolved
+	}
+
+	user := tracker.ResolveUser()
+	issue, err := t.CreateIssue(title, description, assignee, priority, labels, issueType, parentID, user)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
@@ -195,6 +231,7 @@ func cmdShow() {
 	fmt.Printf("ID:          %s\n", issue.ID)
 	fmt.Printf("Title:       %s\n", issue.Title)
 	fmt.Printf("Status:      %s\n", issue.Status)
+	fmt.Printf("Type:        %s\n", issue.Type)
 	fmt.Printf("Priority:    %d\n", issue.Priority)
 	if len(issue.Labels) > 0 {
 		fmt.Printf("Labels:      %s\n", strings.Join(issue.Labels, ", "))
@@ -202,11 +239,37 @@ func cmdShow() {
 	if issue.Assignee != "" {
 		fmt.Printf("Assignee:    %s\n", issue.Assignee)
 	}
+	if issue.ParentID != "" {
+		fmt.Printf("Parent:      %s\n", issue.ParentID)
+	}
 	if issue.Description != "" {
 		fmt.Printf("Description: %s\n", issue.Description)
 	}
 	fmt.Printf("Created:     %s\n", issue.Created.Format(time.RFC3339))
 	fmt.Printf("Updated:     %s\n", issue.Updated.Format(time.RFC3339))
+
+	// Show children if this issue is a parent
+	allIssues, err := t.ListIssues()
+	if err == nil {
+		var children []model.Issue
+		for _, i := range allIssues {
+			if i.ParentID == issue.ID {
+				children = append(children, i)
+			}
+		}
+		if len(children) > 0 {
+			done := 0
+			for _, c := range children {
+				if c.Status == "done" || c.Status == "cancelled" {
+					done++
+				}
+			}
+			fmt.Printf("\nChildren: %d/%d done\n", done, len(children))
+			for _, c := range children {
+				fmt.Printf("  %-8s %-10s %s\n", c.ID, c.Status, c.Title)
+			}
+		}
+	}
 }
 
 func cmdList() {
@@ -223,6 +286,7 @@ func cmdList() {
 		Status:   flags["status"],
 		Label:    flags["label"],
 		Assignee: flags["assignee"],
+		Type:     flags["type"],
 	}
 	if p, ok := flags["priority"]; ok {
 		n, err := strconv.Atoi(p)
@@ -232,6 +296,17 @@ func cmdList() {
 		}
 		opts.Priority = n
 		opts.HasPriority = true
+	}
+	if p, ok := flags["parent"]; ok {
+		resolved, err := t.ResolvePrefix(p)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		opts.ParentID = resolved
+	}
+	if _, ok := flags["roots"]; ok {
+		opts.RootsOnly = true
 	}
 	issues = tracker.FilterIssues(issues, opts)
 	tracker.SortIssues(issues, flags["sort"])
@@ -251,13 +326,13 @@ func cmdList() {
 		return
 	}
 
-	fmt.Printf("%-8s %-10s %-8s %s\n", "ID", "STATUS", "PRIORITY", "TITLE")
+	fmt.Printf("%-8s %-10s %-10s %-8s %s\n", "ID", "STATUS", "TYPE", "PRIORITY", "TITLE")
 	for _, issue := range issues {
 		title := issue.Title
 		if len(title) > 50 {
 			title = title[:47] + "..."
 		}
-		fmt.Printf("%-8s %-10s %-8d %s\n", issue.ID, issue.Status, issue.Priority, title)
+		fmt.Printf("%-8s %-10s %-10s %-8d %s\n", issue.ID, issue.Status, issue.Type, issue.Priority, title)
 	}
 }
 
@@ -266,7 +341,7 @@ func cmdEdit() {
 	positional, flags := parseFlags(args)
 
 	if len(positional) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: work edit <id-or-prefix> [--title ...] [--description ...] [--priority N] [--labels a,b] [--assignee name]")
+		fmt.Fprintln(os.Stderr, "usage: work edit <id-or-prefix> [--title ...] [--description ...] [--priority N] [--labels a,b] [--assignee name] [--type feature|bug|chore]")
 		os.Exit(1)
 	}
 	prefix := positional[0]
@@ -309,6 +384,14 @@ func cmdEdit() {
 		issue.Labels = strings.Split(l, ",")
 		edited = append(edited, "labels")
 	}
+	if v, ok := flags["type"]; ok {
+		if err := tracker.ValidateType(t.Config, v); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		issue.Type = v
+		edited = append(edited, "type")
+	}
 
 	if len(edited) == 0 {
 		fmt.Fprintln(os.Stderr, "no fields to update")
@@ -322,11 +405,12 @@ func cmdEdit() {
 		os.Exit(1)
 	}
 
+	user := tracker.ResolveUser()
 	event := model.Event{
 		Timestamp: now,
 		Op:        "edit",
 		Fields:    edited,
-		By:        "system",
+		By:        user,
 	}
 	if err := t.AppendEvent(id, event); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
@@ -357,7 +441,8 @@ func cmdStatus() {
 	}
 	oldStatus := old.Status
 
-	if _, err := t.SetStatus(id, newStatus); err != nil {
+	user := tracker.ResolveUser()
+	if _, err := t.SetStatus(id, newStatus, user); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
@@ -386,6 +471,10 @@ func formatEventDetail(ev model.Event) string {
 			text = text[:57] + "..."
 		}
 		return fmt.Sprintf("comment: %s", text)
+	case "link":
+		return fmt.Sprintf("link: parent=%s", ev.To)
+	case "unlink":
+		return fmt.Sprintf("unlink: was parent=%s", ev.From)
 	default:
 		return ev.Op
 	}
@@ -506,11 +595,69 @@ func cmdComment() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
-	if _, err := t.AddComment(id, text); err != nil {
+	user := tracker.ResolveUser()
+	if _, err := t.AddComment(id, text, user); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Commented on %s\n", id)
+}
+
+func cmdLink() {
+	args := os.Args[2:]
+	positional, flags := parseFlags(args)
+
+	if len(positional) == 0 {
+		fmt.Fprintln(os.Stderr, "usage: work link <child-id> --parent <epic-id>")
+		os.Exit(1)
+	}
+	parentPrefix, ok := flags["parent"]
+	if !ok {
+		fmt.Fprintln(os.Stderr, "usage: work link <child-id> --parent <epic-id>")
+		os.Exit(1)
+	}
+
+	t := loadTracker()
+
+	childID, err := t.ResolvePrefix(positional[0])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	parentID, err := t.ResolvePrefix(parentPrefix)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	user := tracker.ResolveUser()
+	if _, err := t.LinkIssue(childID, parentID, user); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Linked %s → %s\n", childID, parentID)
+}
+
+func cmdUnlink() {
+	if len(os.Args) < 3 {
+		fmt.Fprintln(os.Stderr, "usage: work unlink <child-id>")
+		os.Exit(1)
+	}
+	prefix := os.Args[2]
+	t := loadTracker()
+
+	id, err := t.ResolvePrefix(prefix)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	user := tracker.ResolveUser()
+	if _, err := t.UnlinkIssue(id, user); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Unlinked %s\n", id)
 }
 
 func cmdExport() {
@@ -568,7 +715,7 @@ func printBashCompletion() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="init create show list edit status close cancel reopen start comment log history export completion"
+    commands="init create show list edit status close cancel reopen start review approve reject comment link unlink log history export completion"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -576,14 +723,14 @@ func printBashCompletion() {
     fi
 
     case "$prev" in
-        show|edit|status|close|cancel|reopen|start|comment|log)
+        show|edit|status|close|cancel|reopen|start|review|approve|reject|comment|link|unlink|log)
             local ids
             ids=$(ls .work/issues/ 2>/dev/null)
             COMPREPLY=($(compgen -W "$ids" -- "$cur"))
             return 0
             ;;
         status)
-            COMPREPLY=($(compgen -W "open active done cancelled" -- "$cur"))
+            COMPREPLY=($(compgen -W "open active review done cancelled" -- "$cur"))
             return 0
             ;;
         completion)
@@ -612,7 +759,12 @@ _work() {
         'cancel:Cancel an issue'
         'reopen:Reopen an issue'
         'start:Start working on an issue'
+        'review:Submit an issue for review'
+        'approve:Approve a reviewed issue'
+        'reject:Reject a reviewed issue'
         'comment:Add a comment to an issue'
+        'link:Link a child issue to a parent'
+        'unlink:Remove parent from a child issue'
         'log:Show issue event log'
         'history:Show all events'
         'export:Export issues as JSON'
@@ -625,7 +777,7 @@ _work() {
     fi
 
     case "${words[2]}" in
-        show|edit|status|close|cancel|reopen|start|comment|log)
+        show|edit|status|close|cancel|reopen|start|review|approve|reject|comment|link|unlink|log)
             local -a ids
             ids=(${(f)"$(ls .work/issues/ 2>/dev/null)"})
             _describe 'issue' ids
@@ -661,9 +813,44 @@ func cmdShortcut(targetStatus string) {
 	}
 	oldStatus := old.Status
 
-	if _, err := t.SetStatus(id, targetStatus); err != nil {
+	user := tracker.ResolveUser()
+	if _, err := t.SetStatus(id, targetStatus, user); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("%s: %s → %s\n", id, oldStatus, targetStatus)
+}
+
+func cmdReject() {
+	if len(os.Args) < 4 {
+		fmt.Fprintln(os.Stderr, "usage: work reject <id-or-prefix> <reason>")
+		os.Exit(1)
+	}
+	prefix := os.Args[2]
+	reason := os.Args[3]
+	t := loadTracker()
+
+	id, err := t.ResolvePrefix(prefix)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	old, err := t.LoadIssue(id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	oldStatus := old.Status
+
+	user := tracker.ResolveUser()
+	if _, err := t.SetStatus(id, "active", user); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	if _, err := t.AddComment(id, "Rejected: "+reason, user); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("%s: %s → active (rejected: %s)\n", id, oldStatus, reason)
 }

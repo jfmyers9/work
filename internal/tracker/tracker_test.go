@@ -210,7 +210,7 @@ func TestCreateIssue(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Bug report", "something broke", "jim", 2, []string{"bug", "ux"})
+	issue, err := tr.CreateIssue("Bug report", "something broke", "jim", 2, []string{"bug", "ux"}, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
@@ -252,7 +252,7 @@ func TestCreateIssue(t *testing.T) {
 	if events[0].Op != "create" {
 		t.Errorf("event op: got %q, want %q", events[0].Op, "create")
 	}
-	if events[0].By != "system" {
+	if events[0].By != "testuser" {
 		t.Errorf("event by: got %q", events[0].By)
 	}
 }
@@ -387,7 +387,7 @@ func TestEditIssue(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Original title", "desc", "", 0, nil)
+	issue, err := tr.CreateIssue("Original title", "desc", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
@@ -485,6 +485,9 @@ func TestValidateTransition_Valid(t *testing.T) {
 		{"active", "done"},
 		{"active", "cancelled"},
 		{"active", "open"},
+		{"active", "review"},
+		{"review", "done"},
+		{"review", "active"},
 		{"done", "open"},
 		{"cancelled", "open"},
 	}
@@ -534,13 +537,13 @@ func TestSetStatus(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Status test", "", "", 0, nil)
+	issue, err := tr.CreateIssue("Status test", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
 	// open → active
-	updated, err := tr.SetStatus(issue.ID, "active")
+	updated, err := tr.SetStatus(issue.ID, "active", "testuser")
 	if err != nil {
 		t.Fatalf("set status open→active: %v", err)
 	}
@@ -549,7 +552,7 @@ func TestSetStatus(t *testing.T) {
 	}
 
 	// active → done
-	updated, err = tr.SetStatus(issue.ID, "done")
+	updated, err = tr.SetStatus(issue.ID, "done", "testuser")
 	if err != nil {
 		t.Fatalf("set status active→done: %v", err)
 	}
@@ -558,7 +561,7 @@ func TestSetStatus(t *testing.T) {
 	}
 
 	// done → open (reopen)
-	updated, err = tr.SetStatus(issue.ID, "open")
+	updated, err = tr.SetStatus(issue.ID, "open", "testuser")
 	if err != nil {
 		t.Fatalf("set status done→open: %v", err)
 	}
@@ -574,19 +577,19 @@ func TestSetStatus_InvalidTransition(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Invalid test", "", "", 0, nil)
+	issue, err := tr.CreateIssue("Invalid test", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
 	// open → active → done, then try done → active (invalid)
-	if _, err := tr.SetStatus(issue.ID, "active"); err != nil {
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
 		t.Fatalf("open→active: %v", err)
 	}
-	if _, err := tr.SetStatus(issue.ID, "done"); err != nil {
+	if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
 		t.Fatalf("active→done: %v", err)
 	}
-	_, err = tr.SetStatus(issue.ID, "active")
+	_, err = tr.SetStatus(issue.ID, "active", "testuser")
 	if err == nil {
 		t.Fatal("expected error for done→active")
 	}
@@ -611,12 +614,12 @@ func TestSetStatus_SameState(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Same state", "", "", 0, nil)
+	issue, err := tr.CreateIssue("Same state", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
-	_, err = tr.SetStatus(issue.ID, "open")
+	_, err = tr.SetStatus(issue.ID, "open", "testuser")
 	if err == nil {
 		t.Fatal("expected error for open→open")
 	}
@@ -632,12 +635,12 @@ func TestSetStatus_Persists(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Persist test", "", "", 0, nil)
+	issue, err := tr.CreateIssue("Persist test", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
-	if _, err := tr.SetStatus(issue.ID, "active"); err != nil {
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
 		t.Fatalf("set status: %v", err)
 	}
 
@@ -662,12 +665,12 @@ func TestSetStatus_HistoryEvent(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("History test", "", "", 0, nil)
+	issue, err := tr.CreateIssue("History test", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
-	if _, err := tr.SetStatus(issue.ID, "active"); err != nil {
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
 		t.Fatalf("set status: %v", err)
 	}
 
@@ -686,8 +689,8 @@ func TestSetStatus_HistoryEvent(t *testing.T) {
 	if ev.To != "active" {
 		t.Errorf("to: got %q, want active", ev.To)
 	}
-	if ev.By != "system" {
-		t.Errorf("by: got %q, want system", ev.By)
+	if ev.By != "testuser" {
+		t.Errorf("by: got %q, want testuser", ev.By)
 	}
 }
 
@@ -863,11 +866,11 @@ func TestLoadEvents_SingleIssue(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Test", "", "", 0, nil) // creates 1 event
+	issue, err := tr.CreateIssue("Test", "", "", 0, nil, "", "", "testuser") // creates 1 event
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
-	if _, err := tr.SetStatus(issue.ID, "active"); err != nil { // creates 2nd event
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil { // creates 2nd event
 		t.Fatalf("set status: %v", err)
 	}
 
@@ -915,15 +918,15 @@ func TestLoadAllEvents_MultipleIssues(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	i1, err := tr.CreateIssue("First", "", "", 0, nil)
+	i1, err := tr.CreateIssue("First", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create 1: %v", err)
 	}
-	i2, err := tr.CreateIssue("Second", "", "", 0, nil)
+	i2, err := tr.CreateIssue("Second", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create 2: %v", err)
 	}
-	if _, err := tr.SetStatus(i1.ID, "active"); err != nil {
+	if _, err := tr.SetStatus(i1.ID, "active", "testuser"); err != nil {
 		t.Fatalf("set status: %v", err)
 	}
 
@@ -1002,6 +1005,669 @@ func TestFilterEventsByTime_SinceAndUntil(t *testing.T) {
 	}
 	if got[0].Op != "status" || got[1].Op != "edit" {
 		t.Errorf("got ops %q %q, want status edit", got[0].Op, got[1].Op)
+	}
+}
+
+func TestResolveUser_EnvVar(t *testing.T) {
+	t.Setenv("WORK_USER", "envuser")
+	got := ResolveUser()
+	if got != "envuser" {
+		t.Errorf("got %q, want envuser", got)
+	}
+}
+
+func TestResolveUser_Fallback(t *testing.T) {
+	t.Setenv("WORK_USER", "")
+	got := ResolveUser()
+	// Falls back to git config user.name or "system" — either is acceptable
+	if got == "" {
+		t.Error("ResolveUser returned empty string")
+	}
+}
+
+func TestReviewWorkflow(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Review test", "", "", 0, nil, "", "", "alice")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	// open → active
+	issue, err = tr.SetStatus(issue.ID, "active", "alice")
+	if err != nil {
+		t.Fatalf("open→active: %v", err)
+	}
+
+	// active → review
+	issue, err = tr.SetStatus(issue.ID, "review", "alice")
+	if err != nil {
+		t.Fatalf("active→review: %v", err)
+	}
+	if issue.Status != "review" {
+		t.Errorf("status: got %q, want review", issue.Status)
+	}
+
+	// review → done (approve)
+	issue, err = tr.SetStatus(issue.ID, "done", "bob")
+	if err != nil {
+		t.Fatalf("review→done: %v", err)
+	}
+	if issue.Status != "done" {
+		t.Errorf("status: got %q, want done", issue.Status)
+	}
+
+	// Verify events record correct users
+	events, err := tr.LoadEvents(issue.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	if events[0].By != "alice" {
+		t.Errorf("create by: got %q, want alice", events[0].By)
+	}
+	if events[3].By != "bob" {
+		t.Errorf("approve by: got %q, want bob", events[3].By)
+	}
+}
+
+func TestRejectWorkflow(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Reject test", "", "", 0, nil, "", "", "alice")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	if _, err = tr.SetStatus(issue.ID, "active", "alice"); err != nil {
+		t.Fatalf("open→active: %v", err)
+	}
+	if _, err = tr.SetStatus(issue.ID, "review", "alice"); err != nil {
+		t.Fatalf("active→review: %v", err)
+	}
+
+	// review → active (reject)
+	issue, err = tr.SetStatus(issue.ID, "active", "bob")
+	if err != nil {
+		t.Fatalf("review→active: %v", err)
+	}
+	if issue.Status != "active" {
+		t.Errorf("status: got %q, want active", issue.Status)
+	}
+
+	// Add rejection comment
+	issue, err = tr.AddComment(issue.ID, "Rejected: needs error handling", "bob")
+	if err != nil {
+		t.Fatalf("rejection comment: %v", err)
+	}
+	if len(issue.Comments) != 1 {
+		t.Fatalf("comments: got %d, want 1", len(issue.Comments))
+	}
+	if issue.Comments[0].By != "bob" {
+		t.Errorf("comment by: got %q, want bob", issue.Comments[0].By)
+	}
+	if issue.Comments[0].Text != "Rejected: needs error handling" {
+		t.Errorf("comment text: got %q", issue.Comments[0].Text)
+	}
+}
+
+func TestReviewTransition_InvalidFromOpen(t *testing.T) {
+	cfg := model.DefaultConfig()
+	err := ValidateTransition(cfg, "open", "review")
+	if err == nil {
+		t.Error("expected error for open→review")
+	}
+}
+
+func TestReviewTransition_InvalidFromDone(t *testing.T) {
+	cfg := model.DefaultConfig()
+	err := ValidateTransition(cfg, "done", "review")
+	if err == nil {
+		t.Error("expected error for done→review")
+	}
+}
+
+func TestUserIdentityOnComment(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Identity test", "", "", 0, nil, "", "", "creator")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	issue, err = tr.AddComment(issue.ID, "hello", "commenter")
+	if err != nil {
+		t.Fatalf("comment: %v", err)
+	}
+	if issue.Comments[0].By != "commenter" {
+		t.Errorf("comment by: got %q, want commenter", issue.Comments[0].By)
+	}
+
+	events, err := tr.LoadEvents(issue.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	if events[0].By != "creator" {
+		t.Errorf("create event by: got %q, want creator", events[0].By)
+	}
+	if events[1].By != "commenter" {
+		t.Errorf("comment event by: got %q, want commenter", events[1].By)
+	}
+}
+
+// --- Type tests ---
+
+func TestCreateIssue_DefaultType(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("No type specified", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if issue.Type != "feature" {
+		t.Errorf("type: got %q, want feature", issue.Type)
+	}
+}
+
+func TestCreateIssue_ExplicitType(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("A bug", "", "", 0, nil, "bug", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if issue.Type != "bug" {
+		t.Errorf("type: got %q, want bug", issue.Type)
+	}
+
+	loaded, err := tr.LoadIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if loaded.Type != "bug" {
+		t.Errorf("persisted type: got %q, want bug", loaded.Type)
+	}
+}
+
+func TestCreateIssue_InvalidType(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	_, err = tr.CreateIssue("Bad type", "", "", 0, nil, "epic", "", "testuser")
+	if err == nil {
+		t.Fatal("expected error for invalid type")
+	}
+	if !strings.Contains(err.Error(), "invalid type") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestValidateType(t *testing.T) {
+	cfg := model.DefaultConfig()
+
+	for _, valid := range []string{"feature", "bug", "chore"} {
+		if err := ValidateType(cfg, valid); err != nil {
+			t.Errorf("type %q should be valid: %v", valid, err)
+		}
+	}
+
+	err := ValidateType(cfg, "epic")
+	if err == nil {
+		t.Fatal("expected error for invalid type")
+	}
+	if !strings.Contains(err.Error(), "invalid type") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestFilterIssues_ByType(t *testing.T) {
+	now := time.Now()
+	issues := []model.Issue{
+		{ID: "aaa111", Title: "Feature A", Status: "open", Type: "feature", Created: now, Updated: now},
+		{ID: "bbb222", Title: "Bug B", Status: "open", Type: "bug", Created: now, Updated: now},
+		{ID: "ccc333", Title: "Chore C", Status: "open", Type: "chore", Created: now, Updated: now},
+		{ID: "ddd444", Title: "Feature D", Status: "active", Type: "feature", Created: now, Updated: now},
+	}
+
+	got := FilterIssues(issues, FilterOptions{Type: "bug"})
+	if len(got) != 1 {
+		t.Fatalf("count: got %d, want 1", len(got))
+	}
+	if got[0].ID != "bbb222" {
+		t.Errorf("expected bbb222, got %s", got[0].ID)
+	}
+
+	got = FilterIssues(issues, FilterOptions{Type: "feature"})
+	if len(got) != 2 {
+		t.Fatalf("count: got %d, want 2", len(got))
+	}
+
+	got = FilterIssues(issues, FilterOptions{Type: "feature", Status: "active"})
+	if len(got) != 1 {
+		t.Fatalf("count: got %d, want 1", len(got))
+	}
+	if got[0].ID != "ddd444" {
+		t.Errorf("expected ddd444, got %s", got[0].ID)
+	}
+}
+
+func TestIssueRoundTrip_WithType(t *testing.T) {
+	now := time.Now().UTC().Truncate(time.Second)
+	issue := model.Issue{
+		ID:      "abc123",
+		Title:   "Typed issue",
+		Status:  "open",
+		Type:    "bug",
+		Created: now,
+		Updated: now,
+	}
+
+	data, err := json.Marshal(issue)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var got model.Issue
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if got.Type != "bug" {
+		t.Errorf("type: got %q, want bug", got.Type)
+	}
+}
+
+func TestConfigRoundTrip_WithTypes(t *testing.T) {
+	cfg := model.DefaultConfig()
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var got model.Config
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if got.DefaultType != "feature" {
+		t.Errorf("default_type: got %q, want feature", got.DefaultType)
+	}
+	if len(got.Types) != 3 {
+		t.Errorf("types count: got %d, want 3", len(got.Types))
+	}
+}
+
+// --- Parent-child (epic) tests ---
+
+func TestLinkIssue(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	parent, err := tr.CreateIssue("Epic", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create parent: %v", err)
+	}
+	child, err := tr.CreateIssue("Task", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create child: %v", err)
+	}
+
+	linked, err := tr.LinkIssue(child.ID, parent.ID, "testuser")
+	if err != nil {
+		t.Fatalf("link: %v", err)
+	}
+	if linked.ParentID != parent.ID {
+		t.Errorf("parent_id: got %q, want %q", linked.ParentID, parent.ID)
+	}
+
+	// Verify persisted
+	loaded, err := tr.LoadIssue(child.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if loaded.ParentID != parent.ID {
+		t.Errorf("persisted parent_id: got %q, want %q", loaded.ParentID, parent.ID)
+	}
+
+	// Verify link event
+	events, err := tr.LoadEvents(child.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	last := events[len(events)-1]
+	if last.Op != "link" || last.To != parent.ID {
+		t.Errorf("link event: op=%q to=%q", last.Op, last.To)
+	}
+}
+
+func TestUnlinkIssue(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	parent, err := tr.CreateIssue("Epic", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create parent: %v", err)
+	}
+	child, err := tr.CreateIssue("Task", "", "", 0, nil, "", parent.ID, "testuser")
+	if err != nil {
+		t.Fatalf("create child: %v", err)
+	}
+
+	unlinked, err := tr.UnlinkIssue(child.ID, "testuser")
+	if err != nil {
+		t.Fatalf("unlink: %v", err)
+	}
+	if unlinked.ParentID != "" {
+		t.Errorf("parent_id should be empty, got %q", unlinked.ParentID)
+	}
+
+	// Verify unlink event
+	events, err := tr.LoadEvents(child.ID)
+	if err != nil {
+		t.Fatalf("load events: %v", err)
+	}
+	last := events[len(events)-1]
+	if last.Op != "unlink" || last.From != parent.ID {
+		t.Errorf("unlink event: op=%q from=%q", last.Op, last.From)
+	}
+}
+
+func TestUnlinkIssue_NoParent(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Orphan", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	_, err = tr.UnlinkIssue(issue.ID, "testuser")
+	if err == nil {
+		t.Fatal("expected error unlinking issue with no parent")
+	}
+	if !strings.Contains(err.Error(), "has no parent") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestLinkIssue_SelfLink(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Self", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	_, err = tr.LinkIssue(issue.ID, issue.ID, "testuser")
+	if err == nil {
+		t.Fatal("expected error for self-link")
+	}
+	if !strings.Contains(err.Error(), "cannot link issue to itself") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestLinkIssue_NoGrandchildren(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	grandparent, err := tr.CreateIssue("Grandparent", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create grandparent: %v", err)
+	}
+	parent, err := tr.CreateIssue("Parent", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create parent: %v", err)
+	}
+	child, err := tr.CreateIssue("Child", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create child: %v", err)
+	}
+
+	// Link parent under grandparent
+	if _, err := tr.LinkIssue(parent.ID, grandparent.ID, "testuser"); err != nil {
+		t.Fatalf("link parent: %v", err)
+	}
+
+	// Try to make parent a parent of child — should fail because parent has a parent
+	_, err = tr.LinkIssue(child.ID, parent.ID, "testuser")
+	if err == nil {
+		t.Fatal("expected error for grandchild")
+	}
+	if !strings.Contains(err.Error(), "is itself a child") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestLinkIssue_ChildWithChildrenCannotBecomeChild(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	epic, err := tr.CreateIssue("Epic", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create epic: %v", err)
+	}
+	mid, err := tr.CreateIssue("Mid", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create mid: %v", err)
+	}
+	leaf, err := tr.CreateIssue("Leaf", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create leaf: %v", err)
+	}
+
+	// Link leaf under mid
+	if _, err := tr.LinkIssue(leaf.ID, mid.ID, "testuser"); err != nil {
+		t.Fatalf("link leaf: %v", err)
+	}
+
+	// Try to link mid under epic — should fail because mid already has children
+	_, err = tr.LinkIssue(mid.ID, epic.ID, "testuser")
+	if err == nil {
+		t.Fatal("expected error: mid has children")
+	}
+	if !strings.Contains(err.Error(), "has children") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestLinkIssue_ParentNotFound(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	child, err := tr.CreateIssue("Child", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	_, err = tr.LinkIssue(child.ID, "nonexistent", "testuser")
+	if err == nil {
+		t.Fatal("expected error for missing parent")
+	}
+	if !strings.Contains(err.Error(), "parent issue not found") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestCreateIssue_WithParent(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	parent, err := tr.CreateIssue("Epic", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create parent: %v", err)
+	}
+
+	child, err := tr.CreateIssue("Task", "", "", 0, nil, "", parent.ID, "testuser")
+	if err != nil {
+		t.Fatalf("create child: %v", err)
+	}
+	if child.ParentID != parent.ID {
+		t.Errorf("parent_id: got %q, want %q", child.ParentID, parent.ID)
+	}
+
+	// Verify persisted
+	loaded, err := tr.LoadIssue(child.ID)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if loaded.ParentID != parent.ID {
+		t.Errorf("persisted parent_id: got %q, want %q", loaded.ParentID, parent.ID)
+	}
+}
+
+func TestCreateIssue_WithInvalidParent(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	_, err = tr.CreateIssue("Task", "", "", 0, nil, "", "nonexistent", "testuser")
+	if err == nil {
+		t.Fatal("expected error for missing parent")
+	}
+}
+
+func TestFilterIssues_ByParent(t *testing.T) {
+	now := time.Now()
+	issues := []model.Issue{
+		{ID: "aaa111", Title: "Epic", Status: "open", Created: now, Updated: now},
+		{ID: "bbb222", Title: "Task 1", Status: "open", ParentID: "aaa111", Created: now, Updated: now},
+		{ID: "ccc333", Title: "Task 2", Status: "done", ParentID: "aaa111", Created: now, Updated: now},
+		{ID: "ddd444", Title: "Standalone", Status: "open", Created: now, Updated: now},
+	}
+
+	got := FilterIssues(issues, FilterOptions{ParentID: "aaa111"})
+	if len(got) != 2 {
+		t.Fatalf("count: got %d, want 2", len(got))
+	}
+	for _, i := range got {
+		if i.ParentID != "aaa111" {
+			t.Errorf("issue %s has wrong parent %q", i.ID, i.ParentID)
+		}
+	}
+}
+
+func TestFilterIssues_RootsOnly(t *testing.T) {
+	now := time.Now()
+	issues := []model.Issue{
+		{ID: "aaa111", Title: "Epic", Status: "open", Created: now, Updated: now},
+		{ID: "bbb222", Title: "Task 1", Status: "open", ParentID: "aaa111", Created: now, Updated: now},
+		{ID: "ccc333", Title: "Standalone", Status: "open", Created: now, Updated: now},
+	}
+
+	got := FilterIssues(issues, FilterOptions{RootsOnly: true})
+	if len(got) != 2 {
+		t.Fatalf("count: got %d, want 2", len(got))
+	}
+	for _, i := range got {
+		if i.ParentID != "" {
+			t.Errorf("issue %s has parent %q, expected root", i.ID, i.ParentID)
+		}
+	}
+}
+
+func TestFilterIssues_ParentAndStatus(t *testing.T) {
+	now := time.Now()
+	issues := []model.Issue{
+		{ID: "aaa111", Title: "Epic", Status: "open", Created: now, Updated: now},
+		{ID: "bbb222", Title: "Task 1", Status: "open", ParentID: "aaa111", Created: now, Updated: now},
+		{ID: "ccc333", Title: "Task 2", Status: "done", ParentID: "aaa111", Created: now, Updated: now},
+	}
+
+	got := FilterIssues(issues, FilterOptions{ParentID: "aaa111", Status: "open"})
+	if len(got) != 1 {
+		t.Fatalf("count: got %d, want 1", len(got))
+	}
+	if got[0].ID != "bbb222" {
+		t.Errorf("expected bbb222, got %s", got[0].ID)
+	}
+}
+
+func TestIssueRoundTrip_WithParentID(t *testing.T) {
+	now := time.Now().UTC().Truncate(time.Second)
+	issue := model.Issue{
+		ID:       "abc123",
+		Title:    "Child issue",
+		Status:   "open",
+		ParentID: "parent1",
+		Created:  now,
+		Updated:  now,
+	}
+
+	data, err := json.Marshal(issue)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var got model.Issue
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if got.ParentID != "parent1" {
+		t.Errorf("parent_id: got %q, want parent1", got.ParentID)
+	}
+}
+
+func TestIssueRoundTrip_ParentIDOmittedWhenEmpty(t *testing.T) {
+	now := time.Now().UTC().Truncate(time.Second)
+	issue := model.Issue{
+		ID:      "abc123",
+		Title:   "No parent",
+		Status:  "open",
+		Created: now,
+		Updated: now,
+	}
+
+	data, err := json.Marshal(issue)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if strings.Contains(string(data), "parent_id") {
+		t.Error("parent_id should be omitted when empty")
 	}
 }
 

@@ -17,7 +17,7 @@ func TestFullWorkflow(t *testing.T) {
 	}
 
 	// Create an issue with all fields
-	issue, err := tr.CreateIssue("Login timeout bug", "Sessions expire too quickly", "jim", 1, []string{"bug", "urgent"})
+	issue, err := tr.CreateIssue("Login timeout bug", "Sessions expire too quickly", "jim", 1, []string{"bug", "urgent"}, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
@@ -27,7 +27,7 @@ func TestFullWorkflow(t *testing.T) {
 	id := issue.ID
 
 	// Start the issue (open → active)
-	issue, err = tr.SetStatus(id, "active")
+	issue, err = tr.SetStatus(id, "active", "testuser")
 	if err != nil {
 		t.Fatalf("start: %v", err)
 	}
@@ -36,7 +36,7 @@ func TestFullWorkflow(t *testing.T) {
 	}
 
 	// Add a comment
-	issue, err = tr.AddComment(id, "Investigating the root cause")
+	issue, err = tr.AddComment(id, "Investigating the root cause", "testuser")
 	if err != nil {
 		t.Fatalf("comment: %v", err)
 	}
@@ -46,12 +46,12 @@ func TestFullWorkflow(t *testing.T) {
 	if issue.Comments[0].Text != "Investigating the root cause" {
 		t.Errorf("comment text: got %q", issue.Comments[0].Text)
 	}
-	if issue.Comments[0].By != "system" {
+	if issue.Comments[0].By != "testuser" {
 		t.Errorf("comment by: got %q", issue.Comments[0].By)
 	}
 
 	// Close the issue (active → done)
-	issue, err = tr.SetStatus(id, "done")
+	issue, err = tr.SetStatus(id, "done", "testuser")
 	if err != nil {
 		t.Fatalf("close: %v", err)
 	}
@@ -60,7 +60,7 @@ func TestFullWorkflow(t *testing.T) {
 	}
 
 	// Reopen (done → open)
-	issue, err = tr.SetStatus(id, "open")
+	issue, err = tr.SetStatus(id, "open", "testuser")
 	if err != nil {
 		t.Fatalf("reopen: %v", err)
 	}
@@ -185,13 +185,13 @@ func TestAddComment(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("Comment test", "", "", 0, nil)
+	issue, err := tr.CreateIssue("Comment test", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
 	// Add multiple comments
-	updated, err := tr.AddComment(issue.ID, "First comment")
+	updated, err := tr.AddComment(issue.ID, "First comment", "testuser")
 	if err != nil {
 		t.Fatalf("comment 1: %v", err)
 	}
@@ -199,7 +199,7 @@ func TestAddComment(t *testing.T) {
 		t.Fatalf("after 1st: got %d comments", len(updated.Comments))
 	}
 
-	updated, err = tr.AddComment(issue.ID, "Second comment")
+	updated, err = tr.AddComment(issue.ID, "Second comment", "testuser")
 	if err != nil {
 		t.Fatalf("comment 2: %v", err)
 	}
@@ -244,6 +244,102 @@ func TestAddComment(t *testing.T) {
 	}
 }
 
+func TestEpicWorkflow(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	// Create an epic
+	epic, err := tr.CreateIssue("Epic: Auth overhaul", "Revamp the auth system", "", 1, nil, "", "", "alice")
+	if err != nil {
+		t.Fatalf("create epic: %v", err)
+	}
+
+	// Create children with --parent at creation time
+	child1, err := tr.CreateIssue("Add OAuth", "", "", 0, nil, "", epic.ID, "alice")
+	if err != nil {
+		t.Fatalf("create child1: %v", err)
+	}
+	if child1.ParentID != epic.ID {
+		t.Errorf("child1 parent: got %q, want %q", child1.ParentID, epic.ID)
+	}
+
+	// Create a standalone and link after creation
+	child2, err := tr.CreateIssue("Add MFA", "", "", 0, nil, "", "", "alice")
+	if err != nil {
+		t.Fatalf("create child2: %v", err)
+	}
+	child2, err = tr.LinkIssue(child2.ID, epic.ID, "alice")
+	if err != nil {
+		t.Fatalf("link child2: %v", err)
+	}
+	if child2.ParentID != epic.ID {
+		t.Errorf("child2 parent: got %q, want %q", child2.ParentID, epic.ID)
+	}
+
+	// Filter by parent
+	allIssues, err := tr.ListIssues()
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	children := FilterIssues(allIssues, FilterOptions{ParentID: epic.ID})
+	if len(children) != 2 {
+		t.Fatalf("children count: got %d, want 2", len(children))
+	}
+
+	// Filter roots only
+	roots := FilterIssues(allIssues, FilterOptions{RootsOnly: true})
+	if len(roots) != 1 {
+		t.Fatalf("roots count: got %d, want 1", len(roots))
+	}
+	if roots[0].ID != epic.ID {
+		t.Errorf("root should be epic, got %s", roots[0].ID)
+	}
+
+	// Close one child, verify stats
+	if _, err := tr.SetStatus(child1.ID, "active", "bob"); err != nil {
+		t.Fatalf("start child1: %v", err)
+	}
+	if _, err := tr.SetStatus(child1.ID, "done", "bob"); err != nil {
+		t.Fatalf("close child1: %v", err)
+	}
+
+	allIssues, err = tr.ListIssues()
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	children = FilterIssues(allIssues, FilterOptions{ParentID: epic.ID})
+	done := 0
+	for _, c := range children {
+		if c.Status == "done" || c.Status == "cancelled" {
+			done++
+		}
+	}
+	if done != 1 || len(children) != 2 {
+		t.Errorf("children stats: %d/%d done, want 1/2", done, len(children))
+	}
+
+	// Unlink child2
+	child2, err = tr.UnlinkIssue(child2.ID, "alice")
+	if err != nil {
+		t.Fatalf("unlink: %v", err)
+	}
+	if child2.ParentID != "" {
+		t.Errorf("child2 should have no parent, got %q", child2.ParentID)
+	}
+
+	allIssues, err = tr.ListIssues()
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	children = FilterIssues(allIssues, FilterOptions{ParentID: epic.ID})
+	if len(children) != 1 {
+		t.Errorf("children after unlink: got %d, want 1", len(children))
+	}
+}
+
 func TestFilterIssues_WithComments(t *testing.T) {
 	root := t.TempDir()
 	tr, err := Init(root)
@@ -251,12 +347,12 @@ func TestFilterIssues_WithComments(t *testing.T) {
 		t.Fatalf("init: %v", err)
 	}
 
-	issue, err := tr.CreateIssue("With comments", "", "", 0, nil)
+	issue, err := tr.CreateIssue("With comments", "", "", 0, nil, "", "", "testuser")
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
 
-	if _, err := tr.AddComment(issue.ID, "A comment"); err != nil {
+	if _, err := tr.AddComment(issue.ID, "A comment", "testuser"); err != nil {
 		t.Fatalf("comment: %v", err)
 	}
 
