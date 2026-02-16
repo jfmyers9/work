@@ -33,6 +33,11 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           awk "/^## \[${VERSION#v}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > release-notes-$VERSION.md || true
 
+      - name: Update Homebrew formula
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          ./scripts/update-formula.sh "$VERSION"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
