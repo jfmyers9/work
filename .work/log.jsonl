@@ -126,3 +126,12 @@
 {"id":"f23f88","title":"Phase 5: Merge history.jsonl into issue.json (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:35.252077Z","closed":"2026-02-16T02:27:18.202951Z"}
 {"id":"e35bae","title":"Phase 6: Auto-compact on commit (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:37.075243Z","closed":"2026-02-16T02:27:18.218794Z"}
 {"id":"71d380","title":"Phase 7: -diff for log.jsonl (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:39.241222Z","closed":"2026-02-16T02:27:18.233959Z"}
+{"id":"1b3598","title":"Explore: TUI visual polish — styling and colors","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T02:53:24.735115Z","closed":"2026-02-16T02:56:29.305717Z"}
+{"id":"e93d40","title":"Phase 1: Centralize color system","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:16.339338Z","closed":"2026-02-16T03:09:14.143792Z"}
+{"id":"b0c988","title":"Phase 2: App frame and layout structure","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:17.777001Z","closed":"2026-02-16T03:09:14.156554Z"}
+{"id":"3de928","title":"Phase 3: List view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:18.950217Z","closed":"2026-02-16T03:09:14.168729Z"}
+{"id":"403279","title":"Phase 4: Detail view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:20.722814Z","closed":"2026-02-16T03:09:14.18098Z"}
+{"id":"935f46","title":"Phase 5: Overlay screens polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:21.650556Z","closed":"2026-02-16T03:09:14.193726Z"}
+{"id":"264308","title":"Phase 6: Help screen and empty states","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:22.86646Z","closed":"2026-02-16T03:09:14.205736Z"}
+{"id":"9d1256","title":"Phase 7: Final polish and adaptivity","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:25.262332Z","closed":"2026-02-16T03:09:14.218591Z"}
+{"id":"fe5cdb","title":"Plan: TUI visual polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:11.399985Z","closed":"2026-02-16T03:09:14.230982Z"}
