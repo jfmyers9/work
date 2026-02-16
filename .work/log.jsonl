@@ -111,3 +111,4 @@
 {"id":"6f5a81","title":"Phase 4: preserve TUI filter state across reloads","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:16.95609Z","closed":"2026-02-16T04:39:51.571579Z"}
 {"id":"85d123","title":"Phase 5: help and docs updates","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:18.047137Z","closed":"2026-02-16T04:40:43.284753Z"}
 {"id":"e787fa","title":"Plan: default to open issues in TUI and list","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:06.882005Z","closed":"2026-02-16T04:40:53.809386Z"}
+{"id":"902949","title":"Explore: repo professionalism improvements","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:56:54.139509Z","closed":"2026-02-16T05:00:20.541549Z"}
