@@ -7,6 +7,7 @@ import (
 )
 
 var compactAllDone bool
+var compactRewrite bool
 
 var compactCmd = &cobra.Command{
 	Use:   "compact [id]",
@@ -21,6 +22,15 @@ comments, and history to minimal metadata.`,
 		t, err := loadTracker()
 		if err != nil {
 			return err
+		}
+
+		if compactRewrite {
+			n, err := t.RewriteAllIssues()
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Rewrote %d issues\n", n)
+			return nil
 		}
 
 		if compactAllDone {
@@ -54,5 +64,6 @@ comments, and history to minimal metadata.`,
 
 func init() {
 	compactCmd.Flags().BoolVar(&compactAllDone, "all-done", false, "Compact all done/cancelled issues")
+	compactCmd.Flags().BoolVar(&compactRewrite, "rewrite", false, "Rewrite all issues to current on-disk format")
 	rootCmd.AddCommand(compactCmd)
 }

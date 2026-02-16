@@ -1,13 +1,1 @@
-{
-  "id": "b4807b",
-  "title": "Explore: open ticket in $EDITOR from work edit",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "explore"
-  ],
-  "created": "2026-02-15T23:16:01.984708Z",
-  "updated": "2026-02-15T23:19:02.453746Z",
-  "description": "## Goal"
-}
+{"id":"b4807b","title":"Explore: open ticket in $EDITOR from work edit","status":"done","type":"chore","priority":2,"labels":["explore"],"created":"2026-02-15T23:16:01.984708Z","updated":"2026-02-15T23:19:02.453746Z","description":"## Goal"}

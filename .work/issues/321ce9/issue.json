@@ -1,14 +1,1 @@
-{
-  "id": "321ce9",
-  "title": "Phase 2: Wire config into Cobra lifecycle",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "envconfig"
-  ],
-  "parent_id": "2fa821",
-  "created": "2026-02-15T23:35:38.828284Z",
-  "updated": "2026-02-16T00:49:46.115601Z",
-  "description": "## Acceptance Criteria"
-}
+{"id":"321ce9","title":"Phase 2: Wire config into Cobra lifecycle","status":"done","type":"chore","priority":2,"labels":["envconfig"],"parent_id":"2fa821","created":"2026-02-15T23:35:38.828284Z","updated":"2026-02-16T00:49:46.115601Z","description":"## Acceptance Criteria"}

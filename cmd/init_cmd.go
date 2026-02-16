@@ -31,6 +31,9 @@ auto-discovers the work CLI.`,
 			return err
 		}
 		fmt.Println("Initialized work tracker in .work/")
+		fmt.Println("")
+		fmt.Println("For compact git diffs, run:")
+		fmt.Println("  git config diff.work.textconv 'jq -c .'")
 
 		settingsFile := "settings.json"
 		if initLocal {

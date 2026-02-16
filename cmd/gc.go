@@ -99,9 +99,17 @@ preserved in .work/log.jsonl.`,
 			purged = append(purged, issue.ID)
 		}
 
+		deduped, err := t.DeduplicateLog()
+		if err != nil {
+			return fmt.Errorf("deduplicating log: %w", err)
+		}
+
 		fmt.Printf("Purged %d issues\n", len(purged))
 		for _, id := range purged {
 			fmt.Printf("  %s\n", id)
+		}
+		if deduped > 0 {
+			fmt.Printf("Removed %d duplicate log entries\n", deduped)
 		}
 		fmt.Println("Use 'work completed' to view completion history")
 		return nil

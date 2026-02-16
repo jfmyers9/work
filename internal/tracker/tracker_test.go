@@ -3,6 +3,7 @@ package tracker
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -165,6 +166,71 @@ func TestInit(t *testing.T) {
 	// Tracker config matches
 	if tr.Config.DefaultState != cfg.DefaultState {
 		t.Error("tracker config doesn't match written config")
+	}
+
+	// .gitattributes at root with linguist-generated rules
+	gaData, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatalf("read .gitattributes: %v", err)
+	}
+	gaContent := string(gaData)
+	for _, want := range []string{
+		".work/issues/** linguist-generated diff=work",
+		".work/log.jsonl linguist-generated diff=work",
+		".work/config.json linguist-generated diff=work",
+	} {
+		if !strings.Contains(gaContent, want) {
+			t.Errorf(".gitattributes missing %q", want)
+		}
+	}
+}
+
+func TestInit_AppendsToExistingGitattributes(t *testing.T) {
+	root := t.TempDir()
+
+	existing := "*.pb.go linguist-generated\n"
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(existing), 0o644); err != nil {
+		t.Fatalf("write existing: %v", err)
+	}
+
+	if _, err := Init(root); err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	content := string(data)
+	if !strings.HasPrefix(content, existing) {
+		t.Error("existing content was not preserved")
+	}
+	for _, want := range []string{
+		".work/issues/** linguist-generated diff=work",
+		".work/log.jsonl linguist-generated diff=work",
+		".work/config.json linguist-generated diff=work",
+	} {
+		if !strings.Contains(content, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+}
+
+func TestInit_GitattributesIdempotent(t *testing.T) {
+	root := t.TempDir()
+
+	if _, err := Init(root); err != nil {
+		t.Fatalf("first init: %v", err)
+	}
+	first, _ := os.ReadFile(filepath.Join(root, ".gitattributes"))
+
+	if _, err := Init(root); err != nil {
+		t.Fatalf("second init: %v", err)
+	}
+	second, _ := os.ReadFile(filepath.Join(root, ".gitattributes"))
+
+	if string(first) != string(second) {
+		t.Errorf("gitattributes changed on re-init:\nfirst:  %q\nsecond: %q", first, second)
 	}
 }
 
@@ -2043,6 +2109,157 @@ func TestAddComment_NoTextInEvent(t *testing.T) {
 	}
 	if commentEvent.By != "testuser" {
 		t.Errorf("event By: got %q", commentEvent.By)
+	}
+}
+
+func TestAppendLog_SkipsDuplicate(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	now := time.Now().UTC()
+	issue := model.Issue{
+		ID:      "dup123",
+		Title:   "Duplicate test",
+		Type:    "bug",
+		Status:  "done",
+		Created: now,
+		Updated: now,
+	}
+
+	if err := tr.AppendLog(issue); err != nil {
+		t.Fatalf("first append: %v", err)
+	}
+	if err := tr.AppendLog(issue); err != nil {
+		t.Fatalf("second append: %v", err)
+	}
+
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Errorf("expected 1 entry, got %d", len(entries))
+	}
+}
+
+func TestCompactIssue_NoDuplicateLogEntries(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	issue, err := tr.CreateIssue("Compact twice", "", "", 0, nil, "", "", "testuser")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "active", "testuser"); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+	if _, err := tr.SetStatus(issue.ID, "done", "testuser"); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	if err := tr.CompactIssue(issue.ID); err != nil {
+		t.Fatalf("first compact: %v", err)
+	}
+	if err := tr.CompactIssue(issue.ID); err != nil {
+		t.Fatalf("second compact: %v", err)
+	}
+
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load log: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Errorf("expected 1 log entry after double compact, got %d", len(entries))
+	}
+}
+
+func TestDeduplicateLog(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	// Manually write duplicate entries to log.jsonl
+	now := time.Now().UTC()
+	path := filepath.Join(root, ".work", "log.jsonl")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("create log: %v", err)
+	}
+	for i := 0; i < 3; i++ {
+		entry := LogEntry{
+			ID:      "aaa111",
+			Title:   "Dup issue",
+			Status:  "done",
+			Created: now,
+			Closed:  now,
+		}
+		data, _ := json.Marshal(entry)
+		fmt.Fprintf(f, "%s\n", data)
+	}
+	// Add a unique entry
+	entry2 := LogEntry{
+		ID:      "bbb222",
+		Title:   "Unique issue",
+		Status:  "done",
+		Created: now,
+		Closed:  now,
+	}
+	data, _ := json.Marshal(entry2)
+	fmt.Fprintf(f, "%s\n", data)
+	f.Close()
+
+	removed, err := tr.DeduplicateLog()
+	if err != nil {
+		t.Fatalf("deduplicate: %v", err)
+	}
+	if removed != 2 {
+		t.Errorf("removed: got %d, want 2", removed)
+	}
+
+	entries, err := tr.LoadLog()
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(entries) != 2 {
+		t.Fatalf("entries: got %d, want 2", len(entries))
+	}
+	if entries[0].ID != "aaa111" {
+		t.Errorf("first entry: got %q, want aaa111", entries[0].ID)
+	}
+	if entries[1].ID != "bbb222" {
+		t.Errorf("second entry: got %q, want bbb222", entries[1].ID)
+	}
+}
+
+func TestDeduplicateLog_NoDuplicates(t *testing.T) {
+	root := t.TempDir()
+	tr, err := Init(root)
+	if err != nil {
+		t.Fatalf("init: %v", err)
+	}
+
+	now := time.Now().UTC()
+	for _, id := range []string{"aaa111", "bbb222"} {
+		issue := model.Issue{ID: id, Title: id, Status: "done", Created: now, Updated: now}
+		if err := tr.AppendLog(issue); err != nil {
+			t.Fatalf("append %s: %v", id, err)
+		}
+	}
+
+	removed, err := tr.DeduplicateLog()
+	if err != nil {
+		t.Fatalf("deduplicate: %v", err)
+	}
+	if removed != 0 {
+		t.Errorf("expected 0 removed, got %d", removed)
 	}
 }
 

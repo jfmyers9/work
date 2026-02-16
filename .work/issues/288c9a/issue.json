@@ -1,14 +1,1 @@
-{
-  "id": "288c9a",
-  "title": "Phase 6: Error handling cleanup",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "cobra-migration"
-  ],
-  "parent_id": "567674",
-  "created": "2026-02-15T22:09:42.910011Z",
-  "updated": "2026-02-15T22:33:05.682003Z",
-  "description": "## Acceptance Criteria"
-}
+{"id":"288c9a","title":"Phase 6: Error handling cleanup","status":"done","type":"chore","priority":2,"labels":["cobra-migration"],"parent_id":"567674","created":"2026-02-15T22:09:42.910011Z","updated":"2026-02-15T22:33:05.682003Z","description":"## Acceptance Criteria"}

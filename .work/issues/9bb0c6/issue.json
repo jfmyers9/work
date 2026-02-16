@@ -1,14 +1,1 @@
-{
-  "id": "9bb0c6",
-  "title": "Phase 2: Migrate simple commands (no flags)",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "cobra-migration"
-  ],
-  "parent_id": "567674",
-  "created": "2026-02-15T22:09:25.094855Z",
-  "updated": "2026-02-15T22:20:34.106475Z",
-  "description": "## Acceptance Criteria"
-}
+{"id":"9bb0c6","title":"Phase 2: Migrate simple commands (no flags)","status":"done","type":"chore","priority":2,"labels":["cobra-migration"],"parent_id":"567674","created":"2026-02-15T22:09:25.094855Z","updated":"2026-02-15T22:20:34.106475Z","description":"## Acceptance Criteria"}
