@@ -129,23 +129,23 @@ func Init(root string) (*Tracker, error) {
 
 	cfgPath := filepath.Join(root, ".work", "config.json")
 
+	var cfg model.Config
+
 	// Preserve existing config if present
 	if data, err := os.ReadFile(cfgPath); err == nil {
-		var cfg model.Config
 		if err := json.Unmarshal(data, &cfg); err != nil {
 			return nil, fmt.Errorf("parsing existing config: %w", err)
 		}
-		return &Tracker{Root: root, Config: cfg}, nil
-	}
-
-	cfg := model.DefaultConfig()
-	data, err := json.Marshal(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling config: %w", err)
-	}
-	data = append(data, '\n')
-	if err := os.WriteFile(cfgPath, data, 0o644); err != nil {
-		return nil, fmt.Errorf("writing config: %w", err)
+	} else {
+		cfg = model.DefaultConfig()
+		data, err := json.Marshal(cfg)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling config: %w", err)
+		}
+		data = append(data, '\n')
+		if err := os.WriteFile(cfgPath, data, 0o644); err != nil {
+			return nil, fmt.Errorf("writing config: %w", err)
+		}
 	}
 
 	if err := writeGitattributes(root); err != nil {
