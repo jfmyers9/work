@@ -11,6 +11,14 @@ them easy to browse, version with git, and merge without conflicts.
 
 ## Install
 
+With Homebrew (from a local clone):
+
+```
+brew install --formula homebrew/work.rb
+```
+
+Or via curl:
+
 ```
 curl -fsSL https://raw.githubusercontent.com/jfmyers9/work/main/scripts/install.sh | bash
 ```

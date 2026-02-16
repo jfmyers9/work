@@ -123,3 +123,6 @@
 {"id":"d7abbf","title":"Phase 3: Add PreCommit hook for unstaged .work/ changes","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:35Z","closed":"2026-02-16T05:35:28Z"}
 {"id":"362a49","title":"Phase 4: Test end-to-end","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:39Z","closed":"2026-02-16T05:35:28Z"}
 {"id":"f532ed","title":"Plan: Add .work/ commit guidance to instructions","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:19Z","closed":"2026-02-16T05:35:28Z"}
+{"id":"0e4667","title":"Explore: Homebrew setup from scribbles + v0.1.0 release prep","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T05:42:59Z","closed":"2026-02-16T05:47:59Z"}
+{"id":"60815d","title":"Phase 1: Homebrew Formula + Docs","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:44Z","closed":"2026-02-16T05:48:36Z"}
+{"id":"897a70","title":"Phase 2: Release Automation Enhancement","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:49Z","closed":"2026-02-16T05:49:01Z"}

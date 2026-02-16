@@ -39,7 +39,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 - Interactive TUI for browsing and managing issues
 - Global `--help` and `help` subcommand
 - CLI built on Cobra framework
-- Build system with Makefile, CI via GitHub Actions, GoReleaser
+- Build system with Makefile, CI via GitHub Actions
+- Homebrew formula for macOS installation
 
 [unreleased]: https://github.com/jfmyers9/work/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/jfmyers9/work/releases/tag/v0.1.0
