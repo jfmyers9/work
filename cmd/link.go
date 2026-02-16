@@ -32,7 +32,7 @@ var linkCmd = &cobra.Command{
 		if _, err := t.LinkIssue(childID, parentID, cfg.User); err != nil {
 			return err
 		}
-		fmt.Printf("Linked %s → %s\n", childID, parentID)
+		fmt.Printf("Linked %s → %s\n", shortID(t, childID), shortID(t, parentID))
 		return nil
 	},
 }

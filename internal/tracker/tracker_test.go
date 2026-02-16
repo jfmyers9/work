@@ -100,8 +100,8 @@ func TestGenerateID_Format(t *testing.T) {
 		t.Errorf("length: got %d, want 6", len(id))
 	}
 	for _, c := range id {
-		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
-			t.Errorf("non-hex char %q in id %q", c, id)
+		if !strings.ContainsRune(crockfordAlphabet, c) {
+			t.Errorf("invalid char %q in id %q (not in Crockford Base32)", c, id)
 		}
 	}
 }

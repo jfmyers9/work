@@ -26,7 +26,7 @@ var commentCmd = &cobra.Command{
 		if _, err := t.AddComment(id, args[1], cfg.User); err != nil {
 			return err
 		}
-		fmt.Printf("Commented on %s\n", id)
+		fmt.Printf("Commented on %s\n", shortID(t, id))
 		return nil
 	},
 }

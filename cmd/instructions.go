@@ -106,6 +106,12 @@ Include .work/ changes in the same commit as related code changes.`)
 		}
 		tracker.SortIssues(active, "priority")
 
+		allIDs := make([]string, len(allIssues))
+		for i, issue := range allIssues {
+			allIDs[i] = issue.ID
+		}
+		short := tracker.MinPrefixes(allIDs)
+
 		fmt.Println()
 		fmt.Println("## Active Issues")
 		fmt.Println()
@@ -118,7 +124,7 @@ Include .work/ changes in the same commit as related code changes.`)
 			if len(issue.Labels) > 0 {
 				labels = " [" + strings.Join(issue.Labels, ", ") + "]"
 			}
-			fmt.Printf("- %s: %s (P%d)%s\n", issue.ID, title, issue.Priority, labels)
+			fmt.Printf("- %s: %s (P%d)%s\n", short[issue.ID], title, issue.Priority, labels)
 		}
 		return nil
 	},

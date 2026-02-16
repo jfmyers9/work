@@ -57,7 +57,7 @@ comments, and history to minimal metadata.`,
 		if err := t.CompactIssue(id); err != nil {
 			return err
 		}
-		fmt.Printf("Compacted %s\n", id)
+		fmt.Printf("Compacted %s\n", shortID(t, id))
 		return nil
 	},
 }

@@ -66,6 +66,19 @@ func resolveID(t *tracker.Tracker, prefix string) (string, error) {
 	return id, nil
 }
 
+// shortID returns the minimum unique prefix for a full issue ID.
+func shortID(t *tracker.Tracker, id string) string {
+	issues, err := t.ListIssues()
+	if err != nil {
+		return id
+	}
+	ids := make([]string, len(issues))
+	for i, issue := range issues {
+		ids[i] = issue.ID
+	}
+	return tracker.MinPrefix(id, ids)
+}
+
 func completeIssueIDs(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	wd, err := os.Getwd()
 	if err != nil {

@@ -4,7 +4,6 @@ package tracker
 import (
 	"bufio"
 	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -110,14 +109,49 @@ type Tracker struct {
 	Config model.Config
 }
 
-// GenerateID produces a random hex string of the configured length.
+// MinPrefix returns the shortest prefix of id that uniquely identifies it
+// among allIDs. The returned prefix is at least 3 characters long.
+func MinPrefix(id string, allIDs []string) string {
+	for length := 1; length < len(id); length++ {
+		prefix := id[:length]
+		unique := true
+		for _, other := range allIDs {
+			if other != id && strings.HasPrefix(other, prefix) {
+				unique = false
+				break
+			}
+		}
+		if unique {
+			return prefix
+		}
+	}
+	return id
+}
+
+// MinPrefixes returns the minimum unique prefix for each ID in the slice.
+func MinPrefixes(ids []string) map[string]string {
+	result := make(map[string]string, len(ids))
+	for _, id := range ids {
+		result[id] = MinPrefix(id, ids)
+	}
+	return result
+}
+
+// crockfordAlphabet is Crockford's Base32 alphabet (lowercase).
+// Excludes i, l, o, u to avoid visual ambiguity.
+const crockfordAlphabet = "0123456789abcdefghjkmnpqrstvwxyz"
+
+// GenerateID produces a random Crockford's Base32 string of the configured length.
 func (t *Tracker) GenerateID() (string, error) {
-	// Read enough random bytes, then hex-encode and truncate.
-	buf := make([]byte, (t.Config.IDLength+1)/2)
+	buf := make([]byte, t.Config.IDLength)
 	if _, err := rand.Read(buf); err != nil {
 		return "", fmt.Errorf("generating id: %w", err)
 	}
-	return hex.EncodeToString(buf)[:t.Config.IDLength], nil
+	out := make([]byte, t.Config.IDLength)
+	for i, b := range buf {
+		out[i] = crockfordAlphabet[int(b)%len(crockfordAlphabet)]
+	}
+	return string(out), nil
 }
 
 // Init creates the .work directory structure and writes the default config.
@@ -335,7 +369,17 @@ func (t *Tracker) ResolvePrefix(prefix string) (string, error) {
 	case 1:
 		return matches[0], nil
 	default:
-		return "", fmt.Errorf("ambiguous prefix %q, matches: %s", prefix, strings.Join(matches, ", "))
+		short := MinPrefixes(matches)
+		var lines []string
+		for _, m := range matches {
+			issue, err := t.LoadIssue(m)
+			if err != nil {
+				lines = append(lines, fmt.Sprintf("  %s", short[m]))
+			} else {
+				lines = append(lines, fmt.Sprintf("  %s  %s  %s", short[m], issue.Status, issue.Title))
+			}
+		}
+		return "", fmt.Errorf("ambiguous prefix %q — did you mean:\n%s", prefix, strings.Join(lines, "\n"))
 	}
 }
 
@@ -852,4 +896,109 @@ func (t *Tracker) GarbageCollect(maxAgeDays int) ([]string, error) {
 		}
 	}
 	return purged, nil
+}
+
+// IsHexID returns true if the ID consists only of hex characters (old format).
+func IsHexID(id string) bool {
+	for _, c := range id {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			return false
+		}
+	}
+	return len(id) > 0
+}
+
+// RehashIssue assigns a new Crockford Base32 ID to an issue, renaming its
+// directory and updating all references (ParentID in children, log entries).
+// Returns the new ID.
+func (t *Tracker) RehashIssue(oldID string) (string, error) {
+	newID, err := t.GenerateID()
+	if err != nil {
+		return "", err
+	}
+	return newID, t.renameIssue(oldID, newID)
+}
+
+func (t *Tracker) renameIssue(oldID, newID string) error {
+	issuesDir := filepath.Join(t.Root, ".work", "issues")
+
+	// Rename the directory
+	oldDir := filepath.Join(issuesDir, oldID)
+	newDir := filepath.Join(issuesDir, newID)
+	if err := os.Rename(oldDir, newDir); err != nil {
+		return fmt.Errorf("renaming directory: %w", err)
+	}
+
+	// Update the ID inside issue.json
+	issue, err := t.LoadIssue(newID)
+	if err != nil {
+		// Rollback directory rename
+		_ = os.Rename(newDir, oldDir)
+		return err
+	}
+	issue.ID = newID
+	if err := t.SaveIssue(issue); err != nil {
+		return err
+	}
+
+	// Update ParentID references in all other issues
+	entries, err := os.ReadDir(issuesDir)
+	if err != nil {
+		return fmt.Errorf("reading issues dir: %w", err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() || e.Name() == newID {
+			continue
+		}
+		child, err := t.LoadIssue(e.Name())
+		if err != nil {
+			continue
+		}
+		if child.ParentID == oldID {
+			child.ParentID = newID
+			if err := t.SaveIssue(child); err != nil {
+				return fmt.Errorf("updating child %s: %w", child.ID, err)
+			}
+		}
+	}
+
+	// Update log.jsonl references
+	if err := t.rewriteLogID(oldID, newID); err != nil {
+		return fmt.Errorf("updating log: %w", err)
+	}
+
+	return nil
+}
+
+func (t *Tracker) rewriteLogID(oldID, newID string) error {
+	entries, err := t.LoadLog()
+	if err != nil || len(entries) == 0 {
+		return err
+	}
+	changed := false
+	for i := range entries {
+		if entries[i].ID == oldID {
+			entries[i].ID = newID
+			changed = true
+		}
+	}
+	if !changed {
+		return nil
+	}
+	path := filepath.Join(t.Root, ".work", "log.jsonl")
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+	for _, e := range entries {
+		data, err := json.Marshal(e)
+		if err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintf(f, "%s\n", data); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -93,7 +93,7 @@ var editCmd = &cobra.Command{
 		if err := t.AppendEvent(id, event); err != nil {
 			return err
 		}
-		fmt.Printf("Updated %s\n", id)
+		fmt.Printf("Updated %s\n", shortID(t, id))
 		return nil
 	},
 }
@@ -163,7 +163,7 @@ func editInEditor(t *tracker.Tracker, issue model.Issue) error {
 	if err := t.AppendEvent(issue.ID, event); err != nil {
 		return err
 	}
-	fmt.Printf("Updated %s\n", issue.ID)
+	fmt.Printf("Updated %s\n", shortID(t, issue.ID))
 	return nil
 }
 

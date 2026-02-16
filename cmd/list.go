@@ -78,9 +78,15 @@ var listCmd = &cobra.Command{
 			return nil
 		}
 
+		allIDs := make([]string, len(allIssues))
+		for i, issue := range allIssues {
+			allIDs[i] = issue.ID
+		}
+		short := tracker.MinPrefixes(allIDs)
+
 		if listFormat == "short" {
 			for _, issue := range issues {
-				fmt.Printf("%s %s\n", issue.ID, issue.Title)
+				fmt.Printf("%s %s\n", short[issue.ID], issue.Title)
 			}
 			return nil
 		}
@@ -112,7 +118,7 @@ var listCmd = &cobra.Command{
 			if c, ok := childCounts[issue.ID]; ok {
 				children = fmt.Sprintf("%d/%d", c.done, c.total)
 			}
-			fmt.Printf("%-8s %-10s %-10s %-8d %-10s %s\n", issue.ID, issue.Status, issue.Type, issue.Priority, children, title)
+			fmt.Printf("%-8s %-10s %-10s %-8d %-10s %s\n", short[issue.ID], issue.Status, issue.Type, issue.Priority, children, title)
 		}
 		return nil
 	},

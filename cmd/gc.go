@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jfmyers9/work/internal/model"
+	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -104,9 +105,11 @@ preserved in .work/log.jsonl.`,
 			return fmt.Errorf("deduplicating log: %w", err)
 		}
 
+		short := tracker.MinPrefixes(purged)
+
 		fmt.Printf("Purged %d issues\n", len(purged))
 		for _, id := range purged {
-			fmt.Printf("  %s\n", id)
+			fmt.Printf("  %s\n", short[id])
 		}
 		if deduped > 0 {
 			fmt.Printf("Removed %d duplicate log entries\n", deduped)
