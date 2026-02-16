@@ -517,12 +517,12 @@ func (m rootModel) openEditor() (tea.Model, tea.Cmd) {
 	}
 	content := editor.MarshalIssue(issue)
 	if _, err := tmpFile.WriteString(content); err != nil {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpFile.Name())
 		m.statusMsg = "Write: " + err.Error()
 		return m, nil
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	m.prevScreen = m.screen
 	path := tmpFile.Name()
@@ -530,7 +530,7 @@ func (m rootModel) openEditor() (tea.Model, tea.Cmd) {
 
 	c := exec.Command(m.editor, path)
 	return m, tea.ExecProcess(c, func(err error) tea.Msg {
-		defer os.Remove(path)
+		defer func() { _ = os.Remove(path) }()
 		if err != nil {
 			return editorDoneMsg{issueID: issueID, err: err}
 		}
