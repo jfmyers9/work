@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -33,7 +34,7 @@ func newListModel(issues []model.Issue, width int) listModel {
 }
 
 func tableColumns(width int) []table.Column {
-	const fixed = 8 + 10 + 8 + 4 + 6 // ID + Status + Type + Pri + padding
+	const fixed = 8 + 10 + 8 + 4 + 6
 	titleW := width - fixed
 	if titleW < 20 {
 		titleW = 20
@@ -60,13 +61,14 @@ func newTable(width int) table.Model {
 	s := table.DefaultStyles()
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderForeground(colorOverlay).
 		BorderBottom(true).
-		Bold(true)
+		Bold(true).
+		Foreground(colorSubtext)
 	s.Selected = s.Selected.
-		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
-		Bold(false)
+		Foreground(colorText).
+		Background(colorOverlay).
+		Bold(true)
 	t.SetStyles(s)
 	return t
 }
@@ -159,6 +161,8 @@ func (m listModel) Update(msg tea.Msg) (listModel, tea.Cmd) {
 }
 
 func (m listModel) View() string {
+	rows := m.table.Rows()
+
 	filterBar := m.filters.view()
 	if m.searching {
 		filterBar += "  " + m.search.View()
@@ -166,9 +170,12 @@ func (m listModel) View() string {
 		filterBar += "  " + filterTagStyle.Render("search:"+m.query)
 	}
 
-	rows := m.table.Rows()
+	count := helpStyle.Render(fmt.Sprintf("%d issues", len(rows)))
+	filterBar += "  " + count
+
 	if len(rows) == 0 {
-		return filterBar + "\n\n  No issues found.\n"
+		empty := lipgloss.NewStyle().Foreground(colorMuted).Italic(true).Render("No issues found.")
+		return filterBar + "\n\n  " + empty + "\n"
 	}
 
 	styled := make([]table.Row, len(rows))

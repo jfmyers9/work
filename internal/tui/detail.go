@@ -10,12 +10,6 @@ import (
 	"github.com/jfmyers9/work/internal/model"
 )
 
-var (
-	labelStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("252"))
-	commentStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
-	dividerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-)
-
 type detailModel struct {
 	issue    model.Issue
 	children []model.Issue
@@ -52,97 +46,82 @@ func (m detailModel) View() string {
 
 func renderDetail(issue model.Issue, children []model.Issue, width int) string {
 	var b strings.Builder
+	contentW := min(width-4, 80)
+	labelW := 10
 
-	b.WriteString(labelStyle.Render("ID:       "))
-	b.WriteString(issue.ID[:min(6, len(issue.ID))])
-	b.WriteString("\n")
+	field := func(name, value string) {
+		b.WriteString("  " + labelStyle.Width(labelW).Render(name) + " " + valueStyle.Render(value) + "\n")
+	}
 
-	b.WriteString(labelStyle.Render("Title:    "))
-	b.WriteString(issue.Title)
 	b.WriteString("\n")
-
-	b.WriteString(labelStyle.Render("Status:   "))
-	b.WriteString(styledStatus(issue.Status))
-	b.WriteString("\n")
-
-	b.WriteString(labelStyle.Render("Type:     "))
-	b.WriteString(styledType(issue.Type))
-	b.WriteString("\n")
-
-	b.WriteString(labelStyle.Render("Priority: "))
-	b.WriteString(styledPriority(issue.Priority))
-	b.WriteString("\n")
+	field("ID", issue.ID[:min(6, len(issue.ID))])
+	field("Title", issue.Title)
+	field("Status", styledStatus(issue.Status))
+	field("Type", styledType(issue.Type))
+	field("Priority", styledPriority(issue.Priority))
 
 	if len(issue.Labels) > 0 {
-		b.WriteString(labelStyle.Render("Labels:   "))
-		b.WriteString(strings.Join(issue.Labels, ", "))
-		b.WriteString("\n")
+		tags := make([]string, len(issue.Labels))
+		for i, l := range issue.Labels {
+			tags[i] = filterTagStyle.Render(l)
+		}
+		b.WriteString("  " + labelStyle.Width(labelW).Render("Labels") + " " + strings.Join(tags, " ") + "\n")
 	}
 
 	if issue.Assignee != "" {
-		b.WriteString(labelStyle.Render("Assignee: "))
-		b.WriteString(issue.Assignee)
-		b.WriteString("\n")
+		field("Assignee", issue.Assignee)
 	}
-
 	if issue.ParentID != "" {
-		b.WriteString(labelStyle.Render("Parent:   "))
-		b.WriteString(issue.ParentID[:min(6, len(issue.ParentID))])
-		b.WriteString("\n")
+		field("Parent", issue.ParentID[:min(6, len(issue.ParentID))])
 	}
-
-	b.WriteString(labelStyle.Render("Created:  "))
-	b.WriteString(issue.Created.Format("2006-01-02 15:04"))
-	b.WriteString("\n")
-
-	b.WriteString(labelStyle.Render("Updated:  "))
-	b.WriteString(issue.Updated.Format("2006-01-02 15:04"))
-	b.WriteString("\n")
+	field("Created", issue.Created.Format("2006-01-02 15:04"))
+	field("Updated", issue.Updated.Format("2006-01-02 15:04"))
 
 	if issue.Description != "" {
 		b.WriteString("\n")
-		b.WriteString(dividerStyle.Render(strings.Repeat("─", min(width, 80))))
+		b.WriteString("  " + sectionStyle.Render("Description") + "\n")
+		b.WriteString("  " + dividerStyle.Render(strings.Repeat("─", contentW)) + "\n")
 		b.WriteString("\n")
-		b.WriteString(labelStyle.Render("Description"))
-		b.WriteString("\n\n")
-		b.WriteString(wordWrap(issue.Description, min(width-2, 78)))
-		b.WriteString("\n")
+		wrapped := wordWrap(issue.Description, contentW-2)
+		for _, line := range strings.Split(wrapped, "\n") {
+			b.WriteString("  " + line + "\n")
+		}
 	}
 
 	if len(children) > 0 {
 		b.WriteString("\n")
-		b.WriteString(dividerStyle.Render(strings.Repeat("─", min(width, 80))))
+		b.WriteString("  " + sectionStyle.Render("Children") + "\n")
+		b.WriteString("  " + dividerStyle.Render(strings.Repeat("─", contentW)) + "\n")
 		b.WriteString("\n")
-		b.WriteString(labelStyle.Render("Children"))
-		b.WriteString("\n\n")
 		for _, c := range children {
+			id := lipgloss.NewStyle().Foreground(colorMuted).Render(c.ID[:min(6, len(c.ID))])
 			b.WriteString(fmt.Sprintf("  %s  %-10s  %s\n",
-				c.ID[:min(6, len(c.ID))],
+				id,
 				styledStatus(c.Status),
-				c.Title,
+				valueStyle.Render(c.Title),
 			))
 		}
 	}
 
 	if len(issue.Comments) > 0 {
 		b.WriteString("\n")
-		b.WriteString(dividerStyle.Render(strings.Repeat("─", min(width, 80))))
-		b.WriteString("\n")
-		b.WriteString(labelStyle.Render("Comments"))
-		b.WriteString("\n")
+		b.WriteString("  " + sectionStyle.Render("Comments") + "\n")
+		b.WriteString("  " + dividerStyle.Render(strings.Repeat("─", contentW)) + "\n")
 		for _, c := range issue.Comments {
 			b.WriteString("\n")
 			meta := c.Created.Format("2006-01-02 15:04")
 			if c.By != "" {
 				meta = c.By + " • " + meta
 			}
-			b.WriteString(commentStyle.Render(meta))
-			b.WriteString("\n")
-			b.WriteString(wordWrap(c.Text, min(width-2, 78)))
-			b.WriteString("\n")
+			b.WriteString("  " + commentMetaStyle.Render(meta) + "\n")
+			wrapped := wordWrap(c.Text, contentW-4)
+			for _, line := range strings.Split(wrapped, "\n") {
+				b.WriteString("  │ " + line + "\n")
+			}
 		}
 	}
 
+	b.WriteString("\n")
 	return b.String()
 }
 

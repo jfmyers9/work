@@ -7,14 +7,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	pickerItemStyle    = lipgloss.NewStyle().Padding(0, 2)
-	pickerSelectedItem = lipgloss.NewStyle().Padding(0, 2).
-				Bold(true).
-				Foreground(lipgloss.Color("229")).
-				Background(lipgloss.Color("57"))
-)
-
 type statusChangedMsg struct {
 	issueID string
 	status  string
@@ -53,16 +45,22 @@ func (p statusPicker) Update(msg tea.Msg) (statusPicker, tea.Cmd) {
 }
 
 func (p statusPicker) View() string {
-	s := fmt.Sprintf("\n  Change status of %s from %s to:\n\n", p.issueID, styledStatus(p.current))
+	prompt := fmt.Sprintf("Change %s from %s to:", p.issueID, styledStatus(p.current))
+
+	var items string
 	for i, opt := range p.options {
-		styled := styledStatus(opt)
 		if i == p.cursor {
-			s += pickerSelectedItem.Render("▸ "+opt) + "\n"
+			items += pickerSelectedStyle.Render("▸ " + opt) + "\n"
 		} else {
-			s += pickerItemStyle.Render("  "+styled) + "\n"
+			items += pickerItemStyle.Render("  " + styledStatus(opt)) + "\n"
 		}
 	}
-	return s
+
+	content := labelStyle.Render(prompt) + "\n\n" + items +
+		"\n" + helpStyle.Render("j/k: navigate  enter: select  esc: cancel")
+
+	return lipgloss.Place(0, 0, lipgloss.Left, lipgloss.Top,
+		overlayStyle.Render(content))
 }
 
 func (p statusPicker) selected() string {

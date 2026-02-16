@@ -4,28 +4,25 @@ import "github.com/charmbracelet/lipgloss"
 
 var (
 	statusStyles = map[string]lipgloss.Style{
-		"open":      lipgloss.NewStyle().Foreground(lipgloss.Color("245")),
-		"active":    lipgloss.NewStyle().Foreground(lipgloss.Color("33")),
-		"review":    lipgloss.NewStyle().Foreground(lipgloss.Color("214")),
-		"done":      lipgloss.NewStyle().Foreground(lipgloss.Color("34")),
-		"cancelled": lipgloss.NewStyle().Foreground(lipgloss.Color("196")),
+		"open":      lipgloss.NewStyle().Foreground(statusColors["open"]),
+		"active":    lipgloss.NewStyle().Foreground(statusColors["active"]),
+		"review":    lipgloss.NewStyle().Foreground(statusColors["review"]),
+		"done":      lipgloss.NewStyle().Foreground(statusColors["done"]),
+		"cancelled": lipgloss.NewStyle().Foreground(statusColors["cancelled"]),
 	}
 
 	typeStyles = map[string]lipgloss.Style{
-		"feature": lipgloss.NewStyle().Foreground(lipgloss.Color("117")),
-		"bug":     lipgloss.NewStyle().Foreground(lipgloss.Color("203")),
-		"chore":   lipgloss.NewStyle().Foreground(lipgloss.Color("248")),
+		"feature": lipgloss.NewStyle().Foreground(typeColors["feature"]),
+		"bug":     lipgloss.NewStyle().Foreground(typeColors["bug"]),
+		"chore":   lipgloss.NewStyle().Foreground(typeColors["chore"]),
 	}
 
 	priorityStyles = map[int]lipgloss.Style{
-		0: lipgloss.NewStyle().Foreground(lipgloss.Color("245")),
-		1: lipgloss.NewStyle().Foreground(lipgloss.Color("196")),
-		2: lipgloss.NewStyle().Foreground(lipgloss.Color("214")),
-		3: lipgloss.NewStyle().Foreground(lipgloss.Color("33")),
+		0: lipgloss.NewStyle().Foreground(priorityColors[0]),
+		1: lipgloss.NewStyle().Foreground(priorityColors[1]),
+		2: lipgloss.NewStyle().Foreground(priorityColors[2]),
+		3: lipgloss.NewStyle().Foreground(priorityColors[3]),
 	}
-
-	titleStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1)
-	helpStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 )
 
 func styledStatus(s string) string {

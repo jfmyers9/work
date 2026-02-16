@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/jfmyers9/work/internal/editor"
 	"github.com/jfmyers9/work/internal/model"
 	"github.com/jfmyers9/work/internal/tracker"
@@ -46,11 +48,11 @@ type linkModel struct {
 	input   textinput.Model
 }
 
-func newLinkModel(childID string) linkModel {
+func newLinkModel(childID string, width int) linkModel {
 	ti := textinput.New()
 	ti.Placeholder = "parent issue ID"
 	ti.CharLimit = 64
-	ti.Width = 40
+	ti.Width = min(width-20, 40)
 	ti.Focus()
 	return linkModel{childID: childID, input: ti}
 }
@@ -319,7 +321,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "n":
 			if m.screen == screenList {
 				m.screen = screenCreate
-				m.createForm = newCreateModel()
+				m.createForm = newCreateModel(m.width)
 				return m, m.createForm.inputs[0].Focus()
 			}
 		case "e":
@@ -420,7 +422,7 @@ func (m rootModel) openComment() (tea.Model, tea.Cmd) {
 	}
 	m.prevScreen = m.screen
 	m.screen = screenComment
-	m.commentInput = newCommentModel(id, title)
+	m.commentInput = newCommentModel(id, title, m.width)
 	return m, m.commentInput.textarea.Focus()
 }
 
@@ -563,7 +565,7 @@ func (m rootModel) openLinkInput() (tea.Model, tea.Cmd) {
 	}
 	m.prevScreen = m.screen
 	m.screen = screenLink
-	m.linkInput = newLinkModel(id)
+	m.linkInput = newLinkModel(id, m.width)
 	return m, m.linkInput.input.Focus()
 }
 
@@ -598,9 +600,35 @@ func (m rootModel) executeStatusChange(issueID, newStatus string) tea.Cmd {
 	}
 }
 
+func (m rootModel) renderHeader(title string) string {
+	left := headerStyle.Render("work")
+	right := headerDimStyle.Render(" " + title + " ")
+	gap := m.width - lipgloss.Width(left) - lipgloss.Width(right)
+	if gap < 0 {
+		gap = 0
+	}
+	fill := lipgloss.NewStyle().Background(colorAccent).Render(strings.Repeat(" ", gap))
+	return left + fill + right
+}
+
+func (m rootModel) renderFooter(hint string) string {
+	if m.statusMsg != "" {
+		msg := statusMsgStyle.Render(" ✓ " + m.statusMsg + " ")
+		gap := m.width - lipgloss.Width(msg) - lipgloss.Width(hint)
+		if gap < 0 {
+			gap = 0
+		}
+		hintRendered := footerBarStyle.Render(hint)
+		fill := lipgloss.NewStyle().Background(colorSurface).Render(strings.Repeat(" ", gap))
+		return hintRendered + fill + msg
+	}
+	bar := footerBarStyle.Width(m.width).Render(hint)
+	return bar
+}
+
 func (m rootModel) View() string {
 	if m.help.visible {
-		header := titleStyle.Render("work — help")
+		header := m.renderHeader("help")
 		return header + m.help.View(m.width)
 	}
 
@@ -608,41 +636,45 @@ func (m rootModel) View() string {
 
 	switch m.screen {
 	case screenList:
-		header = titleStyle.Render("work — issues")
+		header = m.renderHeader("issues")
 		body = m.list.View()
-		footer = helpStyle.Render("  ?:help  n:new  s:status  /:search  q:quit")
+		footer = m.renderFooter("?:help  n:new  s:status  /:search  q:quit")
 	case screenDetail:
-		header = titleStyle.Render("work — " + m.detail.issue.Title)
+		title := m.detail.issue.Title
+		if len(title) > 40 {
+			title = title[:37] + "..."
+		}
+		header = m.renderHeader(title)
 		body = m.detail.View()
-		footer = helpStyle.Render("  ?:help  esc:back  s:status  h:history  q:quit")
+		footer = m.renderFooter("?:help  esc:back  s:status  h:history  q:quit")
 	case screenStatus:
-		header = titleStyle.Render("work — change status")
+		header = m.renderHeader("change status")
 		body = m.statusPicker.View()
-		footer = helpStyle.Render("  j/k:navigate  enter:select  esc:cancel")
+		footer = m.renderFooter("j/k:navigate  enter:select  esc:cancel")
 	case screenComment:
-		header = titleStyle.Render("work — add comment")
+		header = m.renderHeader("add comment")
 		body = m.commentInput.View()
+		footer = m.renderFooter("")
 	case screenConfirm:
-		header = titleStyle.Render("work — confirm")
+		header = m.renderHeader("confirm")
 		body = m.confirm.View()
+		footer = m.renderFooter("")
 	case screenCreate:
-		header = titleStyle.Render("work — new issue")
+		header = m.renderHeader("new issue")
 		body = m.createForm.View()
+		footer = m.renderFooter("")
 	case screenLink:
-		header = titleStyle.Render("work — link parent")
-		body = fmt.Sprintf("\n  Parent ID for %s:\n\n  %s\n\n%s",
-			m.linkInput.childID,
-			m.linkInput.input.View(),
-			helpStyle.Render("  enter:link  esc:cancel"))
+		header = m.renderHeader("link parent")
+		content := labelStyle.Render("Parent ID for "+m.linkInput.childID+":") +
+			"\n\n" + m.linkInput.input.View() +
+			"\n\n" + helpStyle.Render("enter: link  esc: cancel")
+		body = overlayStyle.Render(content)
+		footer = m.renderFooter("")
 	case screenHistory:
-		header = titleStyle.Render("work — history")
+		header = m.renderHeader("history")
 		body = m.history.View()
-		footer = helpStyle.Render("  j/k:scroll  esc:back  q:quit")
+		footer = m.renderFooter("j/k:scroll  esc:back  q:quit")
 	}
 
-	if m.statusMsg != "" {
-		footer = helpStyle.Render("  " + m.statusMsg)
-	}
-
-	return header + "\n" + body + "\n" + footer
+	return lipgloss.JoinVertical(lipgloss.Left, header, body, footer)
 }

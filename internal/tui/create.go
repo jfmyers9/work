@@ -32,19 +32,19 @@ var fieldNames = [fieldCount]string{
 type createModel struct {
 	inputs [fieldCount]textinput.Model
 	focus  int
+	width  int
 }
 
-var (
-	focusedFieldStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("229"))
-	blurredFieldStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-)
-
-func newCreateModel() createModel {
+func newCreateModel(width int) createModel {
 	var inputs [fieldCount]textinput.Model
+	inputW := min(width-20, 60)
+	if inputW < 30 {
+		inputW = 30
+	}
 	for i := range inputs {
 		t := textinput.New()
 		t.CharLimit = 256
-		t.Width = 60
+		t.Width = inputW
 		inputs[i] = t
 	}
 
@@ -59,7 +59,7 @@ func newCreateModel() createModel {
 
 	inputs[fieldTitle].Focus()
 
-	return createModel{inputs: inputs}
+	return createModel{inputs: inputs, width: width}
 }
 
 func (m createModel) Update(msg tea.Msg) (createModel, tea.Cmd) {
@@ -86,14 +86,18 @@ func (m createModel) View() string {
 	b.WriteString("\n")
 	for i, input := range m.inputs {
 		style := blurredFieldStyle
+		indicator := "  "
 		if i == m.focus {
 			style = focusedFieldStyle
+			indicator = lipgloss.NewStyle().Foreground(colorAccent).Render("▸ ")
 		}
-		b.WriteString(fmt.Sprintf("  %s  %s\n", style.Render(fmt.Sprintf("%-12s", fieldNames[i]+":")), input.View()))
+		label := style.Render(fmt.Sprintf("%-12s", fieldNames[i]+":"))
+		b.WriteString(fmt.Sprintf("  %s%s %s\n", indicator, label, input.View()))
 	}
 	b.WriteString("\n")
 	b.WriteString(helpStyle.Render("  tab/shift-tab: navigate • ctrl+d: submit • esc: cancel"))
-	return b.String()
+
+	return overlayStyle.Render(b.String())
 }
 
 func (m createModel) title() string       { return strings.TrimSpace(m.inputs[fieldTitle].Value()) }
