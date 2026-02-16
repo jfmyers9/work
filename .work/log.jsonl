@@ -21,29 +21,6 @@
 {"id":"ec329c","title":"Phase 3: Document new concepts","type":"feature","status":"done","labels":["readme-update"],"created":"2026-02-15T21:09:05.242307Z","closed":"2026-02-15T21:10:45.638243Z"}
 {"id":"ecc599","title":"Phase 6: Eliminate duplicated command lists","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:34.813153Z","closed":"2026-02-15T21:22:12.2853Z"}
 {"id":"ff2801","title":"Phase 3: Epics and parent-child relationships","type":"","status":"done","labels":["tracker-personas"],"created":"2026-02-15T20:36:48.482154Z","closed":"2026-02-15T20:53:56.799769Z"}
-{"id":"174456","title":"Phase 4: Detailed per-command help text","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:32.319168Z","closed":"2026-02-15T21:22:12.229666Z"}
-{"id":"1a2a4e","title":"Explore: .work/issues directory bloat prevention","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:13:39.859133Z","closed":"2026-02-15T21:24:47.992785Z"}
-{"id":"2aad54","title":"Phase 1: Command registry data structure","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:28.156695Z","closed":"2026-02-15T21:22:12.147214Z"}
-{"id":"4b7e89","title":"Phase 4: Update config example","type":"feature","status":"done","labels":["readme-update"],"created":"2026-02-15T21:09:08.157849Z","closed":"2026-02-15T21:10:56.02707Z"}
-{"id":"4d3f9c","title":"Phase 3: Add help subcommand","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:31.681553Z","closed":"2026-02-15T21:22:12.203841Z"}
-{"id":"5e8d18","title":"Phase 5: Centralize help dispatch","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:33.687781Z","closed":"2026-02-15T21:22:12.256429Z"}
-{"id":"6300b5","title":"Phase 1: User identity and review workflow","type":"","status":"done","labels":["tracker-personas"],"created":"2026-02-15T20:36:39.852499Z","closed":"2026-02-15T20:44:31.591494Z"}
-{"id":"68370c","title":"Phase 2: Add --help flag recognition","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:29.998376Z","closed":"2026-02-15T21:22:12.177776Z"}
-{"id":"94a83a","title":"Phase 1: Title-based sorting for phase ordering","type":"chore","status":"done","labels":["beads-gap-fixes"],"created":"2026-02-15T21:00:44.794366Z","closed":"2026-02-15T21:02:38.328024Z"}
-{"id":"993bcd","title":"Fix: update README to reflect recent features","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:08:06.337626Z","closed":"2026-02-15T21:09:12.563719Z"}
-{"id":"a29b8c","title":"Phase 7: Add -h shorthand","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:35.994857Z","closed":"2026-02-15T21:22:12.31348Z"}
-{"id":"abd7c9","title":"Explore: Issue tracker personas and workflows","type":"","status":"done","labels":["explore"],"created":"2026-02-15T20:31:25.965559Z","closed":"2026-02-15T20:36:53.047579Z"}
-{"id":"ad715a","title":"Explore: Global --help support for all commands","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:12:36.501476Z","closed":"2026-02-15T21:16:39.835935Z"}
-{"id":"c4237a","title":"Phase 2: Show comments inline","type":"chore","status":"done","labels":["beads-gap-fixes"],"created":"2026-02-15T21:00:49.092141Z","closed":"2026-02-15T21:03:30.219748Z"}
-{"id":"c59bcb","title":"Phase 4: History filtering by label","type":"chore","status":"done","labels":["beads-gap-fixes"],"created":"2026-02-15T21:00:51.723182Z","closed":"2026-02-15T21:04:33.394426Z"}
-{"id":"d09cc5","title":"Phase 2: Issue types","type":"","status":"done","labels":["tracker-personas"],"created":"2026-02-15T20:36:45.429384Z","closed":"2026-02-15T20:48:21.681535Z"}
-{"id":"d76cba","title":"Explore: Beads vs work gap analysis","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T20:58:07.00441Z","closed":"2026-02-15T21:00:55.705541Z"}
-{"id":"dda5f4","title":"Phase 2: Missing flag/option documentation","type":"feature","status":"done","labels":["readme-update"],"created":"2026-02-15T21:09:03.945291Z","closed":"2026-02-15T21:10:31.95765Z"}
-{"id":"e6c35f","title":"Phase 1: Missing command documentation","type":"feature","status":"done","labels":["readme-update"],"created":"2026-02-15T21:09:02.998662Z","closed":"2026-02-15T21:10:01.565858Z"}
-{"id":"e99f69","title":"Phase 3: List format improvements","type":"chore","status":"done","labels":["beads-gap-fixes"],"created":"2026-02-15T21:00:50.298689Z","closed":"2026-02-15T21:03:59.686681Z"}
-{"id":"ec329c","title":"Phase 3: Document new concepts","type":"feature","status":"done","labels":["readme-update"],"created":"2026-02-15T21:09:05.242307Z","closed":"2026-02-15T21:10:45.638243Z"}
-{"id":"ecc599","title":"Phase 6: Eliminate duplicated command lists","type":"feature","status":"done","labels":["global-help-support"],"created":"2026-02-15T21:16:34.813153Z","closed":"2026-02-15T21:22:12.2853Z"}
-{"id":"ff2801","title":"Phase 3: Epics and parent-child relationships","type":"","status":"done","labels":["tracker-personas"],"created":"2026-02-15T20:36:48.482154Z","closed":"2026-02-15T20:53:56.799769Z"}
 {"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
 {"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
 {"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
@@ -52,12 +29,7 @@
 {"id":"019056","title":"Phase 5: ListIssues index","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:42.426642Z","closed":"2026-02-15T21:33:41.690485Z"}
 {"id":"15b807","title":"Phase 1: Add missing command documentation","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:17.652936Z","closed":"2026-02-15T21:40:33.368359Z"}
 {"id":"71048c","title":"Phase 2: Document missing features","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:19.273969Z","closed":"2026-02-15T21:40:33.401967Z"}
-{"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
-{"id":"ba0eda","title":"Fix: README missing compact, gc, completed, and help docs","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:38:13.691809Z","closed":"2026-02-15T21:39:24.326488Z"}
-{"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
 {"id":"d28e8e","title":"Phase 3: Update storage layout section","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:20.439981Z","closed":"2026-02-15T21:40:33.432203Z"}
-{"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
-{"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
 {"id":"aa716c","title":"Explore: Claude Code hook command for binary usage instructions","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:55:29.664883Z","closed":"2026-02-15T21:58:20.065243Z"}
 {"id":"75f451","title":"Phase 1: Add instructions subcommand","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:06.744522Z","closed":"2026-02-15T22:00:22.086361Z"}
 {"id":"d28a65","title":"Phase 2: Add dynamic state","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:07.672214Z","closed":"2026-02-15T22:00:22.101055Z"}
@@ -82,19 +54,6 @@
 {"id":"ba454e","title":"Phase 3: Extend to other commands","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:31.839193Z","closed":"2026-02-15T23:01:36.786001Z"}
 {"id":"f21a2b","title":"Plan: --last N filter for issue listing","type":"chore","status":"done","labels":["last-n-filter"],"created":"2026-02-15T22:59:20.862392Z","closed":"2026-02-15T23:01:36.802821Z"}
 {"id":"8148f8","title":"Fix: add --last flag to work gc","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T23:02:44.755641Z","closed":"2026-02-15T23:05:08.541751Z"}
-{"id":"91ce0b","title":"Phase 3: Create hook config","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:09.080376Z","closed":"2026-02-15T22:00:40.640202Z"}
-{"id":"d28a65","title":"Phase 2: Add dynamic state","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:07.672214Z","closed":"2026-02-15T22:00:22.101055Z"}
-{"id":"75f451","title":"Phase 1: Add instructions subcommand","type":"feature","status":"done","labels":["hook-instructions"],"created":"2026-02-15T21:58:06.744522Z","closed":"2026-02-15T22:00:22.086361Z"}
-{"id":"aa716c","title":"Explore: Claude Code hook command for binary usage instructions","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:55:29.664883Z","closed":"2026-02-15T21:58:20.065243Z"}
-{"id":"d28e8e","title":"Phase 3: Update storage layout section","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:20.439981Z","closed":"2026-02-15T21:40:33.432203Z"}
-{"id":"71048c","title":"Phase 2: Document missing features","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:19.273969Z","closed":"2026-02-15T21:40:33.401967Z"}
-{"id":"15b807","title":"Phase 1: Add missing command documentation","type":"feature","status":"done","labels":["readme-docs-update"],"created":"2026-02-15T21:39:17.652936Z","closed":"2026-02-15T21:40:33.368359Z"}
-{"id":"ba0eda","title":"Fix: README missing compact, gc, completed, and help docs","type":"feature","status":"done","labels":["feedback"],"created":"2026-02-15T21:38:13.691809Z","closed":"2026-02-15T21:39:24.326488Z"}
-{"id":"019056","title":"Phase 5: ListIssues index","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:42.426642Z","closed":"2026-02-15T21:33:41.690485Z"}
-{"id":"f50214","title":"Phase 4: Directory purge for long-lived projects","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:41.371551Z","closed":"2026-02-15T21:33:37.427265Z"}
-{"id":"f9e63c","title":"Phase 3: Eliminate comment duplication","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:38.160399Z","closed":"2026-02-15T21:33:37.415303Z"}
-{"id":"c34e4e","title":"Phase 2: Completion log","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:36.736801Z","closed":"2026-02-15T21:33:37.402569Z"}
-{"id":"b50ac1","title":"Phase 1: Compact-on-close core","type":"feature","status":"done","labels":["bloat-prevention"],"created":"2026-02-15T21:24:35.178661Z","closed":"2026-02-15T21:33:33.022006Z"}
 {"id":"b4807b","title":"Explore: open ticket in $EDITOR from work edit","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T23:16:01.984708Z","closed":"2026-02-15T23:19:02.453746Z"}
 {"id":"effea5","title":"Phase 1: Editor utility","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:38.866013Z","closed":"2026-02-15T23:20:38.129284Z"}
 {"id":"55e9ab","title":"Phase 2: Issue serialization","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:43.224987Z","closed":"2026-02-15T23:21:52.687095Z"}
