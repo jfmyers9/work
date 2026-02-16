@@ -1,0 +1,13 @@
+{
+  "id": "83f68e",
+  "title": "Explore: TUI for work CLI",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-16T01:55:25.925553Z",
+  "updated": "2026-02-16T01:59:59.357255Z",
+  "description": "# TUI for work CLI"
+}

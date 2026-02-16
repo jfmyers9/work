@@ -108,3 +108,12 @@
 {"id":"53a6f7","title":"Phase 3: Migrate ResolveUser() callers","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:43.179539Z","closed":"2026-02-16T00:51:58.672439Z"}
 {"id":"c4052e","title":"Phase 4: Migrate ResolveEditor() callers","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:47.177315Z","closed":"2026-02-16T00:51:58.687386Z"}
 {"id":"2fa821","title":"Plan: envconfig package with caarlos0/env","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:30.376993Z","closed":"2026-02-16T00:51:58.700482Z"}
+{"id":"83f68e","title":"Explore: TUI for work CLI","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T01:55:25.925553Z","closed":"2026-02-16T01:59:59.357255Z"}
+{"id":"500a3d","title":"Phase 1: Scaffold and List View","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:30.244682Z","closed":"2026-02-16T02:04:26.804566Z"}
+{"id":"1a635b","title":"Phase 2: Issue Detail View","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:34.446992Z","closed":"2026-02-16T02:06:51.65709Z"}
+{"id":"8dcfd5","title":"Phase 3: Status Transitions","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:38.287203Z","closed":"2026-02-16T02:09:03.97993Z"}
+{"id":"673fc4","title":"Phase 5: Filtering and Sorting","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:46.829713Z","closed":"2026-02-16T02:09:23.69097Z"}
+{"id":"2c6902","title":"Phase 4: Comments and Quick Actions","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:42.214699Z","closed":"2026-02-16T02:13:58.811668Z"}
+{"id":"e5b4e9","title":"Phase 6: Create and Edit","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:50.814361Z","closed":"2026-02-16T02:17:43.308091Z"}
+{"id":"074aad","title":"Phase 7: Polish","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:55.016945Z","closed":"2026-02-16T02:21:57.919607Z"}
+{"id":"f3e740","title":"Plan: TUI for work CLI","type":"chore","status":"done","labels":["work-tui"],"created":"2026-02-16T01:59:24.594683Z","closed":"2026-02-16T02:22:29.677967Z"}

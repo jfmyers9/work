@@ -1,0 +1,15 @@
+{
+  "id": "2c6902",
+  "title": "Phase 4: Comments and Quick Actions",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "work-tui"
+  ],
+  "assignee": "worker-2c6902",
+  "parent_id": "f3e740",
+  "created": "2026-02-16T01:59:42.214699Z",
+  "updated": "2026-02-16T02:13:58.811668Z",
+  "description": "## Acceptance Criteria"
+}
