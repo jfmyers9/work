@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +23,7 @@ var unlinkCmd = &cobra.Command{
 			return err
 		}
 
-		user := tracker.ResolveUser()
-		if _, err := t.UnlinkIssue(id, user); err != nil {
+		if _, err := t.UnlinkIssue(id, cfg.User); err != nil {
 			return err
 		}
 		fmt.Printf("Unlinked %s\n", id)

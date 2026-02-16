@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +23,7 @@ var commentCmd = &cobra.Command{
 			return err
 		}
 
-		user := tracker.ResolveUser()
-		if _, err := t.AddComment(id, args[1], user); err != nil {
+		if _, err := t.AddComment(id, args[1], cfg.User); err != nil {
 			return err
 		}
 		fmt.Printf("Commented on %s\n", id)

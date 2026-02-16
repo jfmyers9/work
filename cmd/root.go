@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jfmyers9/work/internal/config"
 	"github.com/spf13/cobra"
 )
+
+var cfg config.Config
 
 var rootCmd = &cobra.Command{
 	Use:           "work",
@@ -13,6 +16,11 @@ var rootCmd = &cobra.Command{
 	Long:          "usage: work <command> [args]",
 	SilenceUsage:  true,
 	SilenceErrors: true,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		cfg, err = config.Load()
+		return err
+	},
 }
 
 func init() {

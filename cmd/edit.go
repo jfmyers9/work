@@ -84,12 +84,11 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		user := tracker.ResolveUser()
 		event := model.Event{
 			Timestamp: now,
 			Op:        "edit",
 			Fields:    edited,
-			By:        user,
+			By:        cfg.User,
 		}
 		if err := t.AppendEvent(id, event); err != nil {
 			return err
@@ -101,7 +100,7 @@ var editCmd = &cobra.Command{
 
 func editInEditor(t *tracker.Tracker, issue model.Issue) error {
 	content := editor.MarshalIssue(issue)
-	result, err := editor.OpenEditor(content, "work-edit")
+	result, err := editor.OpenEditor(content, "work-edit", cfg.Editor)
 	if err != nil {
 		if errors.Is(err, editor.ErrAborted) {
 			fmt.Println("edit cancelled")
@@ -155,12 +154,11 @@ func editInEditor(t *tracker.Tracker, issue model.Issue) error {
 		return err
 	}
 
-	user := tracker.ResolveUser()
 	event := model.Event{
 		Timestamp: now,
 		Op:        "edit",
 		Fields:    edited,
-		By:        user,
+		By:        cfg.User,
 	}
 	if err := t.AppendEvent(issue.ID, event); err != nil {
 		return err

@@ -1,0 +1,14 @@
+{
+  "id": "aa783b",
+  "title": "Phase 1: Create internal/config package",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "envconfig"
+  ],
+  "parent_id": "2fa821",
+  "created": "2026-02-15T23:35:34.902438Z",
+  "updated": "2026-02-16T00:49:28.464156Z",
+  "description": "## Acceptance Criteria"
+}

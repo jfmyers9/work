@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -46,8 +45,7 @@ var createCmd = &cobra.Command{
 			parentID = resolved
 		}
 
-		user := tracker.ResolveUser()
-		issue, err := t.CreateIssue(title, createDescription, createAssignee, createPriority, labels, createType, parentID, user)
+		issue, err := t.CreateIssue(title, createDescription, createAssignee, createPriority, labels, createType, parentID, cfg.User)
 		if err != nil {
 			return err
 		}

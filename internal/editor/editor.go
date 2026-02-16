@@ -11,21 +11,11 @@ var ErrAborted = errors.New("editor exited with non-zero status")
 
 // OpenEditor is the function used to edit content. Tests can replace this
 // to avoid spawning a real editor.
-var OpenEditor = EditTempFile
+var OpenEditor func(content, prefix, editorBin string) (string, error) = EditTempFile
 
-func ResolveEditor() string {
-	if e := os.Getenv("EDITOR"); e != "" {
-		return e
-	}
-	if e := os.Getenv("VISUAL"); e != "" {
-		return e
-	}
-	return "vi"
-}
-
-// EditTempFile opens the resolved editor on a temp file seeded with content.
+// EditTempFile opens editorBin on a temp file seeded with content.
 // Returns the edited content. The temp file is removed after reading.
-func EditTempFile(content, prefix string) (string, error) {
+func EditTempFile(content, prefix, editorBin string) (string, error) {
 	f, err := os.CreateTemp("", prefix+"-*.md")
 	if err != nil {
 		return "", fmt.Errorf("creating temp file: %w", err)
@@ -41,7 +31,6 @@ func EditTempFile(content, prefix string) (string, error) {
 		return "", fmt.Errorf("closing temp file: %w", err)
 	}
 
-	editorBin := ResolveEditor()
 	path, err := exec.LookPath(editorBin)
 	if err != nil {
 		return "", fmt.Errorf("editor %q not found in PATH; set $EDITOR to your preferred editor", editorBin)

@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -31,11 +30,10 @@ var rejectCmd = &cobra.Command{
 		}
 		oldStatus := old.Status
 
-		user := tracker.ResolveUser()
-		if _, err := t.SetStatus(id, "active", user); err != nil {
+		if _, err := t.SetStatus(id, "active", cfg.User); err != nil {
 			return err
 		}
-		if _, err := t.AddComment(id, "Rejected: "+reason, user); err != nil {
+		if _, err := t.AddComment(id, "Rejected: "+reason, cfg.User); err != nil {
 			return err
 		}
 		fmt.Printf("%s: %s → active (rejected: %s)\n", id, oldStatus, reason)
