@@ -126,3 +126,8 @@
 {"id":"0e4667","title":"Explore: Homebrew setup from scribbles + v0.1.0 release prep","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T05:42:59Z","closed":"2026-02-16T05:47:59Z"}
 {"id":"60815d","title":"Phase 1: Homebrew Formula + Docs","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:44Z","closed":"2026-02-16T05:48:36Z"}
 {"id":"897a70","title":"Phase 2: Release Automation Enhancement","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:49Z","closed":"2026-02-16T05:49:01Z"}
+{"id":"b7378a","title":"Fix: Upgrade to Go 1.26 and update golangci-lint","type":"chore","status":"done","labels":["fix"],"created":"2026-02-16T07:49:28.174445Z","closed":"2026-02-16T07:50:51.643196Z"}
+{"id":"fb464d","title":"Phase 1: Go version bump","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:44.179361Z","closed":"2026-02-16T07:52:06.128337Z"}
+{"id":"b85898","title":"Phase 2: golangci-lint assets","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:45.252273Z","closed":"2026-02-16T07:53:04.406139Z"}
+{"id":"f08d24","title":"Phase 3: Validation","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:47.126706Z","closed":"2026-02-16T07:54:02.300967Z"}
+{"id":"7792b0","title":"Plan: Upgrade to Go 1.26","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:37.844679Z","closed":"2026-02-16T07:54:35.259061Z"}
