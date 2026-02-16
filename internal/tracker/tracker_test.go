@@ -2202,7 +2202,7 @@ func TestDeduplicateLog(t *testing.T) {
 			Closed:  now,
 		}
 		data, _ := json.Marshal(entry)
-		fmt.Fprintf(f, "%s\n", data)
+		_, _ = fmt.Fprintf(f, "%s\n", data)
 	}
 	// Add a unique entry
 	entry2 := LogEntry{
@@ -2213,8 +2213,8 @@ func TestDeduplicateLog(t *testing.T) {
 		Closed:  now,
 	}
 	data, _ := json.Marshal(entry2)
-	fmt.Fprintf(f, "%s\n", data)
-	f.Close()
+	_, _ = fmt.Fprintf(f, "%s\n", data)
+	_ = f.Close()
 
 	removed, err := tr.DeduplicateLog()
 	if err != nil {

@@ -170,7 +170,7 @@ func writeGitattributes(root string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	if len(existing) > 0 && existing[len(existing)-1] != '\n' {
 		if _, err := f.WriteString("\n"); err != nil {
@@ -667,13 +667,15 @@ func (t *Tracker) DeduplicateLog() (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("rewriting log: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	for _, e := range unique {
 		data, err := json.Marshal(e)
 		if err != nil {
 			return 0, fmt.Errorf("marshaling: %w", err)
 		}
-		fmt.Fprintf(f, "%s\n", data)
+		if _, err := fmt.Fprintf(f, "%s\n", data); err != nil {
+			return 0, fmt.Errorf("writing log entry: %w", err)
+		}
 	}
 	return removed, nil
 }
