@@ -27,7 +27,7 @@ func TestEditInEditor_ChangedFields(t *testing.T) {
 	original := editor.OpenEditor
 	defer func() { editor.OpenEditor = original }()
 
-	editor.OpenEditor = func(content, prefix string) (string, error) {
+	editor.OpenEditor = func(content, prefix, editorBin string) (string, error) {
 		return strings.Replace(content, "Original title", "Updated title", 1), nil
 	}
 
@@ -68,7 +68,7 @@ func TestEditInEditor_NoChanges(t *testing.T) {
 	original := editor.OpenEditor
 	defer func() { editor.OpenEditor = original }()
 
-	editor.OpenEditor = func(content, prefix string) (string, error) {
+	editor.OpenEditor = func(content, prefix, editorBin string) (string, error) {
 		return content, nil
 	}
 
@@ -96,7 +96,7 @@ func TestEditInEditor_Abort(t *testing.T) {
 	original := editor.OpenEditor
 	defer func() { editor.OpenEditor = original }()
 
-	editor.OpenEditor = func(content, prefix string) (string, error) {
+	editor.OpenEditor = func(content, prefix, editorBin string) (string, error) {
 		return "", editor.ErrAborted
 	}
 
@@ -114,7 +114,7 @@ func TestEditInEditor_InvalidType(t *testing.T) {
 	original := editor.OpenEditor
 	defer func() { editor.OpenEditor = original }()
 
-	editor.OpenEditor = func(content, prefix string) (string, error) {
+	editor.OpenEditor = func(content, prefix, editorBin string) (string, error) {
 		return strings.Replace(content, "Type: bug", "Type: invalid", 1), nil
 	}
 
@@ -136,7 +136,7 @@ func TestEditInEditor_OnlyChangedFieldsInHistory(t *testing.T) {
 	original := editor.OpenEditor
 	defer func() { editor.OpenEditor = original }()
 
-	editor.OpenEditor = func(content, prefix string) (string, error) {
+	editor.OpenEditor = func(content, prefix, editorBin string) (string, error) {
 		content = strings.Replace(content, "Priority: 2", "Priority: 1", 1)
 		content = strings.Replace(content, "Assignee: jim", "Assignee: alice", 1)
 		return content, nil

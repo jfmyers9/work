@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -15,21 +14,6 @@ import (
 
 	"github.com/jfmyers9/work/internal/model"
 )
-
-// ResolveUser determines the current user identity.
-// Checks WORK_USER env, then git config user.name, then falls back to "system".
-func ResolveUser() string {
-	if u := os.Getenv("WORK_USER"); u != "" {
-		return u
-	}
-	out, err := exec.Command("git", "config", "user.name").Output()
-	if err == nil {
-		if name := strings.TrimSpace(string(out)); name != "" {
-			return name
-		}
-	}
-	return "system"
-}
 
 // FilterOptions specifies criteria for filtering issues. All non-zero fields
 // are combined with AND logic.

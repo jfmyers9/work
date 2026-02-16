@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -32,8 +31,7 @@ func newShortcutCmd(use, short, long, example, targetStatus string, withNoCompac
 			}
 			oldStatus := old.Status
 
-			user := tracker.ResolveUser()
-			if _, err := t.SetStatus(id, targetStatus, user); err != nil {
+			if _, err := t.SetStatus(id, targetStatus, cfg.User); err != nil {
 				return err
 			}
 			fmt.Printf("%s: %s → %s\n", id, oldStatus, targetStatus)

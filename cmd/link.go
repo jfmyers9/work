@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -30,8 +29,7 @@ var linkCmd = &cobra.Command{
 			return err
 		}
 
-		user := tracker.ResolveUser()
-		if _, err := t.LinkIssue(childID, parentID, user); err != nil {
+		if _, err := t.LinkIssue(childID, parentID, cfg.User); err != nil {
 			return err
 		}
 		fmt.Printf("Linked %s → %s\n", childID, parentID)

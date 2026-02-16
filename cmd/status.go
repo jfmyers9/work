@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -36,8 +35,7 @@ Valid states: open, active, review, done, cancelled.`,
 		}
 		oldStatus := old.Status
 
-		user := tracker.ResolveUser()
-		if _, err := t.SetStatus(id, newStatus, user); err != nil {
+		if _, err := t.SetStatus(id, newStatus, cfg.User); err != nil {
 			return err
 		}
 		fmt.Printf("%s: %s → %s\n", id, oldStatus, newStatus)

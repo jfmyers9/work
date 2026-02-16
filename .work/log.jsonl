@@ -102,3 +102,9 @@
 {"id":"212657","title":"Phase 4: Edge cases and polish","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:51.520767Z","closed":"2026-02-15T23:23:04.129183Z"}
 {"id":"d37130","title":"Phase 5: Tests","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:56.005077Z","closed":"2026-02-15T23:24:19.022176Z"}
 {"id":"c1cbef","title":"Plan: open ticket in $EDITOR from work edit","type":"chore","status":"done","labels":["editor-edit"],"created":"2026-02-15T23:18:33.916043Z","closed":"2026-02-15T23:24:22.187687Z"}
+{"id":"d77780","title":"Explore: envconfig package with caarlos0/env","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T23:32:27.874318Z","closed":"2026-02-15T23:35:50.959621Z"}
+{"id":"aa783b","title":"Phase 1: Create internal/config package","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:34.902438Z","closed":"2026-02-16T00:49:28.464156Z"}
+{"id":"321ce9","title":"Phase 2: Wire config into Cobra lifecycle","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:38.828284Z","closed":"2026-02-16T00:49:46.115601Z"}
+{"id":"53a6f7","title":"Phase 3: Migrate ResolveUser() callers","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:43.179539Z","closed":"2026-02-16T00:51:58.672439Z"}
+{"id":"c4052e","title":"Phase 4: Migrate ResolveEditor() callers","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:47.177315Z","closed":"2026-02-16T00:51:58.687386Z"}
+{"id":"2fa821","title":"Plan: envconfig package with caarlos0/env","type":"chore","status":"done","labels":["envconfig"],"created":"2026-02-15T23:35:30.376993Z","closed":"2026-02-16T00:51:58.700482Z"}

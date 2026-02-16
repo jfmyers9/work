@@ -1047,23 +1047,6 @@ func TestFilterEventsByTime_SinceAndUntil(t *testing.T) {
 	}
 }
 
-func TestResolveUser_EnvVar(t *testing.T) {
-	t.Setenv("WORK_USER", "envuser")
-	got := ResolveUser()
-	if got != "envuser" {
-		t.Errorf("got %q, want envuser", got)
-	}
-}
-
-func TestResolveUser_Fallback(t *testing.T) {
-	t.Setenv("WORK_USER", "")
-	got := ResolveUser()
-	// Falls back to git config user.name or "system" — either is acceptable
-	if got == "" {
-		t.Error("ResolveUser returned empty string")
-	}
-}
-
 func TestReviewWorkflow(t *testing.T) {
 	root := t.TempDir()
 	tr, err := Init(root)
