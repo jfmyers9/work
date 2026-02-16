@@ -131,3 +131,7 @@
 {"id":"b85898","title":"Phase 2: golangci-lint assets","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:45.252273Z","closed":"2026-02-16T07:53:04.406139Z"}
 {"id":"f08d24","title":"Phase 3: Validation","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:47.126706Z","closed":"2026-02-16T07:54:02.300967Z"}
 {"id":"7792b0","title":"Plan: Upgrade to Go 1.26","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:37.844679Z","closed":"2026-02-16T07:54:35.259061Z"}
+{"id":"071b67","title":"Phase 2: First release","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:09.949015Z","closed":"2026-02-16T08:17:19.546105Z"}
+{"id":"1a35db","title":"Plan: Homebrew Setup + v0.1.0 Release","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:38Z","closed":"2026-02-16T08:17:20.495279Z"}
+{"id":"5859c1","title":"Phase 6: Release automation (optional)","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:16.365502Z","closed":"2026-02-16T08:17:21.07411Z"}
+{"id":"d5df43","title":"Phase 3: Tag + Release v0.1.0","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:54Z","closed":"2026-02-16T08:17:21.774032Z"}
