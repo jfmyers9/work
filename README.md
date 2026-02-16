@@ -8,13 +8,13 @@ them easy to browse, version with git, and merge without conflicts.
 ## Install
 
 ```
-go build -o work .
+curl -fsSL https://raw.githubusercontent.com/jfmyers9/work/main/scripts/install.sh | bash
 ```
 
-Move the binary somewhere on your `$PATH`:
+Or with Go:
 
 ```
-mv work /usr/local/bin/
+go install github.com/jfmyers9/work@latest
 ```
 
 ## Quick Start
