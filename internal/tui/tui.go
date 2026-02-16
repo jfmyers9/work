@@ -1,3 +1,4 @@
+// Package tui provides an interactive terminal UI for browsing issues.
 package tui
 
 import (

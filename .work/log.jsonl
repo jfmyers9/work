@@ -112,3 +112,8 @@
 {"id":"85d123","title":"Phase 5: help and docs updates","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:18.047137Z","closed":"2026-02-16T04:40:43.284753Z"}
 {"id":"e787fa","title":"Plan: default to open issues in TUI and list","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:06.882005Z","closed":"2026-02-16T04:40:53.809386Z"}
 {"id":"902949","title":"Explore: repo professionalism improvements","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:56:54.139509Z","closed":"2026-02-16T05:00:20.541549Z"}
+{"id":"4bbf97","title":"Phase 1: Legal \u0026 trust signals","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:08.735777Z","closed":"2026-02-16T05:02:14Z"}
+{"id":"0536db","title":"Phase 3: CI hardening","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:11.772987Z","closed":"2026-02-16T05:02:14Z"}
+{"id":"2884c2","title":"Phase 4: Documentation polish","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:13.489598Z","closed":"2026-02-16T05:02:14Z"}
+{"id":"5d32df","title":"Phase 5: README completeness","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:15.324416Z","closed":"2026-02-16T05:02:14Z"}
+{"id":"f55006","title":"Plan: repo professionalism improvements","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:04.018673Z","closed":"2026-02-16T05:02:14Z"}

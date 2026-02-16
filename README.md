@@ -1,5 +1,9 @@
 # work
 
+[![CI](https://github.com/jfmyers9/work/actions/workflows/ci.yml/badge.svg)](https://github.com/jfmyers9/work/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/jfmyers9/work.svg)](https://pkg.go.dev/github.com/jfmyers9/work)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jfmyers9/work)](https://goreportcard.com/report/github.com/jfmyers9/work)
+
 A simple, filesystem-based issue tracker CLI written in Go.
 
 Issues are stored as JSON files in a `.work/` directory, making
@@ -229,3 +233,47 @@ Edit `.work/config.json` to customize states and transitions:
 ```
 go test ./...
 ```
+
+## Troubleshooting
+
+**"no .work directory found"**: Run `work init` in your project
+root to create the tracker.
+
+**Ambiguous ID prefix**: If a short prefix matches multiple issues,
+work shows all matches. Use more characters to disambiguate.
+
+**Shell completions not working**: Make sure to add the completion
+line to your shell profile, not just run it once:
+```
+echo 'eval "$(work completion zsh)"' >> ~/.zshrc
+```
+
+## Development
+
+Build:
+
+```
+make build
+```
+
+Run tests with race detection:
+
+```
+make test
+```
+
+Lint:
+
+```
+make lint
+```
+
+Format code:
+
+```
+make fmt
+```
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
