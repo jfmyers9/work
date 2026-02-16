@@ -1,13 +1,1 @@
-{
-  "id": "d77780",
-  "title": "Explore: envconfig package with caarlos0/env",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "explore"
-  ],
-  "created": "2026-02-15T23:32:27.874318Z",
-  "updated": "2026-02-15T23:35:50.959621Z",
-  "description": "## Current State"
-}
+{"id":"d77780","title":"Explore: envconfig package with caarlos0/env","status":"done","type":"chore","priority":2,"labels":["explore"],"created":"2026-02-15T23:32:27.874318Z","updated":"2026-02-15T23:35:50.959621Z","description":"## Current State"}

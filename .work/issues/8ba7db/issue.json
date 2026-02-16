@@ -1,14 +1,1 @@
-{
-  "id": "8ba7db",
-  "title": "Phase 3: Migrate flag-heavy commands",
-  "status": "done",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "cobra-migration"
-  ],
-  "parent_id": "567674",
-  "created": "2026-02-15T22:09:29.26254Z",
-  "updated": "2026-02-15T22:25:44.555885Z",
-  "description": "## Acceptance Criteria"
-}
+{"id":"8ba7db","title":"Phase 3: Migrate flag-heavy commands","status":"done","type":"chore","priority":2,"labels":["cobra-migration"],"parent_id":"567674","created":"2026-02-15T22:09:29.26254Z","updated":"2026-02-15T22:25:44.555885Z","description":"## Acceptance Criteria"}

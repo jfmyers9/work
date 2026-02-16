@@ -126,20 +126,64 @@ func Init(root string) (*Tracker, error) {
 	}
 
 	cfg := model.DefaultConfig()
-	data, err := json.MarshalIndent(cfg, "", "  ")
+	data, err := json.Marshal(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling config: %w", err)
 	}
+	data = append(data, '\n')
 	if err := os.WriteFile(cfgPath, data, 0o644); err != nil {
 		return nil, fmt.Errorf("writing config: %w", err)
 	}
 
-	gitattributes := filepath.Join(root, ".work", ".gitattributes")
-	if err := os.WriteFile(gitattributes, []byte("* linguist-generated\n"), 0o644); err != nil {
+	if err := writeGitattributes(root); err != nil {
 		return nil, fmt.Errorf("writing .gitattributes: %w", err)
 	}
 
 	return &Tracker{Root: root, Config: cfg}, nil
+}
+
+var gitattributesLines = []string{
+	".work/issues/** linguist-generated diff=work",
+	".work/log.jsonl linguist-generated diff=work",
+	".work/config.json linguist-generated diff=work",
+}
+
+func writeGitattributes(root string) error {
+	path := filepath.Join(root, ".gitattributes")
+
+	var existing string
+	if data, err := os.ReadFile(path); err == nil {
+		existing = string(data)
+	}
+
+	var toAdd []string
+	for _, line := range gitattributesLines {
+		if !strings.Contains(existing, line) {
+			toAdd = append(toAdd, line)
+		}
+	}
+	if len(toAdd) == 0 {
+		return nil
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if len(existing) > 0 && existing[len(existing)-1] != '\n' {
+		if _, err := f.WriteString("\n"); err != nil {
+			return err
+		}
+	}
+
+	for _, line := range toAdd {
+		if _, err := f.WriteString(line + "\n"); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Load reads an existing tracker from disk.
@@ -162,10 +206,11 @@ func (t *Tracker) SaveIssue(issue model.Issue) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("creating issue dir: %w", err)
 	}
-	data, err := json.MarshalIndent(issue, "", "  ")
+	data, err := json.Marshal(issue)
 	if err != nil {
 		return fmt.Errorf("marshaling issue: %w", err)
 	}
+	data = append(data, '\n')
 	return os.WriteFile(filepath.Join(dir, "issue.json"), data, 0o644)
 }
 
@@ -563,7 +608,18 @@ type LogEntry struct {
 }
 
 // AppendLog writes a one-line JSON entry to .work/log.jsonl.
+// Skips writing if the issue ID already exists in the log.
 func (t *Tracker) AppendLog(issue model.Issue) error {
+	existing, err := t.LoadLog()
+	if err != nil {
+		return fmt.Errorf("reading existing log: %w", err)
+	}
+	for _, e := range existing {
+		if e.ID == issue.ID {
+			return nil
+		}
+	}
+
 	entry := LogEntry{
 		ID:      issue.ID,
 		Title:   issue.Title,
@@ -585,6 +641,41 @@ func (t *Tracker) AppendLog(issue model.Issue) error {
 	}
 	_, err = fmt.Fprintf(f, "%s\n", data)
 	return err
+}
+
+// DeduplicateLog removes duplicate entries from log.jsonl, keeping the first
+// occurrence of each issue ID. Returns the number of duplicates removed.
+func (t *Tracker) DeduplicateLog() (int, error) {
+	entries, err := t.LoadLog()
+	if err != nil {
+		return 0, err
+	}
+	seen := make(map[string]bool)
+	var unique []LogEntry
+	for _, e := range entries {
+		if !seen[e.ID] {
+			seen[e.ID] = true
+			unique = append(unique, e)
+		}
+	}
+	removed := len(entries) - len(unique)
+	if removed == 0 {
+		return 0, nil
+	}
+	path := filepath.Join(t.Root, ".work", "log.jsonl")
+	f, err := os.Create(path)
+	if err != nil {
+		return 0, fmt.Errorf("rewriting log: %w", err)
+	}
+	defer f.Close()
+	for _, e := range unique {
+		data, err := json.Marshal(e)
+		if err != nil {
+			return 0, fmt.Errorf("marshaling: %w", err)
+		}
+		fmt.Fprintf(f, "%s\n", data)
+	}
+	return removed, nil
 }
 
 // LoadLog reads all entries from .work/log.jsonl.
@@ -680,6 +771,21 @@ func (t *Tracker) compactHistory(id string) error {
 		}
 	}
 	return nil
+}
+
+// RewriteAllIssues loads every issue and re-saves it, migrating to the current
+// on-disk format (e.g. compact JSON).
+func (t *Tracker) RewriteAllIssues() (int, error) {
+	issues, err := t.ListIssues()
+	if err != nil {
+		return 0, err
+	}
+	for _, issue := range issues {
+		if err := t.SaveIssue(issue); err != nil {
+			return 0, fmt.Errorf("rewriting %s: %w", issue.ID, err)
+		}
+	}
+	return len(issues), nil
 }
 
 // CompactAllDone compacts all done/cancelled issues.
