@@ -19,6 +19,7 @@ var (
 	listSort     string
 	listFormat   string
 	listLast     int
+	listAll      bool
 )
 
 var listCmd = &cobra.Command{
@@ -43,6 +44,9 @@ var listCmd = &cobra.Command{
 			Label:    listLabel,
 			Assignee: listAssignee,
 			Type:     listType,
+		}
+		if !listAll && listStatus == "" {
+			opts.ExcludeStatuses = []string{"done", "cancelled"}
 		}
 		if cmd.Flags().Changed("priority") {
 			opts.Priority = listPriority
@@ -125,5 +129,6 @@ func init() {
 	listCmd.Flags().StringVar(&listSort, "sort", "", "Sort by field (title|priority|status|created|updated)")
 	listCmd.Flags().StringVar(&listFormat, "format", "", "Output format (json|short)")
 	listCmd.Flags().IntVar(&listLast, "last", 0, "Show only the last N issues")
+	listCmd.Flags().BoolVar(&listAll, "all", false, "Show all issues including done/cancelled")
 	rootCmd.AddCommand(listCmd)
 }
