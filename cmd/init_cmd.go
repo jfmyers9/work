@@ -62,6 +62,17 @@ auto-discovers the work CLI.`,
 					},
 				},
 			},
+			"PreToolUse": []any{
+				map[string]any{
+					"matcher": "Bash",
+					"hooks": []any{
+						map[string]any{
+							"type":    "command",
+							"command": `sh -c 'input=$(cat); case "$input" in *"git commit"*) changes=$(git diff --name-only -- .work/ 2>/dev/null; git ls-files --others --exclude-standard -- .work/ 2>/dev/null); [ -n "$changes" ] && echo "Warning: unstaged .work/ changes — run: git add .work/";; esac; true'`,
+						},
+					},
+				},
+			},
 		}
 		var buf bytes.Buffer
 		enc := json.NewEncoder(&buf)

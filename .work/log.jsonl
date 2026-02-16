@@ -117,3 +117,9 @@
 {"id":"2884c2","title":"Phase 4: Documentation polish","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:13.489598Z","closed":"2026-02-16T05:02:14Z"}
 {"id":"5d32df","title":"Phase 5: README completeness","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:15.324416Z","closed":"2026-02-16T05:02:14Z"}
 {"id":"f55006","title":"Plan: repo professionalism improvements","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:04.018673Z","closed":"2026-02-16T05:02:14Z"}
+{"id":"79499a","title":"Explore: work instructions command - missing .work commit context","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T05:22:49Z","closed":"2026-02-16T05:32:43Z"}
+{"id":"23d04d","title":"Phase 1: Add git integration section to instructions output","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:26Z","closed":"2026-02-16T05:34:22Z"}
+{"id":"9a10b7","title":"Phase 2: Reinforce in guidelines bullet","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:30Z","closed":"2026-02-16T05:34:28Z"}
+{"id":"d7abbf","title":"Phase 3: Add PreCommit hook for unstaged .work/ changes","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:35Z","closed":"2026-02-16T05:35:28Z"}
+{"id":"362a49","title":"Phase 4: Test end-to-end","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:39Z","closed":"2026-02-16T05:35:28Z"}
+{"id":"f532ed","title":"Plan: Add .work/ commit guidance to instructions","type":"chore","status":"done","labels":["work-commit-guidance"],"created":"2026-02-16T05:32:19Z","closed":"2026-02-16T05:35:28Z"}

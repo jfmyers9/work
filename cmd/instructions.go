@@ -72,7 +72,17 @@ planning, and coordination.
   and comments.
 - Check work list before starting work to see what is in flight.
 - Use labels to group related issues.
-- Use --format=json when you need to parse output programmatically.`)
+- Always stage .work/ changes when committing code.
+- Use --format=json when you need to parse output programmatically.
+
+## Git Integration
+
+The .work/ directory is tracked in git. Commands like create,
+start, close, comment, and edit write JSON files under .work/.
+
+When committing changes, always stage .work/ files:
+  git add .work/
+Include .work/ changes in the same commit as related code changes.`)
 
 		if instructionsStatic {
 			return nil
