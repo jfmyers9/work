@@ -38,7 +38,7 @@ Valid states: open, active, review, done, cancelled.`,
 		if _, err := t.SetStatus(id, newStatus, cfg.User); err != nil {
 			return err
 		}
-		fmt.Printf("%s: %s → %s\n", id, oldStatus, newStatus)
+		fmt.Printf("%s: %s → %s\n", shortID(t, id), oldStatus, newStatus)
 
 		if newStatus == "done" || newStatus == "cancelled" {
 			if !statusNoCompact {

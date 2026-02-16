@@ -36,7 +36,7 @@ var rejectCmd = &cobra.Command{
 		if _, err := t.AddComment(id, "Rejected: "+reason, cfg.User); err != nil {
 			return err
 		}
-		fmt.Printf("%s: %s → active (rejected: %s)\n", id, oldStatus, reason)
+		fmt.Printf("%s: %s → active (rejected: %s)\n", shortID(t, id), oldStatus, reason)
 		return nil
 	},
 }

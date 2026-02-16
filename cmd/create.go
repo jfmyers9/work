@@ -49,7 +49,7 @@ var createCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println(issue.ID)
+		fmt.Println(shortID(t, issue.ID))
 		return nil
 	},
 }

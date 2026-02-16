@@ -13,16 +13,18 @@ import (
 type detailModel struct {
 	issue    model.Issue
 	children []model.Issue
+	shortIDs map[string]string
 	viewport viewport.Model
 	ready    bool
 }
 
-func newDetailModel(issue model.Issue, children []model.Issue, width, height int) detailModel {
+func newDetailModel(issue model.Issue, children []model.Issue, width, height int, shortIDs map[string]string) detailModel {
 	vp := viewport.New(width, height-4)
-	vp.SetContent(renderDetail(issue, children, width))
+	vp.SetContent(renderDetail(issue, children, width, shortIDs))
 	return detailModel{
 		issue:    issue,
 		children: children,
+		shortIDs: shortIDs,
 		viewport: vp,
 		ready:    true,
 	}
@@ -33,7 +35,7 @@ func (m detailModel) Update(msg tea.Msg) (detailModel, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.viewport.Width = msg.Width
 		m.viewport.Height = msg.Height - 4
-		m.viewport.SetContent(renderDetail(m.issue, m.children, msg.Width))
+		m.viewport.SetContent(renderDetail(m.issue, m.children, msg.Width, m.shortIDs))
 	}
 	var cmd tea.Cmd
 	m.viewport, cmd = m.viewport.Update(msg)
@@ -44,7 +46,7 @@ func (m detailModel) View() string {
 	return m.viewport.View()
 }
 
-func renderDetail(issue model.Issue, children []model.Issue, width int) string {
+func renderDetail(issue model.Issue, children []model.Issue, width int, shortIDs map[string]string) string {
 	var b strings.Builder
 	contentW := min(width-4, 80)
 	labelW := 10
@@ -53,8 +55,15 @@ func renderDetail(issue model.Issue, children []model.Issue, width int) string {
 		b.WriteString("  " + labelStyle.Width(labelW).Render(name) + " " + valueStyle.Render(value) + "\n")
 	}
 
+	sid := func(id string) string {
+		if s, ok := shortIDs[id]; ok {
+			return s
+		}
+		return id
+	}
+
 	b.WriteString("\n")
-	field("ID", issue.ID[:min(6, len(issue.ID))])
+	field("ID", sid(issue.ID))
 	field("Title", issue.Title)
 	field("Status", styledStatus(issue.Status))
 	field("Type", styledType(issue.Type))
@@ -72,7 +81,7 @@ func renderDetail(issue model.Issue, children []model.Issue, width int) string {
 		field("Assignee", issue.Assignee)
 	}
 	if issue.ParentID != "" {
-		field("Parent", issue.ParentID[:min(6, len(issue.ParentID))])
+		field("Parent", sid(issue.ParentID))
 	}
 	field("Created", issue.Created.Format("2006-01-02 15:04"))
 	field("Updated", issue.Updated.Format("2006-01-02 15:04"))
@@ -94,7 +103,7 @@ func renderDetail(issue model.Issue, children []model.Issue, width int) string {
 		b.WriteString("  " + dividerStyle.Render(strings.Repeat("─", contentW)) + "\n")
 		b.WriteString("\n")
 		for _, c := range children {
-			id := lipgloss.NewStyle().Foreground(colorMuted).Render(c.ID[:min(6, len(c.ID))])
+			id := lipgloss.NewStyle().Foreground(colorMuted).Render(sid(c.ID))
 			b.WriteString(fmt.Sprintf("  %s  %-10s  %s\n",
 				id,
 				styledStatus(c.Status),

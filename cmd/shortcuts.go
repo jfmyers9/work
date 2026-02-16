@@ -34,7 +34,7 @@ func newShortcutCmd(use, short, long, example, targetStatus string, withNoCompac
 			if _, err := t.SetStatus(id, targetStatus, cfg.User); err != nil {
 				return err
 			}
-			fmt.Printf("%s: %s → %s\n", id, oldStatus, targetStatus)
+			fmt.Printf("%s: %s → %s\n", shortID(t, id), oldStatus, targetStatus)
 
 			if targetStatus == "done" || targetStatus == "cancelled" {
 				noCompact, _ := cmd.Flags().GetBool("no-compact")

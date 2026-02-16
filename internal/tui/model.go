@@ -105,7 +105,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			issue, err := m.tracker.LoadIssue(msg.issueID)
 			if err == nil {
 				children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-				m.detail = newDetailModel(issue, children, m.width, m.height)
+				m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 			}
 		}
 		return m, nil
@@ -118,14 +118,15 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			issue, err := m.tracker.LoadIssue(msg.issueID)
 			if err == nil {
 				children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-				m.detail = newDetailModel(issue, children, m.width, m.height)
+				m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 			}
 		}
 		return m, nil
 
 	case issueCreatedMsg:
-		m.statusMsg = fmt.Sprintf("Created %s: %s", msg.id, msg.title)
 		m.reloadIssues()
+		shortID := tracker.MinPrefix(msg.id, m.issueIDs())
+		m.statusMsg = fmt.Sprintf("Created %s: %s", shortID, msg.title)
 		m.screen = screenList
 		return m, nil
 
@@ -139,7 +140,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				issue, err := m.tracker.LoadIssue(msg.issueID)
 				if err == nil {
 					children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-					m.detail = newDetailModel(issue, children, m.width, m.height)
+					m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 				}
 			}
 		}
@@ -158,7 +159,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			issue, err := m.tracker.LoadIssue(msg.childID)
 			if err == nil {
 				children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-				m.detail = newDetailModel(issue, children, m.width, m.height)
+				m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 			}
 		}
 		return m, nil
@@ -174,7 +175,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			issue, err := m.tracker.LoadIssue(msg.childID)
 			if err == nil {
 				children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-				m.detail = newDetailModel(issue, children, m.width, m.height)
+				m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 			}
 		}
 		return m, nil
@@ -336,8 +337,9 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.statusMsg = "History: " + err.Error()
 					return m, nil
 				}
+				short := tracker.MinPrefix(issueID, m.issueIDs())
 				m.history = newHistoryModel(
-					issueID[:min(6, len(issueID))],
+					short,
 					events, m.width, m.height,
 				)
 				m.screen = screenHistory
@@ -354,7 +356,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					issue, err := m.tracker.LoadIssue(row[0])
 					if err == nil {
 						children := tracker.FilterIssues(m.issues, tracker.FilterOptions{ParentID: issue.ID})
-						m.detail = newDetailModel(issue, children, m.width, m.height)
+						m.detail = newDetailModel(issue, children, m.width, m.height, tracker.MinPrefixes(m.issueIDs()))
 						m.screen = screenDetail
 					}
 				}
@@ -391,6 +393,14 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m rootModel) issueIDs() []string {
+	ids := make([]string, len(m.issues))
+	for i, issue := range m.issues {
+		ids[i] = issue.ID
+	}
+	return ids
+}
+
 func (m *rootModel) reloadIssues() {
 	issues, err := m.tracker.ListIssues()
 	if err == nil {
@@ -414,7 +424,7 @@ func (m rootModel) selectedIssue() (id, title string, ok bool) {
 		}
 		return row[0], row[4], true
 	case screenDetail:
-		return m.detail.issue.ID[:min(6, len(m.detail.issue.ID))], m.detail.issue.Title, true
+		return m.detail.issue.ID, m.detail.issue.Title, true
 	default:
 		return "", "", false
 	}
@@ -473,7 +483,7 @@ func (m rootModel) openStatusPicker() (tea.Model, tea.Cmd) {
 		issueID = row[0]
 		currentStatus = row[1]
 	case screenDetail:
-		issueID = m.detail.issue.ID[:min(6, len(m.detail.issue.ID))]
+		issueID = m.detail.issue.ID
 		currentStatus = m.detail.issue.Status
 	default:
 		return m, nil
@@ -502,7 +512,7 @@ func (m rootModel) executeCreateIssue() tea.Cmd {
 		if err != nil {
 			return issueCreatedMsg{title: "error: " + err.Error()}
 		}
-		return issueCreatedMsg{id: issue.ID[:min(6, len(issue.ID))], title: issue.Title}
+		return issueCreatedMsg{id: issue.ID, title: issue.Title}
 	}
 }
 

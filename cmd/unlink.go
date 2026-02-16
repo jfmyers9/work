@@ -26,7 +26,7 @@ var unlinkCmd = &cobra.Command{
 		if _, err := t.UnlinkIssue(id, cfg.User); err != nil {
 			return err
 		}
-		fmt.Printf("Unlinked %s\n", id)
+		fmt.Printf("Unlinked %s\n", shortID(t, id))
 		return nil
 	},
 }

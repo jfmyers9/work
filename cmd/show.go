@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jfmyers9/work/internal/model"
+	"github.com/jfmyers9/work/internal/tracker"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +55,16 @@ and child issues.`,
 			return nil
 		}
 
-		fmt.Printf("ID:          %s\n", issue.ID)
+		allIssues, err := t.ListIssues()
+		allIDs := make([]string, 0)
+		if err == nil {
+			for _, i := range allIssues {
+				allIDs = append(allIDs, i.ID)
+			}
+		}
+		short := tracker.MinPrefixes(allIDs)
+
+		fmt.Printf("ID:          %s\n", short[issue.ID])
 		fmt.Printf("Title:       %s\n", issue.Title)
 		fmt.Printf("Status:      %s\n", issue.Status)
 		fmt.Printf("Type:        %s\n", issue.Type)
@@ -66,7 +76,7 @@ and child issues.`,
 			fmt.Printf("Assignee:    %s\n", issue.Assignee)
 		}
 		if issue.ParentID != "" {
-			fmt.Printf("Parent:      %s\n", issue.ParentID)
+			fmt.Printf("Parent:      %s\n", short[issue.ParentID])
 		}
 		if issue.Description != "" {
 			fmt.Printf("Description: %s\n", issue.Description)
@@ -74,7 +84,6 @@ and child issues.`,
 		fmt.Printf("Created:     %s\n", issue.Created.Format(time.RFC3339))
 		fmt.Printf("Updated:     %s\n", issue.Updated.Format(time.RFC3339))
 
-		allIssues, err := t.ListIssues()
 		if err == nil {
 			var children []model.Issue
 			for _, i := range allIssues {
@@ -91,7 +100,7 @@ and child issues.`,
 				}
 				fmt.Printf("\nChildren: %d/%d done\n", done, len(children))
 				for _, c := range children {
-					fmt.Printf("  %-8s %-10s %s\n", c.ID, c.Status, c.Title)
+					fmt.Printf("  %-8s %-10s %s\n", short[c.ID], c.Status, c.Title)
 				}
 			}
 		}

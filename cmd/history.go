@@ -89,10 +89,16 @@ limited to 20).`,
 		if len(all) < limit {
 			limit = len(all)
 		}
+		ids := make([]string, len(all))
+		for i, ev := range all {
+			ids[i] = ev.IssueID
+		}
+		short := tracker.MinPrefixes(ids)
+
 		for _, ev := range all[:limit] {
 			fmt.Printf("%s  %s  %s  (%s)\n",
 				ev.Timestamp.Format("2006-01-02 15:04:05"),
-				ev.IssueID,
+				short[ev.IssueID],
 				formatEventDetail(ev.Event),
 				ev.By)
 		}

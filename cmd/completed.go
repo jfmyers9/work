@@ -89,12 +89,18 @@ var completedCmd = &cobra.Command{
 			return nil
 		}
 
+		ids := make([]string, len(entries))
+		for i, e := range entries {
+			ids[i] = e.ID
+		}
+		short := tracker.MinPrefixes(ids)
+
 		for _, e := range entries {
 			labels := ""
 			if len(e.Labels) > 0 {
 				labels = " [" + strings.Join(e.Labels, ",") + "]"
 			}
-			fmt.Printf("%s  %s  %s  %s%s\n", e.Closed.Format("2006-01-02"), e.ID, e.Status, e.Title, labels)
+			fmt.Printf("%s  %s  %s  %s%s\n", e.Closed.Format("2006-01-02"), short[e.ID], e.Status, e.Title, labels)
 		}
 		return nil
 	},

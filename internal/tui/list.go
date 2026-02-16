@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/jfmyers9/work/internal/model"
+	"github.com/jfmyers9/work/internal/tracker"
 )
 
 // Table cell styles for custom rendering. We bypass the bubbles
@@ -35,6 +36,7 @@ var (
 type listModel struct {
 	table        table.Model
 	allIssues    []model.Issue
+	shortIDs     map[string]string
 	filters      filterState
 	searching    bool
 	search       textinput.Model
@@ -50,7 +52,12 @@ func newListModel(issues []model.Issue, width int) listModel {
 	si.CharLimit = 128
 	si.Width = 40
 
-	m := listModel{allIssues: issues, search: si, width: width, tableHeight: 20}
+	ids := make([]string, len(issues))
+	for i, issue := range issues {
+		ids[i] = issue.ID
+	}
+
+	m := listModel{allIssues: issues, shortIDs: tracker.MinPrefixes(ids), search: si, width: width, tableHeight: 20}
 	m.table = newTable(width)
 	m.rebuildRows()
 	return m
@@ -121,7 +128,7 @@ func (m *listModel) rebuildRows() {
 	rows := make([]table.Row, len(visible))
 	for i, issue := range visible {
 		rows[i] = table.Row{
-			issue.ID[:min(6, len(issue.ID))],
+			issue.ID,
 			issue.Status,
 			issue.Type,
 			priorityLabel(issue.Priority),
@@ -249,6 +256,11 @@ func (m listModel) renderTable() string {
 	for r := start; r < end; r++ {
 		cells := make([]string, len(cols))
 		for i, value := range rows[r] {
+			if i == 0 {
+				if s, ok := m.shortIDs[value]; ok {
+					value = s
+				}
+			}
 			styled := styleCellValue(i, value)
 			truncated := ansi.Truncate(styled, cols[i].Width, "…")
 			inner := lipgloss.NewStyle().

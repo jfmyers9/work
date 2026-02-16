@@ -84,34 +84,34 @@
 {"id":"5e27ec","title":"Plan: reduce .work diff pollution","type":"chore","status":"done","labels":["diff-pollution"],"created":"2026-02-16T02:19:22.289154Z","closed":"2026-02-16T02:27:12.894468Z"}
 {"id":"f23f88","title":"Phase 5: Merge history.jsonl into issue.json (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:35.252077Z","closed":"2026-02-16T02:27:18.202951Z"}
 {"id":"e35bae","title":"Phase 6: Auto-compact on commit (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:37.075243Z","closed":"2026-02-16T02:27:18.218794Z"}
-{"id":"71d380","title":"Phase 7: -diff for log.jsonl (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:39.241222Z","closed":"2026-02-16T02:27:18.233959Z"}
-{"id":"1b3598","title":"Explore: TUI visual polish — styling and colors","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T02:53:24.735115Z","closed":"2026-02-16T02:56:29.305717Z"}
-{"id":"e93d40","title":"Phase 1: Centralize color system","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:16.339338Z","closed":"2026-02-16T03:09:14.143792Z"}
-{"id":"b0c988","title":"Phase 2: App frame and layout structure","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:17.777001Z","closed":"2026-02-16T03:09:14.156554Z"}
-{"id":"3de928","title":"Phase 3: List view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:18.950217Z","closed":"2026-02-16T03:09:14.168729Z"}
-{"id":"403279","title":"Phase 4: Detail view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:20.722814Z","closed":"2026-02-16T03:09:14.18098Z"}
-{"id":"935f46","title":"Phase 5: Overlay screens polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:21.650556Z","closed":"2026-02-16T03:09:14.193726Z"}
-{"id":"264308","title":"Phase 6: Help screen and empty states","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:22.86646Z","closed":"2026-02-16T03:09:14.205736Z"}
-{"id":"9d1256","title":"Phase 7: Final polish and adaptivity","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:25.262332Z","closed":"2026-02-16T03:09:14.218591Z"}
-{"id":"fe5cdb","title":"Plan: TUI visual polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:11.399985Z","closed":"2026-02-16T03:09:14.230982Z"}
-{"id":"19124e","title":"Fix: description first character cutoff in detail view","type":"bug","status":"done","labels":["fix"],"created":"2026-02-16T03:20:20.828682Z","closed":"2026-02-16T03:43:11.649991Z"}
-{"id":"2a53d4","title":"Phase 1: Remove MarginTop from sectionStyle","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:07.839612Z","closed":"2026-02-16T03:46:36.167764Z"}
-{"id":"617abb","title":"Fix: description first-char cutoff","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:01.849935Z","closed":"2026-02-16T03:46:36.184382Z"}
-{"id":"cfb541","title":"Explore: TUI display bugs — truncated text and missing columns","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T03:58:05.543205Z","closed":"2026-02-16T04:05:56.641396Z"}
-{"id":"dc1552","title":"Phase 1: Fix column width arithmetic","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:26.011598Z","closed":"2026-02-16T04:14:12.151701Z"}
-{"id":"0092f5","title":"Phase 2: Replace cell rendering with ANSI-aware truncation","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:31.681241Z","closed":"2026-02-16T04:14:12.166598Z"}
-{"id":"6fba12","title":"Phase 3: Move cell styling into rendering layer","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:36.093651Z","closed":"2026-02-16T04:14:12.18117Z"}
-{"id":"230483","title":"Phase 4: Handle edge cases and test","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:41.646391Z","closed":"2026-02-16T04:14:39.142065Z"}
-{"id":"2ed912","title":"Phase 5: Clean up Cell style configuration","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:50.501115Z","closed":"2026-02-16T04:14:39.157241Z"}
-{"id":"ec9f71","title":"Plan: TUI display bugs fix","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:20.384278Z","closed":"2026-02-16T04:14:43.406213Z"}
-{"id":"8790b2","title":"Explore: default to open issues in TUI and list","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:26:39.001955Z","closed":"2026-02-16T04:36:22.5219Z"}
-{"id":"11c3ba","title":"Phase 1: extend FilterOptions with exclusion support","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:12.406498Z","closed":"2026-02-16T04:38:12.908893Z"}
-{"id":"8a4d61","title":"Phase 2: default work list to hide closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:13.566454Z","closed":"2026-02-16T04:38:51.020635Z"}
-{"id":"96dbea","title":"Phase 3: TUI default filter excludes closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:15.25674Z","closed":"2026-02-16T04:39:31.574692Z"}
-{"id":"6f5a81","title":"Phase 4: preserve TUI filter state across reloads","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:16.95609Z","closed":"2026-02-16T04:39:51.571579Z"}
-{"id":"85d123","title":"Phase 5: help and docs updates","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:18.047137Z","closed":"2026-02-16T04:40:43.284753Z"}
-{"id":"e787fa","title":"Plan: default to open issues in TUI and list","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:06.882005Z","closed":"2026-02-16T04:40:53.809386Z"}
-{"id":"902949","title":"Explore: repo professionalism improvements","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:56:54.139509Z","closed":"2026-02-16T05:00:20.541549Z"}
+{"id":"j4zxvh","title":"Phase 7: -diff for log.jsonl (optional)","type":"chore","status":"cancelled","labels":["diff-pollution"],"created":"2026-02-16T02:19:39.241222Z","closed":"2026-02-16T02:27:18.233959Z"}
+{"id":"t1nn59","title":"Explore: TUI visual polish — styling and colors","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T02:53:24.735115Z","closed":"2026-02-16T02:56:29.305717Z"}
+{"id":"sv0bzv","title":"Phase 1: Centralize color system","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:16.339338Z","closed":"2026-02-16T03:09:14.143792Z"}
+{"id":"k0ga14","title":"Phase 2: App frame and layout structure","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:17.777001Z","closed":"2026-02-16T03:09:14.156554Z"}
+{"id":"6ywap7","title":"Phase 3: List view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:18.950217Z","closed":"2026-02-16T03:09:14.168729Z"}
+{"id":"6dr6bz","title":"Phase 4: Detail view polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:20.722814Z","closed":"2026-02-16T03:09:14.18098Z"}
+{"id":"xjgenz","title":"Phase 5: Overlay screens polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:21.650556Z","closed":"2026-02-16T03:09:14.193726Z"}
+{"id":"xaxkz7","title":"Phase 6: Help screen and empty states","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:22.86646Z","closed":"2026-02-16T03:09:14.205736Z"}
+{"id":"asg6ed","title":"Phase 7: Final polish and adaptivity","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:25.262332Z","closed":"2026-02-16T03:09:14.218591Z"}
+{"id":"371zsy","title":"Plan: TUI visual polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:11.399985Z","closed":"2026-02-16T03:09:14.230982Z"}
+{"id":"g7kbyv","title":"Fix: description first character cutoff in detail view","type":"bug","status":"done","labels":["fix"],"created":"2026-02-16T03:20:20.828682Z","closed":"2026-02-16T03:43:11.649991Z"}
+{"id":"p09xa1","title":"Phase 1: Remove MarginTop from sectionStyle","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:07.839612Z","closed":"2026-02-16T03:46:36.167764Z"}
+{"id":"8nky82","title":"Fix: description first-char cutoff","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:01.849935Z","closed":"2026-02-16T03:46:36.184382Z"}
+{"id":"e6nc8j","title":"Explore: TUI display bugs — truncated text and missing columns","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T03:58:05.543205Z","closed":"2026-02-16T04:05:56.641396Z"}
+{"id":"2c0q34","title":"Phase 1: Fix column width arithmetic","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:26.011598Z","closed":"2026-02-16T04:14:12.151701Z"}
+{"id":"b3n4vn","title":"Phase 2: Replace cell rendering with ANSI-aware truncation","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:31.681241Z","closed":"2026-02-16T04:14:12.166598Z"}
+{"id":"0h3bp3","title":"Phase 3: Move cell styling into rendering layer","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:36.093651Z","closed":"2026-02-16T04:14:12.18117Z"}
+{"id":"59r73p","title":"Phase 4: Handle edge cases and test","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:41.646391Z","closed":"2026-02-16T04:14:39.142065Z"}
+{"id":"567d8e","title":"Phase 5: Clean up Cell style configuration","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:50.501115Z","closed":"2026-02-16T04:14:39.157241Z"}
+{"id":"xsy8dh","title":"Plan: TUI display bugs fix","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:20.384278Z","closed":"2026-02-16T04:14:43.406213Z"}
+{"id":"yq5800","title":"Explore: default to open issues in TUI and list","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:26:39.001955Z","closed":"2026-02-16T04:36:22.5219Z"}
+{"id":"482yfy","title":"Phase 1: extend FilterOptions with exclusion support","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:12.406498Z","closed":"2026-02-16T04:38:12.908893Z"}
+{"id":"3v6gbc","title":"Phase 2: default work list to hide closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:13.566454Z","closed":"2026-02-16T04:38:51.020635Z"}
+{"id":"gh1tdr","title":"Phase 3: TUI default filter excludes closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:15.25674Z","closed":"2026-02-16T04:39:31.574692Z"}
+{"id":"2f0frp","title":"Phase 4: preserve TUI filter state across reloads","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:16.95609Z","closed":"2026-02-16T04:39:51.571579Z"}
+{"id":"1q9n7s","title":"Phase 5: help and docs updates","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:18.047137Z","closed":"2026-02-16T04:40:43.284753Z"}
+{"id":"6ve994","title":"Plan: default to open issues in TUI and list","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:06.882005Z","closed":"2026-02-16T04:40:53.809386Z"}
+{"id":"52r08b","title":"Explore: repo professionalism improvements","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:56:54.139509Z","closed":"2026-02-16T05:00:20.541549Z"}
 {"id":"4bbf97","title":"Phase 1: Legal \u0026 trust signals","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:08.735777Z","closed":"2026-02-16T05:02:14Z"}
 {"id":"0536db","title":"Phase 3: CI hardening","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:11.772987Z","closed":"2026-02-16T05:02:14Z"}
 {"id":"2884c2","title":"Phase 4: Documentation polish","type":"chore","status":"done","labels":["repo-polish"],"created":"2026-02-16T05:00:13.489598Z","closed":"2026-02-16T05:02:14Z"}
@@ -126,12 +126,12 @@
 {"id":"0e4667","title":"Explore: Homebrew setup from scribbles + v0.1.0 release prep","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T05:42:59Z","closed":"2026-02-16T05:47:59Z"}
 {"id":"60815d","title":"Phase 1: Homebrew Formula + Docs","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:44Z","closed":"2026-02-16T05:48:36Z"}
 {"id":"897a70","title":"Phase 2: Release Automation Enhancement","type":"chore","status":"done","labels":["homebrew-release"],"created":"2026-02-16T05:47:49Z","closed":"2026-02-16T05:49:01Z"}
-{"id":"b7378a","title":"Fix: Upgrade to Go 1.26 and update golangci-lint","type":"chore","status":"done","labels":["fix"],"created":"2026-02-16T07:49:28.174445Z","closed":"2026-02-16T07:50:51.643196Z"}
-{"id":"fb464d","title":"Phase 1: Go version bump","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:44.179361Z","closed":"2026-02-16T07:52:06.128337Z"}
-{"id":"b85898","title":"Phase 2: golangci-lint assets","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:45.252273Z","closed":"2026-02-16T07:53:04.406139Z"}
-{"id":"f08d24","title":"Phase 3: Validation","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:47.126706Z","closed":"2026-02-16T07:54:02.300967Z"}
-{"id":"7792b0","title":"Plan: Upgrade to Go 1.26","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:37.844679Z","closed":"2026-02-16T07:54:35.259061Z"}
-{"id":"071b67","title":"Phase 2: First release","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:09.949015Z","closed":"2026-02-16T08:17:19.546105Z"}
-{"id":"1a35db","title":"Plan: Homebrew Setup + v0.1.0 Release","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:38Z","closed":"2026-02-16T08:17:20.495279Z"}
-{"id":"5859c1","title":"Phase 6: Release automation (optional)","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:16.365502Z","closed":"2026-02-16T08:17:21.07411Z"}
-{"id":"d5df43","title":"Phase 3: Tag + Release v0.1.0","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:54Z","closed":"2026-02-16T08:17:21.774032Z"}
+{"id":"d29k1b","title":"Fix: Upgrade to Go 1.26 and update golangci-lint","type":"chore","status":"done","labels":["fix"],"created":"2026-02-16T07:49:28.174445Z","closed":"2026-02-16T07:50:51.643196Z"}
+{"id":"49jw0h","title":"Phase 1: Go version bump","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:44.179361Z","closed":"2026-02-16T07:52:06.128337Z"}
+{"id":"6kx3wt","title":"Phase 2: golangci-lint assets","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:45.252273Z","closed":"2026-02-16T07:53:04.406139Z"}
+{"id":"2tbryd","title":"Phase 3: Validation","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:47.126706Z","closed":"2026-02-16T07:54:02.300967Z"}
+{"id":"8p5s07","title":"Plan: Upgrade to Go 1.26","type":"chore","status":"done","labels":["go-1.26-upgrade"],"created":"2026-02-16T07:50:37.844679Z","closed":"2026-02-16T07:54:35.259061Z"}
+{"id":"fs3j3h","title":"Phase 2: First release","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:09.949015Z","closed":"2026-02-16T08:17:19.546105Z"}
+{"id":"yd36c2","title":"Plan: Homebrew Setup + v0.1.0 Release","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:38Z","closed":"2026-02-16T08:17:20.495279Z"}
+{"id":"0ncezy","title":"Phase 6: Release automation (optional)","type":"chore","status":"cancelled","labels":["repo-polish"],"created":"2026-02-16T05:00:16.365502Z","closed":"2026-02-16T08:17:21.07411Z"}
+{"id":"jz26rx","title":"Phase 3: Tag + Release v0.1.0","type":"chore","status":"cancelled","labels":["homebrew-release"],"created":"2026-02-16T05:47:54Z","closed":"2026-02-16T08:17:21.774032Z"}
