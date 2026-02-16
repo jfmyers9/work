@@ -104,3 +104,10 @@
 {"id":"230483","title":"Phase 4: Handle edge cases and test","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:41.646391Z","closed":"2026-02-16T04:14:39.142065Z"}
 {"id":"2ed912","title":"Phase 5: Clean up Cell style configuration","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:50.501115Z","closed":"2026-02-16T04:14:39.157241Z"}
 {"id":"ec9f71","title":"Plan: TUI display bugs fix","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:20.384278Z","closed":"2026-02-16T04:14:43.406213Z"}
+{"id":"8790b2","title":"Explore: default to open issues in TUI and list","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T04:26:39.001955Z","closed":"2026-02-16T04:36:22.5219Z"}
+{"id":"11c3ba","title":"Phase 1: extend FilterOptions with exclusion support","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:12.406498Z","closed":"2026-02-16T04:38:12.908893Z"}
+{"id":"8a4d61","title":"Phase 2: default work list to hide closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:13.566454Z","closed":"2026-02-16T04:38:51.020635Z"}
+{"id":"96dbea","title":"Phase 3: TUI default filter excludes closed issues","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:15.25674Z","closed":"2026-02-16T04:39:31.574692Z"}
+{"id":"6f5a81","title":"Phase 4: preserve TUI filter state across reloads","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:16.95609Z","closed":"2026-02-16T04:39:51.571579Z"}
+{"id":"85d123","title":"Phase 5: help and docs updates","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:18.047137Z","closed":"2026-02-16T04:40:43.284753Z"}
+{"id":"e787fa","title":"Plan: default to open issues in TUI and list","type":"chore","status":"done","labels":["default-open-filter"],"created":"2026-02-16T04:36:06.882005Z","closed":"2026-02-16T04:40:53.809386Z"}

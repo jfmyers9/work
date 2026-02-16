@@ -396,7 +396,12 @@ func (m *rootModel) reloadIssues() {
 	if err == nil {
 		tracker.SortIssues(issues, "priority")
 		m.issues = issues
+		filters := m.list.filters
+		query := m.list.query
 		m.list = newListModel(issues, m.width)
+		m.list.filters = filters
+		m.list.query = query
+		m.list.rebuildRows()
 	}
 }
 

@@ -202,6 +202,10 @@ func (m listModel) Update(msg tea.Msg) (listModel, tea.Cmd) {
 			m.filters.cycleSort()
 			m.rebuildRows()
 			return m, nil
+		case "A":
+			m.filters.showClosed = !m.filters.showClosed
+			m.rebuildRows()
+			return m, nil
 		case "F":
 			m.filters.clear()
 			m.query = ""

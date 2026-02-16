@@ -54,6 +54,8 @@ planning, and coordination.
   work cancel <id>   # any → cancelled
 
 **Viewing issues:**
+  work list                                # open issues (default)
+  work list --all                          # include done/cancelled
   work list --status active
   work list --label <label> --format short
   work show <id>

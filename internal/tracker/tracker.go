@@ -18,14 +18,15 @@ import (
 // FilterOptions specifies criteria for filtering issues. All non-zero fields
 // are combined with AND logic.
 type FilterOptions struct {
-	Status      string
-	Label       string
-	Assignee    string
-	Priority    int
-	HasPriority bool // distinguishes "filter by priority 0" from "no filter"
-	Type        string
-	ParentID    string
-	RootsOnly   bool
+	Status          string
+	ExcludeStatuses []string
+	Label           string
+	Assignee        string
+	Priority        int
+	HasPriority     bool // distinguishes "filter by priority 0" from "no filter"
+	Type            string
+	ParentID        string
+	RootsOnly       bool
 }
 
 // FilterIssues returns the subset of issues matching all specified filters.
@@ -33,6 +34,9 @@ func FilterIssues(issues []model.Issue, opts FilterOptions) []model.Issue {
 	var result []model.Issue
 	for _, issue := range issues {
 		if opts.Status != "" && issue.Status != opts.Status {
+			continue
+		}
+		if len(opts.ExcludeStatuses) > 0 && statusExcluded(issue.Status, opts.ExcludeStatuses) {
 			continue
 		}
 		if opts.Label != "" && !hasLabel(issue.Labels, opts.Label) {
@@ -56,6 +60,15 @@ func FilterIssues(issues []model.Issue, opts FilterOptions) []model.Issue {
 		result = append(result, issue)
 	}
 	return result
+}
+
+func statusExcluded(status string, excluded []string) bool {
+	for _, s := range excluded {
+		if status == s {
+			return true
+		}
+	}
+	return false
 }
 
 func hasLabel(labels []string, target string) bool {

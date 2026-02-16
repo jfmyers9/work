@@ -43,6 +43,7 @@ func (h helpModel) View(width int) string {
 			title: "Filters (list)",
 			keys: [][2]string{
 				{"f", "cycle status filter"},
+				{"A", "toggle done/cancelled"},
 				{"t", "cycle type filter"},
 				{"o", "cycle sort order"},
 				{"F", "clear filters"},

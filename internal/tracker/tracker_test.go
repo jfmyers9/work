@@ -910,6 +910,29 @@ func TestFilterIssues_NoMatch(t *testing.T) {
 	}
 }
 
+func TestFilterIssues_ExcludeStatuses(t *testing.T) {
+	issues := makeTestIssues()
+	got := FilterIssues(issues, FilterOptions{ExcludeStatuses: []string{"done", "cancelled"}})
+	if len(got) != 3 {
+		t.Fatalf("count: got %d, want 3", len(got))
+	}
+	for _, i := range got {
+		if i.Status == "done" || i.Status == "cancelled" {
+			t.Errorf("excluded status %q still present", i.Status)
+		}
+	}
+}
+
+func TestFilterIssues_ExcludeWithExplicitStatus(t *testing.T) {
+	issues := makeTestIssues()
+	// Explicit Status filter takes precedence — ExcludeStatuses is ignored
+	// because the explicit status already narrows to one value
+	got := FilterIssues(issues, FilterOptions{Status: "done", ExcludeStatuses: []string{"done"}})
+	if len(got) != 0 {
+		t.Errorf("expected 0 (both filters applied), got %d", len(got))
+	}
+}
+
 func TestFilterIssues_NoFilter(t *testing.T) {
 	issues := makeTestIssues()
 	got := FilterIssues(issues, FilterOptions{})

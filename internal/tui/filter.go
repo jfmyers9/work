@@ -15,9 +15,10 @@ var (
 )
 
 type filterState struct {
-	statusIdx int
-	typeIdx   int
-	sortIdx   int
+	statusIdx  int
+	typeIdx    int
+	sortIdx    int
+	showClosed bool
 }
 
 func (f *filterState) cycleStatus() {
@@ -35,13 +36,18 @@ func (f *filterState) cycleSort() {
 func (f *filterState) clear() {
 	f.statusIdx = 0
 	f.typeIdx = 0
+	f.showClosed = false
 }
 
 func (f filterState) apply(issues []model.Issue) []model.Issue {
-	filtered := tracker.FilterIssues(issues, tracker.FilterOptions{
+	opts := tracker.FilterOptions{
 		Status: statuses[f.statusIdx],
 		Type:   types[f.typeIdx],
-	})
+	}
+	if !f.showClosed && f.statusIdx == 0 {
+		opts.ExcludeStatuses = []string{"done", "cancelled"}
+	}
+	filtered := tracker.FilterIssues(issues, opts)
 	tracker.SortIssues(filtered, sorts[f.sortIdx])
 	return filtered
 }
@@ -49,8 +55,12 @@ func (f filterState) apply(issues []model.Issue) []model.Issue {
 func (f filterState) view() string {
 	var parts []string
 
-	if statuses[f.statusIdx] != "" {
+	if f.statusIdx == 0 && !f.showClosed {
+		parts = append(parts, filterTagStyle.Render("open"))
+	} else if statuses[f.statusIdx] != "" {
 		parts = append(parts, filterTagStyle.Render(statuses[f.statusIdx]))
+	} else if f.showClosed {
+		parts = append(parts, filterTagStyle.Render("all"))
 	}
 	if types[f.typeIdx] != "" {
 		parts = append(parts, filterTagStyle.Render(types[f.typeIdx]))
