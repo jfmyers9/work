@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/jfmyers9/work/internal/model"
 	"github.com/jfmyers9/work/internal/tracker"
 )
@@ -13,13 +12,6 @@ var (
 	statuses = []string{"", "open", "active", "review", "done", "cancelled"}
 	types    = []string{"", "feature", "bug", "chore"}
 	sorts    = []string{"priority", "created", "updated", "title"}
-
-	filterTagStyle = lipgloss.NewStyle().
-			Padding(0, 1).
-			Background(lipgloss.Color("57")).
-			Foreground(lipgloss.Color("229"))
-	filterLabelStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("241"))
 )
 
 type filterState struct {

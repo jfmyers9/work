@@ -1,6 +1,10 @@
 package tui
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 type helpModel struct {
 	visible bool
@@ -54,38 +58,31 @@ func (h helpModel) View(width int) string {
 		},
 	}
 
-	w := min(width-4, 50)
-	border := strings.Repeat("─", w)
-
+	keyCol := 12
 	var b strings.Builder
-	b.WriteString("\n")
-	b.WriteString(dividerStyle.Render("  " + border))
-	b.WriteString("\n")
-	b.WriteString(labelStyle.Render("  Key Bindings"))
-	b.WriteString("\n")
 
-	for _, sec := range sections {
-		b.WriteString("\n")
-		b.WriteString(labelStyle.Render("  " + sec.title))
+	for i, sec := range sections {
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		b.WriteString(sectionStyle.Render(sec.title))
 		b.WriteString("\n")
 		for _, k := range sec.keys {
-			b.WriteString(helpStyle.Render("    "))
-			b.WriteString(titleStyle.Render(padRight(k[0], 10)))
-			b.WriteString(helpStyle.Render(k[1]))
-			b.WriteString("\n")
+			key := keyStyle.Width(keyCol).Render(k[0])
+			desc := descStyle.Render(k[1])
+			b.WriteString("  " + key + desc + "\n")
 		}
 	}
 
-	b.WriteString("\n")
-	b.WriteString(dividerStyle.Render("  " + border))
-	b.WriteString("\n")
-	b.WriteString(helpStyle.Render("  press ? to close"))
-	return b.String()
-}
+	b.WriteString("\n" + helpStyle.Render("press ? to close"))
 
-func padRight(s string, n int) string {
-	if len(s) >= n {
-		return s
-	}
-	return s + strings.Repeat(" ", n-len(s))
+	w := min(width-4, 50)
+	box := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(colorAccent).
+		Padding(1, 3).
+		Width(w).
+		Render(b.String())
+
+	return "\n" + box
 }

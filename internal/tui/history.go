@@ -43,12 +43,15 @@ func (m historyModel) View() string {
 func renderHistory(issueID string, events []model.Event, width int) string {
 	var b strings.Builder
 
-	b.WriteString(labelStyle.Render("History for "))
-	b.WriteString(issueID)
+	b.WriteString("\n")
+	b.WriteString("  " + sectionStyle.Render("History for "+issueID))
+	b.WriteString("\n")
+	contentW := min(width-4, 80)
+	b.WriteString("  " + dividerStyle.Render(strings.Repeat("─", contentW)))
 	b.WriteString("\n\n")
 
 	if len(events) == 0 {
-		b.WriteString("  No events recorded.\n")
+		b.WriteString("  " + helpStyle.Render("No events recorded.") + "\n")
 		return b.String()
 	}
 
@@ -59,9 +62,9 @@ func renderHistory(issueID string, events []model.Event, width int) string {
 		if ev.By != "" {
 			by = " by " + ev.By
 		}
-		b.WriteString(fmt.Sprintf("  %s  %-10s %s%s\n",
-			commentStyle.Render(ts),
-			labelStyle.Render(ev.Op),
+		b.WriteString(fmt.Sprintf("  %s  %s %s%s\n",
+			commentMetaStyle.Render(ts),
+			keyStyle.Width(10).Render(ev.Op),
 			line,
 			helpStyle.Render(by),
 		))

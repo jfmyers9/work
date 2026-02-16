@@ -1,0 +1,1 @@
+{"id":"0092f5","title":"Phase 2: Replace cell rendering with ANSI-aware truncation","status":"done","type":"chore","priority":2,"labels":["tui-display-fix"],"parent_id":"ec9f71","created":"2026-02-16T04:05:31.681241Z","updated":"2026-02-16T04:14:12.166598Z","description":"## Acceptance Criteria"}
