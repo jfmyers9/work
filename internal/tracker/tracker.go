@@ -1,3 +1,4 @@
+// Package tracker implements filesystem-based issue storage and retrieval.
 package tracker
 
 import (

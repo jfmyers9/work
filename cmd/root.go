@@ -1,3 +1,4 @@
+// Package cmd implements the work CLI commands.
 package cmd
 
 import (

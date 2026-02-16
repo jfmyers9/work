@@ -1,2 +1,6 @@
 dist/
 coverage.out
+work
+*.exe
+*.test
+*.dylib

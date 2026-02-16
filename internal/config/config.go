@@ -1,3 +1,4 @@
+// Package config handles tracker configuration and state transitions.
 package config
 
 import (

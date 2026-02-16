@@ -1,3 +1,4 @@
+// Package editor provides interactive text editing and display formatting.
 package editor
 
 import (

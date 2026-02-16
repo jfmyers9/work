@@ -1,3 +1,4 @@
+// Package model defines the core issue, comment, and event types.
 package model
 
 import "time"
