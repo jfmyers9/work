@@ -39,6 +39,6 @@ var linkCmd = &cobra.Command{
 
 func init() {
 	linkCmd.Flags().String("parent", "", "Parent issue ID")
-	linkCmd.MarkFlagRequired("parent")
+	_ = linkCmd.MarkFlagRequired("parent")
 	rootCmd.AddCommand(linkCmd)
 }

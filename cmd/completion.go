@@ -19,15 +19,14 @@ var completionCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch args[0] {
 		case "bash":
-			rootCmd.GenBashCompletionV2(os.Stdout, true)
+			return rootCmd.GenBashCompletionV2(os.Stdout, true)
 		case "zsh":
-			rootCmd.GenZshCompletion(os.Stdout)
+			return rootCmd.GenZshCompletion(os.Stdout)
 		case "fish":
-			rootCmd.GenFishCompletion(os.Stdout, true)
+			return rootCmd.GenFishCompletion(os.Stdout, true)
 		default:
 			return fmt.Errorf("unsupported shell: %s (use bash, zsh, or fish)", args[0])
 		}
-		return nil
 	},
 }
 

@@ -21,10 +21,10 @@ func EditTempFile(content, prefix, editorBin string) (string, error) {
 		return "", fmt.Errorf("creating temp file: %w", err)
 	}
 	tmpPath := f.Name()
-	defer os.Remove(tmpPath)
+	defer func() { _ = os.Remove(tmpPath) }()
 
 	if _, err := f.WriteString(content); err != nil {
-		f.Close()
+		_ = f.Close()
 		return "", fmt.Errorf("writing temp file: %w", err)
 	}
 	if err := f.Close(); err != nil {

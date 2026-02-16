@@ -45,7 +45,7 @@ auto-discovers the work CLI.`,
 
 		existing := make(map[string]any)
 		if data, err := os.ReadFile(settingsPath); err == nil {
-			json.Unmarshal(data, &existing)
+			_ = json.Unmarshal(data, &existing)
 		}
 		existing["hooks"] = map[string]any{
 			"SessionStart": []any{

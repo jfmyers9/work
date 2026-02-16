@@ -190,7 +190,7 @@ func (t *Tracker) AppendEvent(id string, event model.Event) error {
 	if err != nil {
 		return fmt.Errorf("opening history: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	data, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("marshaling event: %w", err)
@@ -343,7 +343,7 @@ func (t *Tracker) LoadEvents(issueID string) ([]model.Event, error) {
 		}
 		return nil, fmt.Errorf("opening history: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var events []model.Event
 	scanner := bufio.NewScanner(f)
@@ -578,7 +578,7 @@ func (t *Tracker) AppendLog(issue model.Issue) error {
 	if err != nil {
 		return fmt.Errorf("opening log: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	data, err := json.Marshal(entry)
 	if err != nil {
 		return fmt.Errorf("marshaling log entry: %w", err)
@@ -597,7 +597,7 @@ func (t *Tracker) LoadLog() ([]LogEntry, error) {
 		}
 		return nil, fmt.Errorf("opening log: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	var entries []LogEntry
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -669,13 +669,15 @@ func (t *Tracker) compactHistory(id string) error {
 	if err != nil {
 		return fmt.Errorf("rewriting history: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	for _, ev := range compacted {
 		data, err := json.Marshal(ev)
 		if err != nil {
 			return fmt.Errorf("marshaling event: %w", err)
 		}
-		fmt.Fprintf(f, "%s\n", data)
+		if _, err := fmt.Fprintf(f, "%s\n", data); err != nil {
+			return fmt.Errorf("writing event: %w", err)
+		}
 	}
 	return nil
 }

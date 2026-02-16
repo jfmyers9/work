@@ -99,7 +99,7 @@ func TestGenerateID_Format(t *testing.T) {
 		t.Errorf("length: got %d, want 6", len(id))
 	}
 	for _, c := range id {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 			t.Errorf("non-hex char %q in id %q", c, id)
 		}
 	}
@@ -2053,7 +2053,7 @@ func readEvents(t *testing.T, path string) []model.Event {
 	if err != nil {
 		t.Fatalf("open history: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	var events []model.Event
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {

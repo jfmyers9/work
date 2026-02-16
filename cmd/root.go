@@ -44,20 +44,20 @@ func init() {
 }
 
 func printHelp(w *os.File) {
-	fmt.Fprintln(w, "usage: work <command> [args]")
-	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Commands:")
+	_, _ = fmt.Fprintln(w, "usage: work <command> [args]")
+	_, _ = fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w, "Commands:")
 	for _, c := range rootCmd.Commands() {
 		if c.Name() == "completion" || c.Name() == "help" {
 			continue
 		}
-		fmt.Fprintf(w, "  %-14s%s\n", c.Name(), c.Short)
+		_, _ = fmt.Fprintf(w, "  %-14s%s\n", c.Name(), c.Short)
 	}
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 }
