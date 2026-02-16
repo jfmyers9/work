@@ -8,17 +8,40 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/jfmyers9/work/internal/model"
 )
 
+// Table cell styles for custom rendering. We bypass the bubbles
+// table's renderRow (which uses ANSI-unaware runewidth.Truncate)
+// and render cells ourselves with ansi.Truncate.
+var (
+	listHeaderCellStyle = lipgloss.NewStyle().
+		Padding(0, 1).
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(colorOverlay).
+		BorderBottom(true).
+		Bold(true).
+		Foreground(colorSubtext)
+
+	listCellStyle = lipgloss.NewStyle().Padding(0, 1)
+
+	listSelectedStyle = lipgloss.NewStyle().
+				Foreground(colorText).
+				Background(colorOverlay).
+				Bold(true)
+)
+
 type listModel struct {
-	table     table.Model
-	allIssues []model.Issue
-	filters   filterState
-	searching bool
-	search    textinput.Model
-	query     string
-	width     int
+	table        table.Model
+	allIssues    []model.Issue
+	filters      filterState
+	searching    bool
+	search       textinput.Model
+	query        string
+	width        int
+	tableHeight  int
+	scrollOffset int
 }
 
 func newListModel(issues []model.Issue, width int) listModel {
@@ -27,23 +50,33 @@ func newListModel(issues []model.Issue, width int) listModel {
 	si.CharLimit = 128
 	si.Width = 40
 
-	m := listModel{allIssues: issues, search: si, width: width}
+	m := listModel{allIssues: issues, search: si, width: width, tableHeight: 20}
 	m.table = newTable(width)
 	m.rebuildRows()
 	return m
 }
 
+// tableColumns computes column content widths. cellPad accounts for
+// Padding(0, 1) on each cell (1 left + 1 right = 2 per column).
 func tableColumns(width int) []table.Column {
-	const fixed = 8 + 10 + 8 + 4 + 6
+	const (
+		idW     = 8
+		statusW = 10
+		typeW   = 8
+		priW    = 4
+		cellPad = 2
+		numCols = 5
+	)
+	fixed := idW + statusW + typeW + priW + numCols*cellPad
 	titleW := width - fixed
 	if titleW < 20 {
 		titleW = 20
 	}
 	return []table.Column{
-		{Title: "ID", Width: 8},
-		{Title: "Status", Width: 10},
-		{Title: "Type", Width: 8},
-		{Title: "Pri", Width: 4},
+		{Title: "ID", Width: idW},
+		{Title: "Status", Width: statusW},
+		{Title: "Type", Width: typeW},
+		{Title: "Pri", Width: priW},
 		{Title: "Title", Width: titleW},
 	}
 }
@@ -96,12 +129,35 @@ func (m *listModel) rebuildRows() {
 		}
 	}
 	m.table.SetRows(rows)
+	m.clampScroll()
 }
 
 func (m *listModel) resize(width, height int) {
 	m.width = width
 	m.table.SetColumns(tableColumns(width))
-	m.table.SetHeight(height - 5)
+	m.tableHeight = height - 5
+	m.table.SetHeight(m.tableHeight)
+	m.clampScroll()
+}
+
+func (m *listModel) clampScroll() {
+	cursor := m.table.Cursor()
+	if cursor < m.scrollOffset {
+		m.scrollOffset = cursor
+	}
+	if m.tableHeight > 0 && cursor >= m.scrollOffset+m.tableHeight {
+		m.scrollOffset = cursor - m.tableHeight + 1
+	}
+	maxOffset := len(m.table.Rows()) - m.tableHeight
+	if maxOffset < 0 {
+		maxOffset = 0
+	}
+	if m.scrollOffset > maxOffset {
+		m.scrollOffset = maxOffset
+	}
+	if m.scrollOffset < 0 {
+		m.scrollOffset = 0
+	}
 }
 
 func (m listModel) Update(msg tea.Msg) (listModel, tea.Cmd) {
@@ -157,7 +213,66 @@ func (m listModel) Update(msg tea.Msg) (listModel, tea.Cmd) {
 
 	var cmd tea.Cmd
 	m.table, cmd = m.table.Update(msg)
+	m.clampScroll()
 	return m, cmd
+}
+
+// renderTable builds table output with ANSI-aware truncation.
+// Styling is applied AFTER truncation so ANSI escape codes don't
+// consume the column width budget.
+func (m listModel) renderTable() string {
+	rows := m.table.Rows()
+	cols := tableColumns(m.width)
+	cursor := m.table.Cursor()
+
+	hCells := make([]string, len(cols))
+	for i, col := range cols {
+		truncated := ansi.Truncate(col.Title, col.Width, "…")
+		inner := lipgloss.NewStyle().
+			Width(col.Width).MaxWidth(col.Width).Inline(true).
+			Render(truncated)
+		hCells[i] = listHeaderCellStyle.Render(inner)
+	}
+	header := lipgloss.JoinHorizontal(lipgloss.Top, hCells...)
+
+	start := m.scrollOffset
+	end := start + m.tableHeight
+	if end > len(rows) {
+		end = len(rows)
+	}
+
+	dataLines := make([]string, 0, end-start)
+	for r := start; r < end; r++ {
+		cells := make([]string, len(cols))
+		for i, value := range rows[r] {
+			styled := styleCellValue(i, value)
+			truncated := ansi.Truncate(styled, cols[i].Width, "…")
+			inner := lipgloss.NewStyle().
+				Width(cols[i].Width).MaxWidth(cols[i].Width).Inline(true).
+				Render(truncated)
+			cells[i] = listCellStyle.Render(inner)
+		}
+		row := lipgloss.JoinHorizontal(lipgloss.Top, cells...)
+		if r == cursor {
+			row = listSelectedStyle.Render(row)
+		}
+		dataLines = append(dataLines, row)
+	}
+
+	return header + "\n" + strings.Join(dataLines, "\n")
+}
+
+func styleCellValue(col int, value string) string {
+	switch col {
+	case 1:
+		return styledStatus(value)
+	case 2:
+		return styledType(value)
+	case 3:
+		return styledPriority(priorityFromLabel(value))
+	default:
+		return value
+	}
 }
 
 func (m listModel) View() string {
@@ -178,21 +293,7 @@ func (m listModel) View() string {
 		return filterBar + "\n\n  " + empty + "\n"
 	}
 
-	styled := make([]table.Row, len(rows))
-	for i, row := range rows {
-		styled[i] = table.Row{
-			row[0],
-			styledStatus(row[1]),
-			styledType(row[2]),
-			styledPriority(priorityFromLabel(row[3])),
-			row[4],
-		}
-	}
-	m.table.SetRows(styled)
-	out := m.table.View()
-	m.table.SetRows(rows)
-
-	return filterBar + "\n" + out
+	return filterBar + "\n" + m.renderTable()
 }
 
 func priorityFromLabel(s string) int {

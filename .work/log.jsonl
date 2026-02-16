@@ -135,3 +135,13 @@
 {"id":"264308","title":"Phase 6: Help screen and empty states","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:22.86646Z","closed":"2026-02-16T03:09:14.205736Z"}
 {"id":"9d1256","title":"Phase 7: Final polish and adaptivity","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:25.262332Z","closed":"2026-02-16T03:09:14.218591Z"}
 {"id":"fe5cdb","title":"Plan: TUI visual polish","type":"chore","status":"done","labels":["tui-polish"],"created":"2026-02-16T02:56:11.399985Z","closed":"2026-02-16T03:09:14.230982Z"}
+{"id":"19124e","title":"Fix: description first character cutoff in detail view","type":"bug","status":"done","labels":["fix"],"created":"2026-02-16T03:20:20.828682Z","closed":"2026-02-16T03:43:11.649991Z"}
+{"id":"2a53d4","title":"Phase 1: Remove MarginTop from sectionStyle","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:07.839612Z","closed":"2026-02-16T03:46:36.167764Z"}
+{"id":"617abb","title":"Fix: description first-char cutoff","type":"bug","status":"done","labels":["desc-cutoff-fix"],"created":"2026-02-16T03:43:01.849935Z","closed":"2026-02-16T03:46:36.184382Z"}
+{"id":"cfb541","title":"Explore: TUI display bugs — truncated text and missing columns","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T03:58:05.543205Z","closed":"2026-02-16T04:05:56.641396Z"}
+{"id":"dc1552","title":"Phase 1: Fix column width arithmetic","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:26.011598Z","closed":"2026-02-16T04:14:12.151701Z"}
+{"id":"0092f5","title":"Phase 2: Replace cell rendering with ANSI-aware truncation","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:31.681241Z","closed":"2026-02-16T04:14:12.166598Z"}
+{"id":"6fba12","title":"Phase 3: Move cell styling into rendering layer","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:36.093651Z","closed":"2026-02-16T04:14:12.18117Z"}
+{"id":"230483","title":"Phase 4: Handle edge cases and test","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:41.646391Z","closed":"2026-02-16T04:14:39.142065Z"}
+{"id":"2ed912","title":"Phase 5: Clean up Cell style configuration","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:50.501115Z","closed":"2026-02-16T04:14:39.157241Z"}
+{"id":"ec9f71","title":"Plan: TUI display bugs fix","type":"chore","status":"done","labels":["tui-display-fix"],"created":"2026-02-16T04:05:20.384278Z","closed":"2026-02-16T04:14:43.406213Z"}

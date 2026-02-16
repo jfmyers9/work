@@ -78,8 +78,7 @@ var (
 
 	sectionStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(colorLavender).
-			MarginTop(1)
+			Foreground(colorLavender)
 
 	// Tags/pills
 	filterTagStyle = lipgloss.NewStyle().
