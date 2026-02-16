@@ -1,5 +1,9 @@
 # work
 
+> **Deprecated:** This project is no longer maintained. Use
+> [Claude Code Tasks](https://docs.anthropic.com/en/docs/claude-code/tasks)
+> for native task management within Claude Code.
+
 [![CI](https://github.com/jfmyers9/work/actions/workflows/ci.yml/badge.svg)](https://github.com/jfmyers9/work/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jfmyers9/work.svg)](https://pkg.go.dev/github.com/jfmyers9/work)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jfmyers9/work)](https://goreportcard.com/report/github.com/jfmyers9/work)

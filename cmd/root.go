@@ -18,6 +18,9 @@ var rootCmd = &cobra.Command{
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Fprintln(os.Stderr, "WARNING: work is deprecated. Use Claude Code Tasks for native task management.")
+		fmt.Fprintln(os.Stderr, "  https://docs.anthropic.com/en/docs/claude-code/tasks")
+		fmt.Fprintln(os.Stderr)
 		var err error
 		cfg, err = config.Load()
 		return err
